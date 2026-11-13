@@ -236,9 +236,31 @@ No se aplican tildes que se sabe erróneas en esas fuentes (ej. `Salóm`, `Mará
 | VE151203 | Santa Barbará                        | Santa Bárbara                        | tilde mal ubicada    |
 | VE230503 | Santa Barbará                        | Santa Bárbara                        | tilde mal ubicada    |
 
+### 4. Errores de tipeo y nombres truncados
+
+Corregidos solo con evidencia externa (INE, prensa local, Wikipedia o el nombre
+de la persona homenajeada).
+
+| Código   | Antes                        | Después                       | Evidencia                                                             |
+| -------- | ---------------------------- | ----------------------------- | --------------------------------------------------------------------- |
+| VE1806   | Monseñor José Vicente de Und | Monseñor José Vicente de Unda | Truncado; la parroquia capital del municipio tiene el nombre completo |
+| VE2107   | José Felipe Márquez Cañizal  | José Felipe Márquez Cañizalez | Truncado; marydn                                                      |
+| VE1410   | Julio César Sala             | Julio César Salas             | Truncado; marydn                                                      |
+| VE0508   | Mario Briceño Iragorri       | Mario Briceño Iragorry        | Apellido del escritor; la parroquia homónima ya dice Iragorry         |
+| VE2308   | Jesús María Semprum          | Jesús María Semprún           | INE (censo 2011, Zulia)                                               |
+| VE230801 | Jesús María Semprum          | Jesús María Semprún           | INE (censo 2011, Zulia)                                               |
+| VE010115 | San Bernandino               | San Bernardino                | Error de tipeo; marydn                                                |
+| VE112303 | Las Vegas Deltuy             | Las Vegas del Tuy             | Falta un espacio; marydn                                              |
+| VE070204 | Guainiamo                    | Guaniamo                      | Río y pueblo Guaniamo; marydn                                         |
+| VE071002 | Ariapo                       | Aripao                        | Pueblo Aripao; marydn                                                 |
+| VE071005 | Motiaco                      | Moitaco                       | Pueblo Moitaco; marydn                                                |
+| VE040402 | Arismendi                    | Aramendi                      | Prensa local y Wikipedia; prócer Francisco Aramendi                   |
+| VE061003 | Palacios Fajardo             | Palacio Fajardo               | Prócer Manuel Palacio Fajardo; Wikipedia                              |
+| VE210206 | General Rivas                | General Ribas                 | Prensa local (Diario de los Andes); José Félix Ribas                  |
+
 ## Problemas conocidos
 
-- Algunos nombres tienen errores de tipeo o están truncados (ej. `San Bernandino`, `Monseñor José Vicente de Und`).
+- `VE171002` (Tubores): OCHA dice `Los Barales`, otras fuentes `Los Baleales`; sin fuente que desempate.
 - Faltan parroquias en al menos 5 municipios (ej. Maroa, Julio César Salas, Francisco Javier Pulgar);
   los huecos en la numeración de códigos lo delatan.
 - Algunos municipios de Amazonas incluyen el prefijo `Autónomo` en el nombre.
