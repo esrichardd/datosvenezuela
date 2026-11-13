@@ -10,9 +10,12 @@
   de Venezuela para el Sistema de Cámara de Compensación Electrónica. Son los primeros
   4 dígitos de una cuenta bancaria de 20 dígitos. Es texto: el cero inicial es parte del código.
 - **`name`**: nombre comercial de la institución.
+- **`legal_name`**: razón social, tal como la publica la fuente. La puntuación varía
+  entre bancos (`C.A. Banco Universal` vs `Banco Universal, C.A.`) porque cada uno
+  la registra a su manera; no se normaliza.
 
 **Criterio:** solo instituciones bancarias **activas**, más el Banco Central de Venezuela
-(`0001`). No se incluyen nombre legal ni RIF: ninguna de las fuentes consultadas los trae.
+(`0001`). No se incluye el RIF.
 
 ## Fuentes
 
@@ -44,9 +47,17 @@ Consultado el 2026-11-13.
 | 0190   | Citibank N.A.                          | Citigroup vendió su negocio en Venezuela al Banco Nacional de Crédito |
 | 0601   | Instituto Municipal de Crédito Popular | Activo, pero no es un banco                                           |
 
+## Ajustes al nombre legal
+
+- `0168`: `S.A` → `S.A.` (faltaba el punto en la fuente).
+- `0177`: se quita la sigla `(BANFANB)` que el directorio agrega al final.
+- `0001`: el Banco Central de Venezuela no tiene sufijo societario.
+
 ## Problemas conocidos
 
 - `0166` Banco Agrícola de Venezuela figura en los informes de 2026 con actividad mínima;
   se mantiene mientras siga reportado.
+- `0169` y `0173`: el nombre legal viene de directorios empresariales, no de una
+  publicación del propio banco; la puntuación podría variar levemente.
 - Los códigos son estables, pero la lista de bancos cambia por fusiones y nuevas
   autorizaciones: debe revisarse periódicamente.
