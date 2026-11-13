@@ -31,7 +31,12 @@ estado (`VE14`) → municipio (`VE1401`) → parroquia (`VE140101`).
    creó solo para completar la jerarquía; no existen como municipio ni parroquia reales.
 2. **`type`**: agregado por este proyecto (`state`, `capital_district`, `federal_dependencies`).
 3. **`iso_3166_2`**: agregado por este proyecto según el estándar ISO 3166-2:VE.
-4. Nombres: copiados tal cual de la fuente. Las correcciones se registran abajo.
+4. **`capital`**: agregado por este proyecto. Nombre de la ciudad capital de cada
+   entidad, contrastado con [marydn/venezuela-sql](https://github.com/marydn/venezuela-sql)
+   (corrigiendo su escritura: `San Cristóbal`, `San Juan de los Morros`). Se usa la
+   forma de uso común `Coro` (nombre histórico: Santa Ana de Coro). Las Dependencias
+   Federales no tienen capital: el campo queda vacío.
+5. Nombres: copiados tal cual de la fuente. Las correcciones se registran abajo.
 
 ## Convenciones
 
@@ -268,4 +273,4 @@ de la persona homenajeada).
 - En municipios con varias parroquias, la parroquia capital lleva el nombre del municipio
   (convención del INE). Algunas fuentes la nombran por el pueblo capital (ej. Miranda/Timotes
   en Mérida, Diego Bautista Urbaneja/Lechería en Anzoátegui); sin verificar contra leyes estadales.
-- No incluye capitales de estados ni de municipios.
+- No incluye capitales de municipios.
