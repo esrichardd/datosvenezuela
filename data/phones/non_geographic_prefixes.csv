@@ -1,0 +1,5 @@
+code,description
+400,Número personal universal
+500,Acceso universal
+501,Acceso universal con cargo al llamante
+800,Acceso universal con cargo al destino (gratuito para quien llama)
