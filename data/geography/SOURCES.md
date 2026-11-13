@@ -15,11 +15,11 @@
 
 ## Archivos
 
-| Archivo              | Registros | Columnas                             |
-| -------------------- | --------- | ------------------------------------ |
-| `states.csv`         | 25        | `code`, `name`, `type`, `iso_3166_2` |
-| `municipalities.csv` | 335       | `code`, `state_code`, `name`         |
-| `parishes.csv`       | 1.134     | `code`, `municipality_code`, `name`  |
+| Archivo              | Registros | Columnas                                        |
+| -------------------- | --------- | ----------------------------------------------- |
+| `states.csv`         | 25        | `code`, `name`, `type`, `iso_3166_2`, `capital` |
+| `municipalities.csv` | 335       | `code`, `state_code`, `name`                    |
+| `parishes.csv`       | 1.134     | `code`, `municipality_code`, `name`             |
 
 Los códigos (`code`) son los P-codes del dataset de OCHA. Siguen la jerarquía
 estado (`VE14`) → municipio (`VE1401`) → parroquia (`VE140101`).
