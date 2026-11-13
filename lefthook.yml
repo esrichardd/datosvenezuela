@@ -1,0 +1,39 @@
+# Git hooks managed by lefthook (https://lefthook.dev).
+# Install them once after cloning with: make setup
+#
+# Hooks are a local convenience and can be skipped with --no-verify.
+# CI runs the same checks and is the real gate.
+
+pre-commit:
+  commands:
+    # Format staged Go files and add the fixes to the commit.
+    go-fmt:
+      root: "api/"
+      glob: "*.go"
+      run: golangci-lint fmt {staged_files}
+      stage_fixed: true
+      priority: 1
+    go-lint:
+      root: "api/"
+      glob: "*.go"
+      run: golangci-lint run ./...
+      priority: 2
+
+commit-msg:
+  commands:
+    # Enforce Conventional Commits: type(scope): description
+    conventional-commit:
+      run: |
+        msg=$(head -n 1 "{1}")
+        if ! printf '%s' "$msg" | grep -qE '^(Merge |Revert )|^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-]+\))?!?: .+'; then
+          echo "Invalid commit message: \"$msg\""
+          echo "Expected Conventional Commits, e.g.: feat(api): add health endpoint"
+          echo "Types: feat fix docs style refactor perf test build ci chore revert"
+          exit 1
+        fi
+
+pre-push:
+  commands:
+    go-test:
+      root: "api/"
+      run: go test -race ./...

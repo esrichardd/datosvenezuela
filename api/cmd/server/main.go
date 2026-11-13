@@ -50,7 +50,7 @@ func run(logger *slog.Logger) error {
 		return err
 	}
 
-	// ctx is cancelled when the process receives Ctrl+C (SIGINT) or SIGTERM,
+	// ctx is canceled when the process receives Ctrl+C (SIGINT) or SIGTERM,
 	// which is what Docker and most process managers send to stop a service.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
