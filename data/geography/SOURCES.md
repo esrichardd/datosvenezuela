@@ -33,13 +33,76 @@ estado (`VE14`) → municipio (`VE1401`) → parroquia (`VE140101`).
 3. **`iso_3166_2`**: agregado por este proyecto según el estándar ISO 3166-2:VE.
 4. Nombres: copiados tal cual de la fuente. Las correcciones se registran abajo.
 
+## Convenciones
+
+- **Municipios sin división parroquial.** Algunos municipios no se dividen en
+  parroquias (el INE los marca como "no tiene parroquia"). Se representan con
+  **una única parroquia con el mismo nombre que el municipio**, para que la
+  jerarquía estado → municipio → parroquia esté siempre completa. Un municipio
+  con exactamente una parroquia es, por definición, uno de estos casos.
+
 ## Correcciones
 
-Ninguna todavía.
+### 1. Parroquias de municipios sin división parroquial
+
+La fuente nombra estas parroquias de forma inconsistente: con prefijos estadísticos
+del INE (`Capital X`, `Urbana X`, `Sección Capital X`), con el nombre de la capital
+del municipio o con nombres incompletos. Se renombran según la convención de arriba.
+El código no cambia.
+
+| Código             | Antes                             | Después                  |
+| ------------------ | --------------------------------- | ------------------------ |
+| VE1611 (municipio) | Santa Babara                      | Santa Bárbara            |
+| VE031501           | Capital San José de Guanipa       | San José de Guanipa      |
+| VE040201           | Urbana Biruaca                    | Biruaca                  |
+| VE050101           | Capital Bolívar                   | Bolívar                  |
+| VE050401           | Capital José Ángel Lamas          | José Ángel Lamas         |
+| VE050601           | Capital José Rafael Revenga       | José Rafael Revenga      |
+| VE051001           | Capital San Sebastián             | San Sebastián            |
+| VE051401           | Capital Tovar                     | Tovar                    |
+| VE070301           | Sección Capital el Callao         | El Callao                |
+| VE071101           | Sección Capital Padre Pedro Chien | Padre Pedro Chien        |
+| VE080701           | Urbana los Guayos                 | Los Guayos               |
+| VE080801           | Urbana Miranda                    | Miranda                  |
+| VE080901           | Urbana Montalbán                  | Montalbán                |
+| VE081001           | Urbana Naguanagua                 | Naguanagua               |
+| VE081201           | Urbana San Diego                  | San Diego                |
+| VE081301           | Urbana San Joaquín                | San Joaquín              |
+| VE090501           | El Pao                            | Pao de San Juan Bautista |
+| VE150501           | Mamporal                          | Buroz                    |
+| VE151301           | San Antonio de los Altos          | Los Salías               |
+| VE151501           | Santa Lucia                       | Paz Castillo             |
+| VE151701           | Guarenas                          | Plaza                    |
+| VE161101           | Santa Barbará                     | Santa Bárbara            |
+| VE170101           | Capital Antolín del Campo         | Antolín del Campo        |
+| VE170201           | Capital Arismendi                 | Arismendi                |
+| VE170801           | Capital Mariño                    | Mariño                   |
+| VE180101           | Capital Agua Blanca               | Agua Blanca              |
+| VE190601           | Capital Bolívar                   | Bolívar                  |
+| VE191101           | Capital Mejía                     | Mejía                    |
+| VE200101           | Capital Andrés Bello              | Andrés Bello             |
+| VE200201           | Antonio Rómulo Acosta             | Antonio Rómulo Costa     |
+| VE200601           | Capital Córdoba                   | Córdoba                  |
+| VE200801           | San José de Bolívar               | Francisco de Miranda     |
+| VE201001           | Capital Guasimos                  | Guasimos                 |
+| VE201301           | Vargas                            | José María Vargas        |
+| VE201801           | Capital Michelena                 | Michelena                |
+| VE202101           | Delicias                          | Rafael Urdaneta          |
+| VE202401           | Capital Seboruco                  | Seboruco                 |
+
+Notas:
+
+- `VE1611`: el municipio se corrige de `Santa Babara` a `Santa Bárbara` (error de tipeo).
+- `VE200201`: el censo INE 2011 escribe "Acosta", pero el municipio lleva el nombre de
+  Antonio Rómulo Costa (1872–1956) y el propio INE usa "Costa" en otras publicaciones.
+- No se renombra `VE090901` (Tinaco → `General en Jefe José Laurencio Silva`):
+  OCHA y otras fuentes coinciden en ese nombre.
 
 ## Problemas conocidos
 
 - Algunos nombres no tienen tilde o tienen errores (ej. `Antimano`, `San Bernandino`).
+- Faltan parroquias en al menos 5 municipios (ej. Maroa, Julio César Salas, Francisco Javier Pulgar);
+  los huecos en la numeración de códigos lo delatan.
 - Algunos municipios de Amazonas incluyen el prefijo `Autónomo` en el nombre.
 - La fuente refleja la división vigente al 2021-02-23; cambios posteriores deben verificarse.
 - No incluye capitales de estados ni de municipios.

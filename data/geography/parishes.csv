@@ -82,7 +82,7 @@ VE031303,VE0313,Santa Rosa
 VE031304,VE0313,Úrica
 VE031401,VE0314,Capital Piritu
 VE031402,VE0314,San Francisco
-VE031501,VE0315,Capital San José de Guanipa
+VE031501,VE0315,San José de Guanipa
 VE031601,VE0316,Capital San Juan de Capistrano
 VE031602,VE0316,Boca de Chávez
 VE031701,VE0317,Santa Ana
@@ -105,7 +105,7 @@ VE040103,VE0401,El Yagual
 VE040104,VE0401,Guachara
 VE040105,VE0401,Mucuritas
 VE040106,VE0401,Queseras del Medio
-VE040201,VE0402,Urbana Biruaca
+VE040201,VE0402,Biruaca
 VE040301,VE0403,Urbana Bruzual
 VE040302,VE0403,Mantecal
 VE040303,VE0403,Quintero
@@ -125,7 +125,7 @@ VE040701,VE0407,Urbana San Fernando de Apure
 VE040702,VE0407,El Recreo
 VE040703,VE0407,Peñalver
 VE040704,VE0407,San Rafael de Atamaica
-VE050101,VE0501,Capital Bolívar
+VE050101,VE0501,Bolívar
 VE050201,VE0502,Camatagua
 VE050202,VE0502,No Urbana Carmen de Cura
 VE050302,VE0503,No Urbana Choroni
@@ -136,13 +136,13 @@ VE050306,VE0503,Urbana Pedro José Ovalles
 VE050307,VE0503,Urbana José Casanova Godoy
 VE050308,VE0503,Urbana Andrés Eloy Blanco
 VE050309,VE0503,Urbana los Tacariguas
-VE050401,VE0504,Capital José Ángel Lamas
+VE050401,VE0504,José Ángel Lamas
 VE050501,VE0505,Urbana Juan Vicente Bolívar y Ponte
 VE050502,VE0505,Urbana Castor Nieves Ríos
 VE050503,VE0505,No Urbana las Guacamayas
 VE050504,VE0505,No Urbana Pao de Zarate
 VE050505,VE0505,No Urbana Zuata
-VE050601,VE0506,Capital José Rafael Revenga
+VE050601,VE0506,José Rafael Revenga
 VE050701,VE0507,Libertador
 VE050702,VE0507,No Urbana San Martin de Porres
 VE050801,VE0508,Mario Briceño Iragorry
@@ -151,7 +151,7 @@ VE050901,VE0509,San Casimiro
 VE050902,VE0509,No Urbana Guiripa
 VE050903,VE0509,No Urbana Ollas de Caramacate
 VE050904,VE0509,No Urbana Valle Morín
-VE051001,VE0510,Capital San Sebastián
+VE051001,VE0510,San Sebastián
 VE051101,VE0511,Santiago Mariño
 VE051102,VE0511,No Urbana Arévalo Aponte
 VE051103,VE0511,No Urbana Chuao
@@ -161,7 +161,7 @@ VE051201,VE0512,Santos Michelena
 VE051202,VE0512,No Urbana Tiara
 VE051301,VE0513,Sucre
 VE051302,VE0513,No Urbana Bella Vista
-VE051401,VE0514,Capital Tovar
+VE051401,VE0514,Tovar
 VE051501,VE0515,Urdaneta
 VE051502,VE0515,No Urbana las Peñitas
 VE051503,VE0515,No Urbana San Francisco de Cara
@@ -246,7 +246,7 @@ VE070203,VE0702,Ascensión Farreras
 VE070204,VE0702,Guainiamo
 VE070205,VE0702,La Urbana
 VE070206,VE0702,Pijiguaos
-VE070301,VE0703,Sección Capital el Callao
+VE070301,VE0703,El Callao
 VE070401,VE0704,Sección Capital Gran Sabana
 VE070402,VE0704,Ikabaru
 VE070501,VE0705,Agua Salada
@@ -275,7 +275,7 @@ VE071002,VE0710,Ariapo
 VE071003,VE0710,Guarataro
 VE071004,VE0710,Las Majadas
 VE071005,VE0710,Motiaco
-VE071101,VE0711,Sección Capital Padre Pedro Chien
+VE071101,VE0711,Padre Pedro Chien
 VE080101,VE0801,Urbana Bejuma
 VE080102,VE0801,No Urbana Canoabo
 VE080103,VE0801,No Urbana Simón Bolívar
@@ -291,10 +291,10 @@ VE080501,VE0805,Urbana Morón
 VE080502,VE0805,No Urbana Urama
 VE080601,VE0806,Urbana Tocuyito
 VE080602,VE0806,Urbana Independencia
-VE080701,VE0807,Urbana los Guayos
-VE080801,VE0808,Urbana Miranda
-VE080901,VE0809,Urbana Montalbán
-VE081001,VE0810,Urbana Naguanagua
+VE080701,VE0807,Los Guayos
+VE080801,VE0808,Miranda
+VE080901,VE0809,Montalbán
+VE081001,VE0810,Naguanagua
 VE081101,VE0811,Urbana Bartolomé Salom
 VE081102,VE0811,Urbana Democracia
 VE081103,VE0811,Urbanafraternidad
@@ -303,8 +303,8 @@ VE081105,VE0811,Urbana Juan José Flores
 VE081106,VE0811,Urbana Unión
 VE081107,VE0811,No Urbana Borburata
 VE081108,VE0811,No Urbana Patanemo
-VE081201,VE0812,Urbana San Diego
-VE081301,VE0813,Urbana San Joaquín
+VE081201,VE0812,San Diego
+VE081301,VE0813,San Joaquín
 VE081401,VE0814,Urbana Candelaria
 VE081402,VE0814,Urbana Catedral
 VE081403,VE0814,Urbana el Socorro
@@ -321,7 +321,7 @@ VE090301,VE0903,El Baúl
 VE090302,VE0903,Sucre
 VE090401,VE0904,Macapo
 VE090402,VE0904,La Aguadita
-VE090501,VE0905,El Pao
+VE090501,VE0905,Pao de San Juan Bautista
 VE090601,VE0906,Libertad de Cojedes
 VE090602,VE0906,El Amparo
 VE090701,VE0907,Rómulo Gallegos
@@ -630,7 +630,7 @@ VE150303,VE1503,Las Minas de Baruta
 VE150401,VE1504,Higuerote
 VE150402,VE1504,Curiepe
 VE150403,VE1504,Tacarigua
-VE150501,VE1505,Mamporal
+VE150501,VE1505,Buroz
 VE150601,VE1506,Carrizal
 VE150701,VE1507,Chacao
 VE150801,VE1508,Charallave
@@ -648,16 +648,16 @@ VE151102,VE1511,El Cartanal
 VE151201,VE1512,Ocumare del Tuy
 VE151202,VE1512,La Democracia
 VE151203,VE1512,Santa Barbará
-VE151301,VE1513,San Antonio de los Altos
+VE151301,VE1513,Los Salías
 VE151401,VE1514,Rio Chico
 VE151402,VE1514,El Guapo
 VE151403,VE1514,Tacarigua de la Laguna
 VE151404,VE1514,Páparo
 VE151405,VE1514,San Fernando del Guapo
-VE151501,VE1515,Santa Lucia
+VE151501,VE1515,Paz Castillo
 VE151601,VE1516,Cupira
 VE151602,VE1516,Machurucuto
-VE151701,VE1517,Guarenas
+VE151701,VE1517,Plaza
 VE151801,VE1518,San Francisco de Yare
 VE151802,VE1518,San Antonio de Yare
 VE151901,VE1519,Petare
@@ -709,12 +709,12 @@ VE160906,VE1609,La Toscana
 VE160907,VE1609,Taguaya
 VE161001,VE1610,Capital Punceres
 VE161002,VE1610,Cachipo
-VE161101,VE1611,Santa Barbará
+VE161101,VE1611,Santa Bárbara
 VE161201,VE1612,Capital Sotillo
 VE161202,VE1612,Los Barrancos de Fajardo
 VE161301,VE1613,Uracoa
-VE170101,VE1701,Capital Antolín del Campo
-VE170201,VE1702,Capital Arismendi
+VE170101,VE1701,Antolín del Campo
+VE170201,VE1702,Arismendi
 VE170301,VE1703,Capital Díaz
 VE170302,VE1703,Zabala
 VE170401,VE1704,Capital García
@@ -728,14 +728,14 @@ VE170601,VE1706,Capital Maneiro
 VE170602,VE1706,Aguirre
 VE170701,VE1707,Capital Marcano
 VE170702,VE1707,Adrian
-VE170801,VE1708,Capital Mariño
+VE170801,VE1708,Mariño
 VE170901,VE1709,Capital Península de Macanao
 VE170902,VE1709,San Francisco
 VE171001,VE1710,Capital Tubores
 VE171002,VE1710,Los Barales
 VE171101,VE1711,Capital Villalba
 VE171102,VE1711,Vicente Fuentes
-VE180101,VE1801,Capital Agua Blanca
+VE180101,VE1801,Agua Blanca
 VE180201,VE1802,Capital Araure
 VE180202,VE1802,Rio Acarigua
 VE180301,VE1803,Capital Esteller
@@ -796,7 +796,7 @@ VE190502,VE1905,Macarapana
 VE190503,VE1905,Santa Catalina
 VE190504,VE1905,Santa Rosa
 VE190505,VE1905,Santa Teresa
-VE190601,VE1906,Capital Bolívar
+VE190601,VE1906,Bolívar
 VE190701,VE1907,Yaguaraparo
 VE190702,VE1907,El Paujil
 VE190703,VE1907,Libertad
@@ -810,7 +810,7 @@ VE191002,VE1910,Campo Claro
 VE191003,VE1910,Marabal
 VE191004,VE1910,San Antonio de Irapa
 VE191005,VE1910,Soro
-VE191101,VE1911,Capital Mejía
+VE191101,VE1911,Mejía
 VE191201,VE1912,Cumanacoa
 VE191202,VE1912,Arenas
 VE191203,VE1912,Aricagua
@@ -833,8 +833,8 @@ VE191501,VE1915,Guiria
 VE191502,VE1915,Bideau
 VE191503,VE1915,Cristóbal Colon
 VE191504,VE1915,Punta de Piedras
-VE200101,VE2001,Capital Andrés Bello
-VE200201,VE2002,Antonio Rómulo Acosta
+VE200101,VE2001,Andrés Bello
+VE200201,VE2002,Antonio Rómulo Costa
 VE200301,VE2003,Ayacucho
 VE200302,VE2003,Rivas Berti
 VE200303,VE2003,San Pedro del Rio
@@ -845,22 +845,22 @@ VE200404,VE2004,Isaías Medina Angarita
 VE200501,VE2005,Cárdenas
 VE200502,VE2005,Amenodoro Rangel Lamus
 VE200503,VE2005,La Florida
-VE200601,VE2006,Capital Córdoba
+VE200601,VE2006,Córdoba
 VE200701,VE2007,Fernández Feo
 VE200702,VE2007,Alberto Adriani
 VE200703,VE2007,Santo Domingo
-VE200801,VE2008,San José de Bolívar
+VE200801,VE2008,Francisco de Miranda
 VE200901,VE2009,García de Hevia
 VE200902,VE2009,Boca de Grita
 VE200903,VE2009,José Antonio Páez
-VE201001,VE2010,Capital Guasimos
+VE201001,VE2010,Guasimos
 VE201101,VE2011,Independencia
 VE201102,VE2011,Juan Germán Roscio
 VE201103,VE2011,Román Cárdenas
 VE201201,VE2012,Jáuregui
 VE201202,VE2012,Emilio Constantino Guerrero
 VE201203,VE2012,Monseñor Miguel Antonio Salas
-VE201301,VE2013,Vargas
+VE201301,VE2013,José María Vargas
 VE201401,VE2014,Junín
 VE201402,VE2014,La Petrolea
 VE201403,VE2014,Quinimari
@@ -874,12 +874,12 @@ VE201603,VE2016,Doradas
 VE201604,VE2016,San Joaquín de Navay
 VE201701,VE2017,Lobatera
 VE201702,VE2017,Constitución
-VE201801,VE2018,Capital Michelena
+VE201801,VE2018,Michelena
 VE201901,VE2019,Panamericano
 VE201902,VE2019,La Palmita
 VE202001,VE2020,Pedro María Ureña
 VE202002,VE2020,Nueva Arcadia
-VE202101,VE2021,Delicias
+VE202101,VE2021,Rafael Urdaneta
 VE202201,VE2022,Samuel Darío Maldonado
 VE202202,VE2022,Boconó
 VE202203,VE2022,Hernández
@@ -888,7 +888,7 @@ VE202302,VE2023,Pedro María Morantes
 VE202303,VE2023,San Juan Bautista
 VE202304,VE2023,San Sebastián
 VE202305,VE2023,Dr. Francisco Romero Lobo
-VE202401,VE2024,Capital Seboruco
+VE202401,VE2024,Seboruco
 VE202501,VE2025,Simón Rodríguez
 VE202601,VE2026,Sucre
 VE202602,VE2026,Eleazar López Contreras
