@@ -6,7 +6,7 @@ VE0203,VE02,Autónomo Atures
 VE0204,VE02,Autónomo Autana
 VE0205,VE02,Autónomo Maroa
 VE0206,VE02,Manapiare
-VE0207,VE02,Autónomo Rio Negro
+VE0207,VE02,Autónomo Río Negro
 VE0301,VE03,Anaco
 VE0302,VE03,Aragua
 VE0303,VE03,Fernando de Peñalver
@@ -20,7 +20,7 @@ VE0310,VE03,José Gregorio Monagas
 VE0311,VE03,Libertad
 VE0312,VE03,Manuel Ezequiel Bruzual
 VE0313,VE03,Pedro María Freites
-VE0314,VE03,Piritu
+VE0314,VE03,Píritu
 VE0315,VE03,San José de Guanipa
 VE0316,VE03,San Juan de Capistrano
 VE0317,VE03,Santa Ana
@@ -120,15 +120,15 @@ VE1114,VE11,Miranda
 VE1115,VE11,Monseñor Iturriza
 VE1116,VE11,Palmasola
 VE1117,VE11,Petit
-VE1118,VE11,Piritu
+VE1118,VE11,Píritu
 VE1119,VE11,San Francisco
 VE1120,VE11,Silva
 VE1121,VE11,Sucre
-VE1122,VE11,Tocopero
+VE1122,VE11,Tocópero
 VE1123,VE11,Unión
 VE1124,VE11,Urumaco
 VE1125,VE11,Zamora
-VE1201,VE12,Camaguan
+VE1201,VE12,Camaguán
 VE1202,VE12,Chaguaramas
 VE1203,VE12,El Socorro
 VE1204,VE12,San Gerónimo de Guayabal
@@ -147,7 +147,7 @@ VE1301,VE13,Andrés Eloy Blanco
 VE1302,VE13,Crespo
 VE1303,VE13,Iribarren
 VE1304,VE13,Jiménez
-VE1305,VE13,Moran
+VE1305,VE13,Morán
 VE1306,VE13,Palavecino
 VE1307,VE13,Simón Planas
 VE1308,VE13,Torres
@@ -161,7 +161,7 @@ VE1406,VE14,Campo Elías
 VE1407,VE14,Caracciolo Parra Olmedo
 VE1408,VE14,Cardenal Quintero
 VE1409,VE14,Guaraque
-VE1410,VE14,Julio Cesar Sala
+VE1410,VE14,Julio César Sala
 VE1411,VE14,Justo Briceño
 VE1412,VE14,Libertador
 VE1413,VE14,Miranda
@@ -229,11 +229,11 @@ VE1806,VE18,Monseñor José Vicente de Und
 VE1807,VE18,Ospino
 VE1808,VE18,Páez
 VE1809,VE18,Papelón
-VE1810,VE18,San Genaro de Boconoito
+VE1810,VE18,San Genaro de Boconoíto
 VE1811,VE18,San Rafael de Onoto
 VE1812,VE18,Santa Rosalía
 VE1813,VE18,Sucre
-VE1814,VE18,Turen
+VE1814,VE18,Turén
 VE1901,VE19,Andrés Eloy Blanco
 VE1902,VE19,Andrés Mata
 VE1903,VE19,Arismendi
@@ -258,7 +258,7 @@ VE2006,VE20,Córdoba
 VE2007,VE20,Fernández Feo
 VE2008,VE20,Francisco de Miranda
 VE2009,VE20,García de Hevia
-VE2010,VE20,Guasimos
+VE2010,VE20,Guásimos
 VE2011,VE20,Independencia
 VE2012,VE20,Jáuregui
 VE2013,VE20,José María Vargas
@@ -279,7 +279,7 @@ VE2027,VE20,Torbes
 VE2028,VE20,Uribante
 VE2029,VE20,San Judas Tadeo
 VE2101,VE21,Andrés Bello
-VE2102,VE21,Bocono
+VE2102,VE21,Boconó
 VE2103,VE21,Bolívar
 VE2104,VE21,Candelaria
 VE2105,VE21,Carache
@@ -289,8 +289,8 @@ VE2108,VE21,Juan Vicente Campo Elías
 VE2109,VE21,La Ceiba
 VE2110,VE21,Miranda
 VE2111,VE21,Monte Carmelo
-VE2112,VE21,Motatan
-VE2113,VE21,Pampan
+VE2112,VE21,Motatán
+VE2113,VE21,Pampán
 VE2114,VE21,Pampanito
 VE2115,VE21,Rafael Rangel
 VE2116,VE21,San Rafael de Carvajal
@@ -316,18 +316,18 @@ VE2301,VE23,Almirante Padilla
 VE2302,VE23,Baralt
 VE2303,VE23,Cabimas
 VE2304,VE23,Catatumbo
-VE2305,VE23,Colon
+VE2305,VE23,Colón
 VE2306,VE23,Francisco Javier Pulgar
 VE2307,VE23,Jesús Enrique Lossada
 VE2308,VE23,Jesús María Semprum
 VE2309,VE23,La Cañada de Urdaneta
 VE2310,VE23,Lagunillas
-VE2311,VE23,Machiques de Perija
+VE2311,VE23,Machiques de Perijá
 VE2312,VE23,Mara
 VE2313,VE23,Maracaibo
 VE2314,VE23,Miranda
 VE2315,VE23,Indígena Bolivariano Guajira
-VE2316,VE23,Rosario de Perija
+VE2316,VE23,Rosario de Perijá
 VE2317,VE23,San Francisco
 VE2318,VE23,Santa Rita
 VE2319,VE23,Simón Bolívar
