@@ -3,22 +3,26 @@
 API pública y gratuita con datos de Venezuela, pensada para desarrolladores.
 Centraliza información que hoy está dispersa, desactualizada o difícil de consumir.
 
-> 🚧 **Estado:** en planificación. Todavía no hay endpoints disponibles.
+> 🚧 **Estado:** en desarrollo. Los datos de la v1 ya están disponibles como CSV en
+> [`data/`](data/); la API todavía no tiene endpoints.
 
 ## ¿Qué datos ofrece?
 
 ### v1 (en desarrollo)
 
-- **Geografía:** estados, municipios, parroquias y sus capitales, con códigos oficiales.
-- **Tasa de cambio oficial del BCV:** USD y EUR, con historial diario.
+- **Geografía:** estados (con sus capitales), municipios y parroquias, con códigos oficiales.
+- **Bancos:** códigos de 4 dígitos, nombre comercial y nombre legal de los bancos activos.
+- **Prefijos telefónicos:** códigos de área fijos con los estados que cubren, prefijos
+  móviles por operadora y números no geográficos (0800, 0500…).
+
+Cada dataset documenta sus fuentes, criterios y correcciones en su propio `SOURCES.md`.
 
 ### Próximamente (ideas)
 
-- Constitución y leyes (texto consultable por artículo)
-- Bancos y códigos bancarios
+- Tasa de cambio oficial del BCV (USD y EUR) con historial diario
 - Validación de RIF y cédula
 - Feriados nacionales
-- Códigos de área telefónicos
+- Constitución y leyes (texto consultable por artículo)
 - Códigos postales
 
 ## Principios
