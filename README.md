@@ -14,6 +14,8 @@ Centraliza información que hoy está dispersa, desactualizada o difícil de con
 - **Bancos:** códigos de 4 dígitos, nombre comercial y nombre legal de los bancos activos.
 - **Prefijos telefónicos:** códigos de área fijos con los estados que cubren, prefijos
   móviles por operadora y números no geográficos (0800, 0500…).
+- **Feriados:** feriados nacionales según la ley (calculables para cualquier año) y el
+  calendario bancario publicado por SUDEBAN.
 
 Cada dataset documenta sus fuentes, criterios y correcciones en su propio `SOURCES.md`.
 
@@ -21,7 +23,6 @@ Cada dataset documenta sus fuentes, criterios y correcciones en su propio `SOURC
 
 - Tasa de cambio oficial del BCV (USD y EUR) con historial diario
 - Validación de RIF y cédula
-- Feriados nacionales
 - Constitución y leyes (texto consultable por artículo)
 - Códigos postales
 
