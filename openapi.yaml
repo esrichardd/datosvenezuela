@@ -1,0 +1,622 @@
+openapi: 3.1.0
+
+info:
+  title: apivenezuela
+  version: 0.1.0
+  summary: Public, free API with reference data about Venezuela.
+  description: |
+    Read-only API that centralizes reference data about Venezuela.
+
+    ## Conventions
+
+    - All successful responses wrap the payload in `data`. List responses also
+      include `meta` with pagination information.
+    - Errors use [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) problem
+      details (`application/problem+json`) and are never wrapped in `data`.
+    - Codes are OCHA P-codes (e.g. `VE14`) and are matched case-insensitively.
+    - Every response carries an `X-Request-ID` header. Include it when reporting
+      a problem.
+    - Requests are rate limited per IP. Every response carries `RateLimit-*`
+      headers; exceeding the limit returns `429` with `Retry-After`.
+
+    ## Data license
+
+    The data is published under
+    [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribution:
+    *apivenezuela*. Each dataset documents its sources in the repository.
+  license:
+    name: MIT (code)
+    identifier: MIT
+
+# Anonymous API: no API key or token is required.
+security: []
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+tags:
+  - name: Geography
+    description: States, municipalities and parishes.
+  - name: System
+    description: Operational endpoints.
+
+paths:
+  /health:
+    get:
+      tags: [System]
+      operationId: getHealth
+      summary: Health check
+      description: Reports whether the server is up. Not versioned.
+      responses:
+        "200":
+          description: The server is up.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    const: ok
+
+  /v1/states:
+    get:
+      tags: [Geography]
+      operationId: listStates
+      summary: List states
+      description: Returns the 23 states, the Capital District and the Federal Dependencies.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: List of states.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/State" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/states/{code}:
+    get:
+      tags: [Geography]
+      operationId: getState
+      summary: Get a state
+      parameters:
+        - $ref: "#/components/parameters/StateCode"
+      responses:
+        "200":
+          description: The state.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: "#/components/schemas/State" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/states/{code}/municipalities:
+    get:
+      tags: [Geography]
+      operationId: listStateMunicipalities
+      summary: List the municipalities of a state
+      parameters:
+        - $ref: "#/components/parameters/StateCode"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Municipalities of the state.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/MunicipalitySummary" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/municipalities:
+    get:
+      tags: [Geography]
+      operationId: listMunicipalities
+      summary: List all municipalities
+      description: Returns every municipality in the country, each with its state.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: List of municipalities.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Municipality" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/municipalities/{code}:
+    get:
+      tags: [Geography]
+      operationId: getMunicipality
+      summary: Get a municipality
+      parameters:
+        - $ref: "#/components/parameters/MunicipalityCode"
+      responses:
+        "200":
+          description: The municipality, with its state.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: "#/components/schemas/Municipality" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/municipalities/{code}/parishes:
+    get:
+      tags: [Geography]
+      operationId: listMunicipalityParishes
+      summary: List the parishes of a municipality
+      description: |
+        Municipalities without parish division have a single parish with the
+        same name as the municipality.
+      parameters:
+        - $ref: "#/components/parameters/MunicipalityCode"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Parishes of the municipality.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/ParishSummary" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/parishes:
+    get:
+      tags: [Geography]
+      operationId: listParishes
+      summary: List all parishes
+      description: Returns every parish in the country, each with its municipality and state.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: List of parishes.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Parish" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/parishes/{code}:
+    get:
+      tags: [Geography]
+      operationId: getParish
+      summary: Get a parish
+      parameters:
+        - $ref: "#/components/parameters/ParishCode"
+      responses:
+        "200":
+          description: The parish, with its municipality and state.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: "#/components/schemas/Parish" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/places/search:
+    get:
+      tags: [Geography]
+      operationId: searchPlaces
+      summary: Search places by name
+      description: |
+        A place is any territorial division: a state, a municipality or a
+        parish. Case- and accent-insensitive substring search (`merida` matches
+        `Mérida`). Each result includes its type and its parents.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Text to search for.
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 100
+          example: san cristobal
+        - name: type
+          in: query
+          required: false
+          description: Restrict results to one level.
+          schema:
+            type: string
+            enum: [state, municipality, parish]
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 20
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Matching places.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/PlaceResult" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+              example:
+                data:
+                  - type: municipality
+                    code: VE2023
+                    name: San Cristóbal
+                    state: { code: VE20, name: Táchira }
+                  - type: parish
+                    code: VE141102
+                    name: San Cristóbal de Torondoy
+                    municipality: { code: VE1411, name: Justo Briceño }
+                    state: { code: VE14, name: Mérida }
+                meta: { total: 2, limit: 20, offset: 0 }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+components:
+  parameters:
+    StateCode:
+      name: code
+      in: path
+      required: true
+      description: State P-code (case-insensitive).
+      schema:
+        type: string
+        pattern: "^[Vv][Ee][0-9]{2}$"
+      example: VE14
+    MunicipalityCode:
+      name: code
+      in: path
+      required: true
+      description: Municipality P-code (case-insensitive).
+      schema:
+        type: string
+        pattern: "^[Vv][Ee][0-9]{4}$"
+      example: VE1412
+    ParishCode:
+      name: code
+      in: path
+      required: true
+      description: Parish P-code (case-insensitive).
+      schema:
+        type: string
+        pattern: "^[Vv][Ee][0-9]{6}$"
+      example: VE141201
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Maximum number of items to return.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 500
+        default: 100
+    Offset:
+      name: offset
+      in: query
+      required: false
+      description: Number of items to skip.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+  headers:
+    X-Request-ID:
+      description: Unique identifier of the request. Include it when reporting a problem.
+      schema:
+        type: string
+    Retry-After:
+      description: Seconds to wait before retrying.
+      schema:
+        type: integer
+    RateLimit-Limit:
+      description: Maximum requests allowed in the current window.
+      schema:
+        type: integer
+    RateLimit-Remaining:
+      description: Requests remaining in the current window.
+      schema:
+        type: integer
+    RateLimit-Reset:
+      description: Seconds until the current window resets.
+      schema:
+        type: integer
+
+  schemas:
+    State:
+      type: object
+      required: [code, name, type, iso_3166_2]
+      properties:
+        code:
+          type: string
+          example: VE14
+        name:
+          type: string
+          example: Mérida
+        type:
+          type: string
+          enum: [state, capital_district, federal_dependencies]
+        iso_3166_2:
+          type: string
+          description: ISO 3166-2 subdivision code.
+          example: VE-L
+        capital:
+          type: [string, "null"]
+          description: Capital city. `null` for the Federal Dependencies.
+          example: Mérida
+
+    StateRef:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string, example: VE14 }
+        name: { type: string, example: Mérida }
+
+    MunicipalityRef:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string, example: VE1412 }
+        name: { type: string, example: Libertador }
+
+    MunicipalitySummary:
+      $ref: "#/components/schemas/MunicipalityRef"
+
+    Municipality:
+      type: object
+      required: [code, name, state]
+      properties:
+        code: { type: string, example: VE1412 }
+        name: { type: string, example: Libertador }
+        state: { $ref: "#/components/schemas/StateRef" }
+
+    ParishSummary:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string, example: VE141201 }
+        name: { type: string, example: Antonio Spinetti Dini }
+
+    Parish:
+      type: object
+      required: [code, name, municipality, state]
+      properties:
+        code: { type: string, example: VE141201 }
+        name: { type: string, example: Antonio Spinetti Dini }
+        municipality: { $ref: "#/components/schemas/MunicipalityRef" }
+        state: { $ref: "#/components/schemas/StateRef" }
+
+    PlaceResult:
+      oneOf:
+        - $ref: "#/components/schemas/StateResult"
+        - $ref: "#/components/schemas/MunicipalityResult"
+        - $ref: "#/components/schemas/ParishResult"
+      discriminator:
+        propertyName: type
+        mapping:
+          state: "#/components/schemas/StateResult"
+          municipality: "#/components/schemas/MunicipalityResult"
+          parish: "#/components/schemas/ParishResult"
+
+    StateResult:
+      type: object
+      required: [type, code, name]
+      properties:
+        type: { type: string, const: state }
+        code: { type: string }
+        name: { type: string }
+
+    MunicipalityResult:
+      type: object
+      required: [type, code, name, state]
+      properties:
+        type: { type: string, const: municipality }
+        code: { type: string }
+        name: { type: string }
+        state: { $ref: "#/components/schemas/StateRef" }
+
+    ParishResult:
+      type: object
+      required: [type, code, name, municipality, state]
+      properties:
+        type: { type: string, const: parish }
+        code: { type: string }
+        name: { type: string }
+        municipality: { $ref: "#/components/schemas/MunicipalityRef" }
+        state: { $ref: "#/components/schemas/StateRef" }
+
+    PageMeta:
+      type: object
+      required: [total, limit, offset]
+      properties:
+        total:
+          type: integer
+          description: Total number of items across all pages.
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    Problem:
+      type: object
+      description: RFC 9457 problem details.
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          description: "`about:blank`: the error means exactly what its HTTP status says."
+          example: about:blank
+        title:
+          type: string
+          example: Not Found
+        status:
+          type: integer
+          example: 404
+        detail:
+          type: string
+          description: Human-readable explanation. Do not parse it.
+          example: state VE99 not found
+        request_id:
+          type: string
+          description: Same value as the `X-Request-ID` header.
+        invalid_params:
+          type: array
+          description: Present on `400` responses; lists every invalid parameter.
+          items:
+            type: object
+            required: [name, reason]
+            properties:
+              name: { type: string, example: limit }
+              reason: { type: string, example: must be between 1 and 500 }
+
+  responses:
+    BadRequest:
+      description: One or more parameters are invalid.
+      headers:
+        X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+          example:
+            type: about:blank
+            title: Bad Request
+            status: 400
+            detail: invalid query parameters
+            invalid_params:
+              - name: limit
+                reason: must be between 1 and 500
+            request_id: 01JCX8K3QF8Z2N6W4Y0T5R7M9P
+    NotFound:
+      description: The resource does not exist.
+      headers:
+        X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+          example:
+            type: about:blank
+            title: Not Found
+            status: 404
+            detail: state VE99 not found
+            request_id: 01JCX8K3QF8Z2N6W4Y0T5R7M9P
+    TooManyRequests:
+      description: Rate limit exceeded.
+      headers:
+        X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+        Retry-After: { $ref: "#/components/headers/Retry-After" }
+        RateLimit-Limit: { $ref: "#/components/headers/RateLimit-Limit" }
+        RateLimit-Remaining: { $ref: "#/components/headers/RateLimit-Remaining" }
+        RateLimit-Reset: { $ref: "#/components/headers/RateLimit-Reset" }
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+          example:
+            type: about:blank
+            title: Too Many Requests
+            status: 429
+            detail: rate limit of 60 requests per minute exceeded; retry in 12 seconds
+            request_id: 01JCX8K3QF8Z2N6W4Y0T5R7M9P
+    InternalError:
+      description: Unexpected server error. Details are never exposed; use the request ID to report it.
+      headers:
+        X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+          example:
+            type: about:blank
+            title: Internal Server Error
+            status: 500
+            detail: an unexpected error occurred
+            request_id: 01JCX8K3QF8Z2N6W4Y0T5R7M9P
