@@ -98,6 +98,25 @@ Notas:
 - No se renombra `VE090901` (Tinaco → `General en Jefe José Laurencio Silva`):
   OCHA y otras fuentes coinciden en ese nombre.
 
+### 2. Prefijos estadísticos del INE
+
+La fuente antepone etiquetas de clasificación estadística del INE al nombre de
+145 parroquias: `Capital`, `Capital Urbana`, `Sección Capital`, `Urbana` y
+`No Urbana`. No forman parte del nombre y se eliminan con una regla mecánica:
+quitar el prefijo y poner en mayúscula la primera letra.
+
+| Antes             | Después     |
+| ----------------- | ----------- |
+| No Urbana Chuao   | Chuao       |
+| Urbana los Guayos | Los Guayos  |
+| Capital Guanare   | Guanare     |
+| Urbanafraternidad | Fraternidad |
+
+En los municipios con varias parroquias, la parroquia `Capital X` queda con el
+nombre del municipio (`Capital Miranda` → `Miranda`). Es la convención que usa el
+INE en sus publicaciones del censo 2011 (verificado en Táchira). Otras fuentes
+usan el nombre del pueblo capital (ej. `Timotes`, `Lechería`); ver problemas conocidos.
+
 ## Problemas conocidos
 
 - Algunos nombres no tienen tilde o tienen errores (ej. `Antimano`, `San Bernandino`).
@@ -105,4 +124,7 @@ Notas:
   los huecos en la numeración de códigos lo delatan.
 - Algunos municipios de Amazonas incluyen el prefijo `Autónomo` en el nombre.
 - La fuente refleja la división vigente al 2021-02-23; cambios posteriores deben verificarse.
+- En municipios con varias parroquias, la parroquia capital lleva el nombre del municipio
+  (convención del INE). Algunas fuentes la nombran por el pueblo capital (ej. Miranda/Timotes
+  en Mérida, Diego Bautista Urbaneja/Lechería en Anzoátegui); sin verificar contra leyes estadales.
 - No incluye capitales de estados ni de municipios.
