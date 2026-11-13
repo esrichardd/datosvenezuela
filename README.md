@@ -39,6 +39,22 @@ Centraliza información que hoy está dispersa, desactualizada o difícil de con
 | Sitio y documentación | Astro                                              |
 | Infraestructura       | VPS + Docker Compose + Caddy, detrás de Cloudflare |
 
+## Estructura del repositorio
+
+```
+apivenezuela/
+├── api/            # Backend en Go
+├── web/            # Sitio: documentación, playground y datasets (Astro)
+├── data/           # Datos de referencia versionados (CSV), bajo CC BY 4.0
+├── deploy/         # Despliegue en producción (Docker Compose, Caddy)
+├── .github/        # Integración continua
+├── openapi.yaml    # Contrato de la API (OpenAPI)
+├── compose.yaml    # Entorno de desarrollo local
+└── Makefile        # Comandos comunes del proyecto
+```
+
+> Las carpetas se irán creando a medida que el proyecto avance.
+
 ## Contribuir
 
 El proyecto aún está en etapa de planificación. Si quieres aportar ideas o fuentes
