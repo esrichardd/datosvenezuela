@@ -1,0 +1,26 @@
+code,name,type,iso_3166_2
+VE01,Distrito Capital,capital_district,VE-A
+VE02,Amazonas,state,VE-Z
+VE03,Anzoátegui,state,VE-B
+VE04,Apure,state,VE-C
+VE05,Aragua,state,VE-D
+VE06,Barinas,state,VE-E
+VE07,Bolívar,state,VE-F
+VE08,Carabobo,state,VE-G
+VE09,Cojedes,state,VE-H
+VE10,Delta Amacuro,state,VE-Y
+VE11,Falcón,state,VE-I
+VE12,Guárico,state,VE-J
+VE13,Lara,state,VE-K
+VE14,Mérida,state,VE-L
+VE15,Miranda,state,VE-M
+VE16,Monagas,state,VE-N
+VE17,Nueva Esparta,state,VE-O
+VE18,Portuguesa,state,VE-P
+VE19,Sucre,state,VE-R
+VE20,Táchira,state,VE-S
+VE21,Trujillo,state,VE-T
+VE22,Yaracuy,state,VE-U
+VE23,Zulia,state,VE-V
+VE24,La Guaira,state,VE-X
+VE25,Dependencias Federales,federal_dependencies,VE-W

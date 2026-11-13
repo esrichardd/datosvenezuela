@@ -1,0 +1,336 @@
+code,state_code,name
+VE0101,VE01,Libertador
+VE0201,VE02,Autónomo Alto Orinoco
+VE0202,VE02,Autónomo Atabapo
+VE0203,VE02,Autónomo Atures
+VE0204,VE02,Autónomo Autana
+VE0205,VE02,Autónomo Maroa
+VE0206,VE02,Manapiare
+VE0207,VE02,Autónomo Rio Negro
+VE0301,VE03,Anaco
+VE0302,VE03,Aragua
+VE0303,VE03,Fernando de Peñalver
+VE0304,VE03,Francisco del Carmen Carvajal
+VE0305,VE03,Francisco de Miranda
+VE0306,VE03,Guanta
+VE0307,VE03,Independencia
+VE0308,VE03,Juan Antonio Sotillo
+VE0309,VE03,Juan Manuel Cajigal
+VE0310,VE03,José Gregorio Monagas
+VE0311,VE03,Libertad
+VE0312,VE03,Manuel Ezequiel Bruzual
+VE0313,VE03,Pedro María Freites
+VE0314,VE03,Piritu
+VE0315,VE03,San José de Guanipa
+VE0316,VE03,San Juan de Capistrano
+VE0317,VE03,Santa Ana
+VE0318,VE03,Simón Bolívar
+VE0319,VE03,Simón Rodríguez
+VE0320,VE03,Sir Arthur Mc Gregor
+VE0321,VE03,Diego Bautista Urbaneja
+VE0401,VE04,Achaguas
+VE0402,VE04,Biruaca
+VE0403,VE04,Muñoz
+VE0404,VE04,Páez
+VE0405,VE04,Pedro Camejo
+VE0406,VE04,Rómulo Gallegos
+VE0407,VE04,San Fernando
+VE0501,VE05,Bolívar
+VE0502,VE05,Camatagua
+VE0503,VE05,Girardot
+VE0504,VE05,José Ángel Lamas
+VE0505,VE05,José Félix Ribas
+VE0506,VE05,José Rafael Revenga
+VE0507,VE05,Libertador
+VE0508,VE05,Mario Briceño Iragorri
+VE0509,VE05,San Casimiro
+VE0510,VE05,San Sebastián
+VE0511,VE05,Santiago Mariño
+VE0512,VE05,Santos Michelena
+VE0513,VE05,Sucre
+VE0514,VE05,Tovar
+VE0515,VE05,Urdaneta
+VE0516,VE05,Ezequiel Zamora
+VE0517,VE05,Francisco Linares Alcántara
+VE0518,VE05,Ocumare de la Costa de Oro
+VE0601,VE06,Alberto Arvelo Torrealba
+VE0602,VE06,Antonio José de Sucre
+VE0603,VE06,Arismendi
+VE0604,VE06,Barinas
+VE0605,VE06,Bolívar
+VE0606,VE06,Cruz Paredes
+VE0607,VE06,Ezequiel Zamora
+VE0608,VE06,Obispos
+VE0609,VE06,Pedraza
+VE0610,VE06,Rojas
+VE0611,VE06,Sosa
+VE0612,VE06,Andrés Eloy Blanco
+VE0701,VE07,Caroní
+VE0702,VE07,Cedeño
+VE0703,VE07,El Callao
+VE0704,VE07,Gran Sabana
+VE0705,VE07,Angostura del Orinoco
+VE0706,VE07,Piar
+VE0707,VE07,Bolivariano Angostura
+VE0708,VE07,Roscio
+VE0709,VE07,Sifontes
+VE0710,VE07,Sucre
+VE0711,VE07,Padre Pedro Chien
+VE0801,VE08,Bejuma
+VE0802,VE08,Carlos Arvelo
+VE0803,VE08,Diego Ibarra
+VE0804,VE08,Guacara
+VE0805,VE08,Juan José Mora
+VE0806,VE08,Libertador
+VE0807,VE08,Los Guayos
+VE0808,VE08,Miranda
+VE0809,VE08,Montalbán
+VE0810,VE08,Naguanagua
+VE0811,VE08,Puerto Cabello
+VE0812,VE08,San Diego
+VE0813,VE08,San Joaquín
+VE0814,VE08,Valencia
+VE0901,VE09,Anzoátegui
+VE0902,VE09,Tinaquillo
+VE0903,VE09,Girardot
+VE0904,VE09,Lima Blanco
+VE0905,VE09,Pao de San Juan Bautista
+VE0906,VE09,Ricaurte
+VE0907,VE09,Rómulo Gallegos
+VE0908,VE09,Ezequiel Zamora
+VE0909,VE09,Tinaco
+VE1001,VE10,Antonio Díaz
+VE1002,VE10,Casacoima
+VE1003,VE10,Pedernales
+VE1004,VE10,Tucupita
+VE1101,VE11,Acosta
+VE1102,VE11,Bolívar
+VE1103,VE11,Buchivacoa
+VE1104,VE11,Cacique Manaure
+VE1105,VE11,Carirubana
+VE1106,VE11,Colina
+VE1107,VE11,Dabajuro
+VE1108,VE11,Democracia
+VE1109,VE11,Falcón
+VE1110,VE11,Federación
+VE1111,VE11,Jacura
+VE1112,VE11,Los Taques
+VE1113,VE11,Mauroa
+VE1114,VE11,Miranda
+VE1115,VE11,Monseñor Iturriza
+VE1116,VE11,Palmasola
+VE1117,VE11,Petit
+VE1118,VE11,Piritu
+VE1119,VE11,San Francisco
+VE1120,VE11,Silva
+VE1121,VE11,Sucre
+VE1122,VE11,Tocopero
+VE1123,VE11,Unión
+VE1124,VE11,Urumaco
+VE1125,VE11,Zamora
+VE1201,VE12,Camaguan
+VE1202,VE12,Chaguaramas
+VE1203,VE12,El Socorro
+VE1204,VE12,San Gerónimo de Guayabal
+VE1205,VE12,Leonardo Infante
+VE1206,VE12,Las Mercedes
+VE1207,VE12,Julián Mellado
+VE1208,VE12,Francisco de Miranda
+VE1209,VE12,José Tadeo Monagas
+VE1210,VE12,Ortiz
+VE1211,VE12,José Félix Ribas
+VE1212,VE12,Juan Germán Roscio
+VE1213,VE12,San José de Guaribe
+VE1214,VE12,Santa María de Ipire
+VE1215,VE12,Pedro Zaraza
+VE1301,VE13,Andrés Eloy Blanco
+VE1302,VE13,Crespo
+VE1303,VE13,Iribarren
+VE1304,VE13,Jiménez
+VE1305,VE13,Moran
+VE1306,VE13,Palavecino
+VE1307,VE13,Simón Planas
+VE1308,VE13,Torres
+VE1309,VE13,Urdaneta
+VE1401,VE14,Alberto Adriani
+VE1402,VE14,Andrés Bello
+VE1403,VE14,Antonio Pinto Salinas
+VE1404,VE14,Aricagua
+VE1405,VE14,Arzobispo Chacón
+VE1406,VE14,Campo Elías
+VE1407,VE14,Caracciolo Parra Olmedo
+VE1408,VE14,Cardenal Quintero
+VE1409,VE14,Guaraque
+VE1410,VE14,Julio Cesar Sala
+VE1411,VE14,Justo Briceño
+VE1412,VE14,Libertador
+VE1413,VE14,Miranda
+VE1414,VE14,Obispo Ramos de Lora
+VE1415,VE14,Padre Noguera
+VE1416,VE14,Pueblo Llano
+VE1417,VE14,Rangel
+VE1418,VE14,Rivas Dávila
+VE1419,VE14,Santos Marquina
+VE1420,VE14,Sucre
+VE1421,VE14,Tovar
+VE1422,VE14,Tulio Febres Cordero
+VE1423,VE14,Zea
+VE1501,VE15,Acevedo
+VE1502,VE15,Andrés Bello
+VE1503,VE15,Baruta
+VE1504,VE15,Brión
+VE1505,VE15,Buroz
+VE1506,VE15,Carrizal
+VE1507,VE15,Chacao
+VE1508,VE15,Cristóbal Rojas
+VE1509,VE15,El Hatillo
+VE1510,VE15,Bolivariano Guaicaipuro
+VE1511,VE15,Independencia
+VE1512,VE15,Lander
+VE1513,VE15,Los Salías
+VE1514,VE15,Páez
+VE1515,VE15,Paz Castillo
+VE1516,VE15,Pedro Gual
+VE1517,VE15,Plaza
+VE1518,VE15,Simón Bolívar
+VE1519,VE15,Sucre
+VE1520,VE15,Urdaneta
+VE1521,VE15,Zamora
+VE1601,VE16,Acosta
+VE1602,VE16,Aguasay
+VE1603,VE16,Bolívar
+VE1604,VE16,Caripe
+VE1605,VE16,Cedeño
+VE1606,VE16,Ezequiel Zamora
+VE1607,VE16,Libertador
+VE1608,VE16,Maturín
+VE1609,VE16,Piar
+VE1610,VE16,Punceres
+VE1611,VE16,Santa Babara
+VE1612,VE16,Sotillo
+VE1613,VE16,Uracoa
+VE1701,VE17,Antolín del Campo
+VE1702,VE17,Arismendi
+VE1703,VE17,Díaz
+VE1704,VE17,García
+VE1705,VE17,Gómez
+VE1706,VE17,Maneiro
+VE1707,VE17,Marcano
+VE1708,VE17,Mariño
+VE1709,VE17,Macanao
+VE1710,VE17,Tubores
+VE1711,VE17,Villalba
+VE1801,VE18,Agua Blanca
+VE1802,VE18,Araure
+VE1803,VE18,Esteller
+VE1804,VE18,Guanare
+VE1805,VE18,Guanarito
+VE1806,VE18,Monseñor José Vicente de Und
+VE1807,VE18,Ospino
+VE1808,VE18,Páez
+VE1809,VE18,Papelón
+VE1810,VE18,San Genaro de Boconoito
+VE1811,VE18,San Rafael de Onoto
+VE1812,VE18,Santa Rosalía
+VE1813,VE18,Sucre
+VE1814,VE18,Turen
+VE1901,VE19,Andrés Eloy Blanco
+VE1902,VE19,Andrés Mata
+VE1903,VE19,Arismendi
+VE1904,VE19,Benítez
+VE1905,VE19,Bermúdez
+VE1906,VE19,Bolívar
+VE1907,VE19,Cajigal
+VE1908,VE19,Cruz Salmerón Acosta
+VE1909,VE19,Libertador
+VE1910,VE19,Mariño
+VE1911,VE19,Mejía
+VE1912,VE19,Montes
+VE1913,VE19,Ribero
+VE1914,VE19,Sucre
+VE1915,VE19,Valdez
+VE2001,VE20,Andrés Bello
+VE2002,VE20,Antonio Rómulo Costa
+VE2003,VE20,Ayacucho
+VE2004,VE20,Bolívar
+VE2005,VE20,Cárdenas
+VE2006,VE20,Córdoba
+VE2007,VE20,Fernández Feo
+VE2008,VE20,Francisco de Miranda
+VE2009,VE20,García de Hevia
+VE2010,VE20,Guasimos
+VE2011,VE20,Independencia
+VE2012,VE20,Jáuregui
+VE2013,VE20,José María Vargas
+VE2014,VE20,Junín
+VE2015,VE20,Libertad
+VE2016,VE20,Libertador
+VE2017,VE20,Lobatera
+VE2018,VE20,Michelena
+VE2019,VE20,Panamericano
+VE2020,VE20,Pedro María Ureña
+VE2021,VE20,Rafael Urdaneta
+VE2022,VE20,Samuel Darío Maldonado
+VE2023,VE20,San Cristóbal
+VE2024,VE20,Seboruco
+VE2025,VE20,Simón Rodríguez
+VE2026,VE20,Sucre
+VE2027,VE20,Torbes
+VE2028,VE20,Uribante
+VE2029,VE20,San Judas Tadeo
+VE2101,VE21,Andrés Bello
+VE2102,VE21,Bocono
+VE2103,VE21,Bolívar
+VE2104,VE21,Candelaria
+VE2105,VE21,Carache
+VE2106,VE21,Escuque
+VE2107,VE21,José Felipe Márquez Cañizal
+VE2108,VE21,Juan Vicente Campo Elías
+VE2109,VE21,La Ceiba
+VE2110,VE21,Miranda
+VE2111,VE21,Monte Carmelo
+VE2112,VE21,Motatan
+VE2113,VE21,Pampan
+VE2114,VE21,Pampanito
+VE2115,VE21,Rafael Rangel
+VE2116,VE21,San Rafael de Carvajal
+VE2117,VE21,Sucre
+VE2118,VE21,Trujillo
+VE2119,VE21,Urdaneta
+VE2120,VE21,Valera
+VE2201,VE22,Arístides Bastidas
+VE2202,VE22,Bolívar
+VE2203,VE22,Bruzual
+VE2204,VE22,Cocorote
+VE2205,VE22,Independencia
+VE2206,VE22,José Antonio Páez
+VE2207,VE22,La Trinidad
+VE2208,VE22,Manuel Monge
+VE2209,VE22,Nirgua
+VE2210,VE22,Peña
+VE2211,VE22,San Felipe
+VE2212,VE22,Sucre
+VE2213,VE22,Urachiche
+VE2214,VE22,Veroes
+VE2301,VE23,Almirante Padilla
+VE2302,VE23,Baralt
+VE2303,VE23,Cabimas
+VE2304,VE23,Catatumbo
+VE2305,VE23,Colon
+VE2306,VE23,Francisco Javier Pulgar
+VE2307,VE23,Jesús Enrique Lossada
+VE2308,VE23,Jesús María Semprum
+VE2309,VE23,La Cañada de Urdaneta
+VE2310,VE23,Lagunillas
+VE2311,VE23,Machiques de Perija
+VE2312,VE23,Mara
+VE2313,VE23,Maracaibo
+VE2314,VE23,Miranda
+VE2315,VE23,Indígena Bolivariano Guajira
+VE2316,VE23,Rosario de Perija
+VE2317,VE23,San Francisco
+VE2318,VE23,Santa Rita
+VE2319,VE23,Simón Bolívar
+VE2320,VE23,Sucre
+VE2321,VE23,Valmore Rodríguez
+VE2401,VE24,Vargas
