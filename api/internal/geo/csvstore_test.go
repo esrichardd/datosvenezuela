@@ -375,3 +375,116 @@ func stateCodes(states []State) string {
 	}
 	return strings.Join(codes, ",")
 }
+
+func placeCodes(places []Place) string {
+	codes := make([]string, len(places))
+	for i, p := range places {
+		codes[i] = p.Code
+	}
+	return strings.Join(codes, ",")
+}
+
+func TestSearch(t *testing.T) {
+	s := loadValid(t)
+
+	tests := []struct {
+		name      string
+		query     string
+		placeType PlaceType
+		page      Page
+		wantCodes string
+		wantTotal int
+	}{
+		{
+			// Prefix matches (Antímano, Antonio Spinetti Dini) come before
+			// names that only contain "an" (Alberto Adriani, Presidente
+			// Betancourt); within each group, municipalities before parishes.
+			name: "ranked by relevance", query: "an", page: Page{Limit: 20},
+			wantCodes: "VE010102,VE141201,VE1401,VE140101", wantTotal: 4,
+		},
+		{
+			name: "exact match first", query: "libertador", page: Page{Limit: 20},
+			wantCodes: "VE0101,VE1412", wantTotal: 2,
+		},
+		{
+			name: "ignores case and accents", query: "  ANTIMANO ", page: Page{Limit: 20},
+			wantCodes: "VE010102", wantTotal: 1,
+		},
+		{
+			name: "matches accented query against plain name", query: "Árias", page: Page{Limit: 20},
+			wantCodes: "VE141202", wantTotal: 1,
+		},
+		{
+			name: "filters by type", query: "an", placeType: PlaceParish, page: Page{Limit: 20},
+			wantCodes: "VE010102,VE141201,VE140101", wantTotal: 3,
+		},
+		{
+			name: "paginates", query: "an", page: Page{Limit: 2, Offset: 1},
+			wantCodes: "VE141201,VE1401", wantTotal: 4,
+		},
+		{
+			name: "no matches", query: "zzz", page: Page{Limit: 20},
+			wantCodes: "", wantTotal: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, total, err := s.Search(context.Background(), tt.query, tt.placeType, tt.page)
+			if err != nil {
+				t.Fatalf("Search() error = %v", err)
+			}
+			if got == nil {
+				t.Fatal("Search() returned nil, want a non-nil slice")
+			}
+			if codes := placeCodes(got); codes != tt.wantCodes || total != tt.wantTotal {
+				t.Errorf("Search(%q) = %s (total %d), want %s (total %d)",
+					tt.query, codes, total, tt.wantCodes, tt.wantTotal)
+			}
+		})
+	}
+}
+
+func TestSearchParents(t *testing.T) {
+	s := loadValid(t)
+	ctx := context.Background()
+
+	got, _, _ := s.Search(ctx, "merida", PlaceState, Page{Limit: 20})
+	if len(got) != 1 || got[0].State != nil || got[0].Municipality != nil {
+		t.Errorf("state result = %+v, want no parents", got)
+	}
+
+	got, _, _ = s.Search(ctx, "arias", "", Page{Limit: 20})
+	want := Place{
+		Type: PlaceParish, Code: "VE141202", Name: "Arias",
+		Municipality: &MunicipalityRef{Code: "VE1412", Name: "Libertador"},
+		State:        &StateRef{Code: "VE14", Name: "Mérida"},
+	}
+	if len(got) != 1 || got[0].Code != want.Code ||
+		*got[0].Municipality != *want.Municipality || *got[0].State != *want.State {
+		t.Errorf("parish result = %+v, want %+v", got, want)
+	}
+
+	// Results must not share memory with the index.
+	got[0].State.Name = "changed"
+	again, _, _ := s.Search(ctx, "arias", "", Page{Limit: 20})
+	if again[0].State.Name == "changed" {
+		t.Error("modifying a search result changed the store")
+	}
+}
+
+func TestSearchRealData(t *testing.T) {
+	s, err := LoadCSV(realDataDir)
+	if err != nil {
+		t.Fatalf("LoadCSV() error = %v", err)
+	}
+
+	// The example documented in openapi.yaml.
+	got, total, err := s.Search(context.Background(), "san cristobal", "", Page{Limit: 20})
+	if err != nil {
+		t.Fatalf("Search() error = %v", err)
+	}
+	if codes := placeCodes(got); codes != "VE2023,VE031802,VE141102" || total != 3 {
+		t.Errorf("Search(san cristobal) = %s (total %d), want VE2023,VE031802,VE141102 (total 3)", codes, total)
+	}
+}

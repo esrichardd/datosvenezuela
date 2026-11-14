@@ -54,6 +54,27 @@ type MunicipalityRef struct {
 	Name string
 }
 
+// PlaceType is the level of a place in the territorial division.
+type PlaceType string
+
+// The three levels a place can have.
+const (
+	PlaceState        PlaceType = "state"
+	PlaceMunicipality PlaceType = "municipality"
+	PlaceParish       PlaceType = "parish"
+)
+
+// Place is a search result: a state, a municipality or a parish. Parents
+// are set only when the level has them: a state has none, a municipality
+// has State, a parish has Municipality and State.
+type Place struct {
+	Type         PlaceType
+	Code         string
+	Name         string
+	Municipality *MunicipalityRef
+	State        *StateRef
+}
+
 // Page selects a window of a list.
 type Page struct {
 	Limit  int

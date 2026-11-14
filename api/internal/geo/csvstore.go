@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/esrichardd/apivenezuela/api/internal/platform/csvload"
+	"github.com/esrichardd/apivenezuela/api/internal/platform/textnorm"
 )
 
 // Files of the geography dataset, relative to its directory.
@@ -45,6 +47,15 @@ type CSVStore struct {
 
 	municipalitiesByState  map[string][]Municipality
 	parishesByMunicipality map[string][]Parish
+
+	// places holds every state, municipality and parish, in that order and
+	// by code, with its name normalized once at load time for search.
+	places []indexedPlace
+}
+
+type indexedPlace struct {
+	place          Place
+	normalizedName string
 }
 
 // CSVStore must satisfy the handlers' port; this fails to compile otherwise.
@@ -88,8 +99,28 @@ func LoadCSV(dir string) (*CSVStore, error) {
 	if len(errs) > 0 {
 		return nil, fmt.Errorf("invalid geography data in %s:\n%w", dir, errors.Join(errs...))
 	}
+	s.buildSearchIndex()
 
 	return s, nil
+}
+
+func (s *CSVStore) buildSearchIndex() {
+	s.places = make([]indexedPlace, 0, len(s.states)+len(s.municipalities)+len(s.parishes))
+	add := func(p Place) {
+		s.places = append(s.places, indexedPlace{place: p, normalizedName: textnorm.Normalize(p.Name)})
+	}
+
+	for _, st := range s.states {
+		add(Place{Type: PlaceState, Code: st.Code, Name: st.Name})
+	}
+	for _, m := range s.municipalities {
+		state := m.State
+		add(Place{Type: PlaceMunicipality, Code: m.Code, Name: m.Name, State: &state})
+	}
+	for _, p := range s.parishes {
+		municipality, state := p.Municipality, p.State
+		add(Place{Type: PlaceParish, Code: p.Code, Name: p.Name, Municipality: &municipality, State: &state})
+	}
 }
 
 func (s *CSVStore) loadStates(rows []csvload.Record) []error {
@@ -282,6 +313,68 @@ func (s *CSVStore) Parish(_ context.Context, code string) (Parish, error) {
 		return Parish{}, ErrNotFound
 	}
 	return s.parishes[i], nil
+}
+
+// Search returns a page of the places whose name contains query, ignoring
+// case and accents, and the total number of matches. If placeType is not
+// empty, only places of that type are returned.
+//
+// Results are ordered by relevance: exact matches first, then names that
+// start with the query, then names that contain it. Within each group,
+// states come before municipalities and municipalities before parishes,
+// ordered by code.
+func (s *CSVStore) Search(_ context.Context, query string, placeType PlaceType, p Page) ([]Place, int, error) {
+	q := textnorm.Normalize(query)
+	if q == "" {
+		return []Place{}, 0, nil
+	}
+
+	type match struct {
+		place Place
+		rank  int
+	}
+	var matches []match
+	for _, ip := range s.places {
+		if placeType != "" && ip.place.Type != placeType {
+			continue
+		}
+		switch {
+		case ip.normalizedName == q:
+			matches = append(matches, match{ip.place, 0})
+		case strings.HasPrefix(ip.normalizedName, q):
+			matches = append(matches, match{ip.place, 1})
+		case strings.Contains(ip.normalizedName, q):
+			matches = append(matches, match{ip.place, 2})
+		}
+	}
+
+	// places is already ordered by level and code, so a stable sort by rank
+	// keeps that order within each rank.
+	sort.SliceStable(matches, func(i, j int) bool { return matches[i].rank < matches[j].rank })
+
+	results := make([]Place, len(matches))
+	for i, m := range matches {
+		results[i] = m.place
+	}
+	page := paginate(results, p)
+	// The parents are pointers into the index: copy them so callers cannot
+	// modify the store through a result.
+	for i := range page {
+		page[i] = clonePlace(page[i])
+	}
+	return page, len(results), nil
+}
+
+func clonePlace(p Place) Place {
+	if p.Municipality != nil {
+		m := *p.Municipality
+		p.Municipality = &m
+	}
+	if p.State != nil {
+		st := *p.State
+		p.State = &st
+	}
+	return p
 }
 
 // paginate returns a copy of the window of items selected by p, so callers

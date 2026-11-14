@@ -108,6 +108,7 @@ func TestRoutes(t *testing.T) {
 		{"GET", "/health", 200, "application/json", `{"status":"ok"}`},
 		{"GET", "/v1/states/VE14", 200, "application/json", `"name":"Mérida"`},
 		{"GET", "/v1/municipalities/VE1412/parishes?limit=1", 200, "application/json", `"total":15`},
+		{"GET", "/v1/places/search?q=san%20cristobal", 200, "application/json", `"total":3`},
 		{"GET", "/v1/nope", 404, "application/problem+json", `"status":404`},
 		{"POST", "/v1/states", 405, "application/problem+json", `"status":405`},
 	}

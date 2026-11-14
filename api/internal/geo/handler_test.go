@@ -228,3 +228,103 @@ func TestHandlerWithRealData(t *testing.T) {
 		}
 	}`)
 }
+
+func TestSearchPlaces(t *testing.T) {
+	h := newTestServer(t, loadValid(t))
+
+	tests := []struct {
+		path string
+		want string
+	}{
+		{
+			path: "/v1/places/search?q=merida",
+			want: `{
+				"data": [
+					{"type": "state", "code": "VE14", "name": "Mérida"}
+				],
+				"meta": {"total": 1, "limit": 20, "offset": 0}
+			}`,
+		},
+		{
+			path: "/v1/places/search?q=an&type=municipality",
+			want: `{
+				"data": [
+					{"type": "municipality", "code": "VE1401", "name": "Alberto Adriani", "state": {"code": "VE14", "name": "Mérida"}}
+				],
+				"meta": {"total": 1, "limit": 20, "offset": 0}
+			}`,
+		},
+		{
+			path: "/v1/places/search?q=arias&limit=5",
+			want: `{
+				"data": [
+					{
+						"type": "parish", "code": "VE141202", "name": "Arias",
+						"municipality": {"code": "VE1412", "name": "Libertador"},
+						"state": {"code": "VE14", "name": "Mérida"}
+					}
+				],
+				"meta": {"total": 1, "limit": 5, "offset": 0}
+			}`,
+		},
+		{
+			path: "/v1/places/search?q=zzz",
+			want: `{"data": [], "meta": {"total": 0, "limit": 20, "offset": 0}}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			rec := get(t, h, tt.path)
+			if rec.Code != http.StatusOK {
+				t.Fatalf("status = %d, want 200; body: %s", rec.Code, rec.Body)
+			}
+			assertJSON(t, rec.Body.String(), tt.want)
+		})
+	}
+}
+
+func TestSearchPlacesValidation(t *testing.T) {
+	h := newTestServer(t, loadValid(t))
+	long := strings.Repeat("a", 101)
+
+	tests := []struct {
+		path        string
+		wantInvalid map[string]string
+	}{
+		{"/v1/places/search", map[string]string{"q": "is required"}},
+		{"/v1/places/search?q=", map[string]string{"q": "must have at least 2 characters"}},
+		{"/v1/places/search?q=a", map[string]string{"q": "must have at least 2 characters"}},
+		{"/v1/places/search?q=%20%20a%20%20", map[string]string{"q": "must have at least 2 characters"}},
+		{"/v1/places/search?q=" + long, map[string]string{"q": "must have at most 100 characters"}},
+		{"/v1/places/search?q=caracas&type=city", map[string]string{"type": "must be one of: state, municipality, parish"}},
+		{
+			"/v1/places/search?q=a&type=city&limit=0",
+			map[string]string{
+				"q":     "must have at least 2 characters",
+				"type":  "must be one of: state, municipality, parish",
+				"limit": "must be an integer between 1 and 500",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			rec := get(t, h, tt.path)
+			if rec.Code != http.StatusBadRequest {
+				t.Fatalf("status = %d, want 400; body: %s", rec.Code, rec.Body)
+			}
+			var p httpx.Problem
+			if err := json.Unmarshal(rec.Body.Bytes(), &p); err != nil {
+				t.Fatal(err)
+			}
+			got := make(map[string]string)
+			for _, ip := range p.InvalidParams {
+				got[ip.Name] = ip.Reason
+			}
+			if !reflect.DeepEqual(got, tt.wantInvalid) {
+				t.Errorf("invalid_params = %v, want %v", got, tt.wantInvalid)
+			}
+		})
+	}
+}
