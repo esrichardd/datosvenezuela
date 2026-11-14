@@ -13,6 +13,9 @@ linters:
   settings:
     misspell:
       locale: US
+      # Spanish words in place names that look like English misspellings.
+      ignore-rules:
+        - dependencias
   exclusions:
     rules:
       # Tests may use patterns gosec flags in production code.
