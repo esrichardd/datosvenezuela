@@ -47,6 +47,9 @@ type CSVStore struct {
 	parishesByMunicipality map[string][]Parish
 }
 
+// CSVStore must satisfy the handlers' port; this fails to compile otherwise.
+var _ store = (*CSVStore)(nil)
+
 // LoadCSV reads, validates and indexes the geography dataset in dir.
 //
 // It reports every validation problem it finds, not only the first one, so

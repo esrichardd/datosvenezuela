@@ -30,6 +30,9 @@ VE141202,VE1412,Arias
 `
 )
 
+// realDataDir is the dataset published in the repository.
+var realDataDir = filepath.Join("..", "..", "..", "data", "geography")
+
 // writeDataset writes the three geography files to a temporary directory and
 // returns its path.
 func writeDataset(t *testing.T, states, municipalities, parishes string) string {
@@ -350,7 +353,7 @@ func TestPaginate(t *testing.T) {
 // TestRealData loads the dataset published in data/geography, so CI fails if
 // anyone commits invalid data.
 func TestRealData(t *testing.T) {
-	s, err := LoadCSV(filepath.Join("..", "..", "..", "data", "geography"))
+	s, err := LoadCSV(realDataDir)
 	if err != nil {
 		t.Fatalf("LoadCSV() error = %v", err)
 	}
