@@ -333,11 +333,16 @@ paths:
                     name: San Cristóbal
                     state: { code: VE20, name: Táchira }
                   - type: parish
+                    code: VE031802
+                    name: San Cristóbal
+                    municipality: { code: VE0318, name: Simón Bolívar }
+                    state: { code: VE03, name: Anzoátegui }
+                  - type: parish
                     code: VE141102
                     name: San Cristóbal de Torondoy
                     municipality: { code: VE1411, name: Justo Briceño }
                     state: { code: VE14, name: Mérida }
-                meta: { total: 2, limit: 20, offset: 0 }
+                meta: { total: 3, limit: 20, offset: 0 }
         "400": { $ref: "#/components/responses/BadRequest" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "500": { $ref: "#/components/responses/InternalError" }
