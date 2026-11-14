@@ -69,7 +69,7 @@ func run(logger *slog.Logger) error {
 
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.port),
-		Handler:           newHandler(geoStore),
+		Handler:           newHandler(logger, geoStore),
 		ReadHeaderTimeout: readHeaderTimeout,
 		ReadTimeout:       readTimeout,
 		WriteTimeout:      writeTimeout,

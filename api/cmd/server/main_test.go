@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"log/slog"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -96,7 +98,8 @@ func TestRoutes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadCSV() error = %v", err)
 	}
-	h := newHandler(geoStore)
+	var logs bytes.Buffer
+	h := newHandler(slog.New(slog.NewJSONHandler(&logs, nil)), geoStore)
 
 	tests := []struct {
 		method      string
@@ -128,9 +131,17 @@ func TestRoutes(t *testing.T) {
 			if !strings.Contains(rec.Body.String(), tt.wantContain) {
 				t.Errorf("body = %s, want it to contain %s", rec.Body, tt.wantContain)
 			}
+			if got := rec.Header().Get("X-Content-Type-Options"); got != "nosniff" {
+				t.Errorf("X-Content-Type-Options = %q, want nosniff", got)
+			}
 			if id := rec.Header().Get(httpx.RequestIDHeader); !idRe.MatchString(id) {
 				t.Errorf("%s = %q, want a request ID", httpx.RequestIDHeader, id)
 			}
 		})
+	}
+
+	// Every request is logged except /health.
+	if got, want := strings.Count(logs.String(), `"msg":"request"`), len(tests)-1; got != want {
+		t.Errorf("logged %d requests, want %d:\n%s", got, want, logs.String())
 	}
 }

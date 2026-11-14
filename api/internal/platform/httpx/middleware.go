@@ -62,8 +62,6 @@ func (w *routeErrorWriter) WriteHeader(status int) {
 	isRouteError := status == http.StatusNotFound || status == http.StatusMethodNotAllowed
 	if isRouteError && strings.HasPrefix(w.Header().Get("Content-Type"), "text/plain") {
 		w.intercepted = true
-		// Drop the headers http.Error set for its text body.
-		w.Header().Del("X-Content-Type-Options")
 		detail := "no route matches " + w.r.URL.Path
 		if status == http.StatusMethodNotAllowed {
 			detail = "method " + w.r.Method + " is not allowed on " + w.r.URL.Path
