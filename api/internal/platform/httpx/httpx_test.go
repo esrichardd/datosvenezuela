@@ -55,12 +55,28 @@ func TestWriteListEmpty(t *testing.T) {
 	}
 }
 
+// TestJSONEncodingError checks that a value that cannot be encoded is answered
+// like any other internal error: a 500 problem, not plain text.
 func TestJSONEncodingError(t *testing.T) {
+	h := RequestID(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		JSON(w, r, http.StatusOK, func() {}) // functions have no JSON form
+	}))
 	rec := httptest.NewRecorder()
-	JSON(rec, httptest.NewRequest(http.MethodGet, "/", nil), http.StatusOK, func() {})
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
 
 	if rec.Code != http.StatusInternalServerError {
 		t.Errorf("status = %d, want 500", rec.Code)
+	}
+	if ct := rec.Header().Get("Content-Type"); ct != "application/problem+json" {
+		t.Errorf("Content-Type = %q, want application/problem+json", ct)
+	}
+	got := decode[Problem](t, rec)
+	if got.Status != http.StatusInternalServerError || got.Title != "Internal Server Error" ||
+		got.Detail != "an unexpected error occurred" {
+		t.Errorf("problem = %+v, want a 500 with the generic detail", got)
+	}
+	if got.RequestID == "" || got.RequestID != rec.Header().Get(RequestIDHeader) {
+		t.Errorf("request_id = %q, want it to match the %s header", got.RequestID, RequestIDHeader)
 	}
 }
 
@@ -135,11 +151,14 @@ func TestParsePage(t *testing.T) {
 		{query: "limit=20&offset=40", want: Page{Limit: 20, Offset: 40}},
 		{query: "limit=1", want: Page{Limit: 1}},
 		{query: "limit=500", want: Page{Limit: 500}},
-		{query: "limit=0", wantInvalid: []string{"limit"}},
-		{query: "limit=501", wantInvalid: []string{"limit"}},
-		{query: "limit=abc", wantInvalid: []string{"limit"}},
-		{query: "offset=-1", wantInvalid: []string{"offset"}},
-		{query: "limit=0&offset=x", wantInvalid: []string{"limit", "offset"}},
+		// An invalid parameter is reported and keeps its default, so the page
+		// stays within the limits even if the caller ignores the errors.
+		{query: "limit=0", want: Page{Limit: 100}, wantInvalid: []string{"limit"}},
+		{query: "limit=501", want: Page{Limit: 100}, wantInvalid: []string{"limit"}},
+		{query: "limit=abc", want: Page{Limit: 100}, wantInvalid: []string{"limit"}},
+		{query: "offset=-1", want: Page{Limit: 100}, wantInvalid: []string{"offset"}},
+		{query: "limit=0&offset=x", want: Page{Limit: 100}, wantInvalid: []string{"limit", "offset"}},
+		{query: "limit=9999&offset=40", want: Page{Limit: 100, Offset: 40}, wantInvalid: []string{"limit"}},
 	}
 
 	for _, tt := range tests {
@@ -151,9 +170,9 @@ func TestParsePage(t *testing.T) {
 				names = append(names, ip.Name)
 			}
 			if !slices.Equal(names, tt.wantInvalid) {
-				t.Fatalf("invalid params = %v, want %v", names, tt.wantInvalid)
+				t.Errorf("invalid params = %v, want %v", names, tt.wantInvalid)
 			}
-			if len(invalid) == 0 && p != tt.want {
+			if p != tt.want {
 				t.Errorf("page = %+v, want %+v", p, tt.want)
 			}
 		})

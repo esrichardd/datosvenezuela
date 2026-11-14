@@ -3,6 +3,7 @@ package geo
 import (
 	"context"
 	"errors"
+	"math"
 	"os"
 	"path/filepath"
 	"slices"
@@ -152,6 +153,21 @@ func TestLoadCSVValidationErrors(t *testing.T) {
 			name:     "municipality without parishes",
 			parishes: strings.Replace(validParishes, "VE140101,VE1401,Presidente Betancourt\n", "", 1),
 			wantErrs: []string{"parishes.csv: municipality VE1401 has no parishes"},
+		},
+		{
+			name:     "state out of order",
+			states:   validStates + "VE02,Amazonas,state,VE-Z,Puerto Ayacucho\n",
+			wantErrs: []string{"states.csv:5: code VE02 is out of order: it must come after VE25"},
+		},
+		{
+			name:           "municipality out of order",
+			municipalities: validMunicipalities + "VE1402,VE14,Andrés Bello\n",
+			wantErrs:       []string{"municipalities.csv:5: code VE1402 is out of order: it must come after VE1412"},
+		},
+		{
+			name:     "parish out of order",
+			parishes: validParishes + "VE010103,VE0101,Candelaria\n",
+			wantErrs: []string{"parishes.csv:7: code VE010103 is out of order: it must come after VE141202"},
 		},
 		{
 			name:     "reports every error",
@@ -338,8 +354,15 @@ func TestPaginate(t *testing.T) {
 		{Page{Limit: 2, Offset: 4}, []int{5}},
 		{Page{Limit: 2, Offset: 5}, []int{}},
 		{Page{Limit: 2, Offset: 99}, []int{}},
-		{Page{Limit: 0, Offset: 3}, []int{4, 5}},
+		{Page{Limit: 99, Offset: 3}, []int{4, 5}},
 		{Page{Limit: 2, Offset: -1}, []int{1, 2}},
+		// Without a positive limit there is nothing to return: a Page that
+		// was never filled in must not select the whole list.
+		{Page{}, []int{}},
+		{Page{Limit: 0, Offset: 3}, []int{}},
+		{Page{Limit: -1}, []int{}},
+		// A huge limit must not overflow when added to the offset.
+		{Page{Limit: math.MaxInt, Offset: 3}, []int{4, 5}},
 	}
 
 	for _, tt := range tests {

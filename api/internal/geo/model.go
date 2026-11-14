@@ -75,7 +75,8 @@ type Place struct {
 	State        *StateRef
 }
 
-// Page selects a window of a list.
+// Page selects a window of a list: at most Limit items, skipping the first
+// Offset. A Limit of zero or less selects no items.
 type Page struct {
 	Limit  int
 	Offset int

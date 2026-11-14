@@ -50,14 +50,16 @@ func JSON(w http.ResponseWriter, r *http.Request, status int, v any) {
 }
 
 // writeJSON encodes v before writing anything, so an encoding failure can
-// still be answered with a 500 instead of a truncated body.
+// still be answered with a 500 problem instead of a truncated body.
 func writeJSON(w http.ResponseWriter, r *http.Request, status int, contentType string, v any) {
 	body, err := json.Marshal(v)
 	if err != nil {
 		slog.ErrorContext(r.Context(), "encode JSON response",
 			"error", err, "request_id", RequestIDFrom(r.Context()))
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
+		// Answer with a problem, like every other error. A Problem only
+		// holds strings and numbers, so encoding it cannot fail.
+		status, contentType = http.StatusInternalServerError, problemContentType
+		body, _ = json.Marshal(newProblem(r, status, internalErrorDetail))
 	}
 
 	w.Header().Set("Content-Type", contentType)

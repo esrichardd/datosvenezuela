@@ -2,13 +2,17 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"log/slog"
+	"net"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/esrichardd/apivenezuela/api/internal/geo"
 	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
@@ -143,5 +147,72 @@ func TestRoutes(t *testing.T) {
 	// Every request is logged except /health.
 	if got, want := strings.Count(logs.String(), `"msg":"request"`), len(tests)-1; got != want {
 		t.Errorf("logged %d requests, want %d:\n%s", got, want, logs.String())
+	}
+}
+
+// TestServe runs the server on a free port and checks its whole life: it
+// answers requests, and canceling the context shuts it down cleanly.
+func TestServe(t *testing.T) {
+	// Port 0 asks the operating system for any free port.
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /health", handleHealth)
+	srv := &http.Server{Handler: mux, ReadHeaderTimeout: readHeaderTimeout}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	var logs bytes.Buffer
+	done := make(chan error, 1)
+	go func() { done <- serve(ctx, slog.New(slog.NewJSONHandler(&logs, nil)), srv, ln) }()
+
+	resp, err := http.Get("http://" + ln.Addr().String() + "/health")
+	if err != nil {
+		t.Fatalf("GET /health error = %v", err)
+	}
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("status = %d, want 200", resp.StatusCode)
+	}
+
+	// Canceling the context is what a SIGTERM does in run.
+	cancel()
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Errorf("serve() error = %v, want nil after a clean shutdown", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("serve() did not return after the context was canceled")
+	}
+
+	// serve has returned, so nothing else is writing to logs.
+	if !strings.Contains(logs.String(), "server stopped") {
+		t.Errorf("logs = %s, want them to report the shutdown", logs.String())
+	}
+	if conn, err := net.Dial("tcp", ln.Addr().String()); err == nil {
+		_ = conn.Close()
+		t.Error("the port is still open after the shutdown")
+	}
+}
+
+// TestServeFails checks that a server that cannot accept connections is
+// reported as an error instead of waiting forever for a signal.
+func TestServeFails(t *testing.T) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A closed listener makes Serve fail at once.
+	if err := ln.Close(); err != nil {
+		t.Fatal(err)
+	}
+	srv := &http.Server{ReadHeaderTimeout: readHeaderTimeout}
+
+	err = serve(context.Background(), slog.New(slog.DiscardHandler), srv, ln)
+	if err == nil || !strings.HasPrefix(err.Error(), "serve: ") {
+		t.Errorf("serve() error = %v, want a serve error", err)
 	}
 }

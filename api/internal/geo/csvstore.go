@@ -126,6 +126,7 @@ func (s *CSVStore) buildSearchIndex() {
 func (s *CSVStore) loadStates(rows []csvload.Record) []error {
 	var errs []error
 	isoSeen := make(map[string]bool, len(rows))
+	prev := "" // code of the previous row
 
 	for _, r := range rows {
 		st := State{
@@ -145,6 +146,8 @@ func (s *CSVStore) loadStates(rows []csvload.Record) []error {
 		if _, dup := s.stateByCode[st.Code]; dup {
 			fail("duplicate code %s", st.Code)
 		}
+		checkOrder(prev, st.Code, fail)
+		prev = st.Code
 		checkName(st.Name, fail)
 		switch st.Type {
 		case TypeState, TypeCapitalDistrict, TypeFederalDependencies:
@@ -174,6 +177,7 @@ func (s *CSVStore) loadStates(rows []csvload.Record) []error {
 
 func (s *CSVStore) loadMunicipalities(rows []csvload.Record) []error {
 	var errs []error
+	prev := "" // code of the previous row
 
 	for _, r := range rows {
 		code, stateCode, name := r.Fields[0], r.Fields[1], r.Fields[2]
@@ -187,6 +191,8 @@ func (s *CSVStore) loadMunicipalities(rows []csvload.Record) []error {
 		if _, dup := s.municipalityByCode[code]; dup {
 			fail("duplicate code %s", code)
 		}
+		checkOrder(prev, code, fail)
+		prev = code
 		checkName(name, fail)
 		i, ok := s.stateByCode[stateCode]
 		if !ok {
@@ -209,6 +215,7 @@ func (s *CSVStore) loadMunicipalities(rows []csvload.Record) []error {
 
 func (s *CSVStore) loadParishes(rows []csvload.Record) []error {
 	var errs []error
+	prev := "" // code of the previous row
 
 	for _, r := range rows {
 		code, municipalityCode, name := r.Fields[0], r.Fields[1], r.Fields[2]
@@ -222,6 +229,8 @@ func (s *CSVStore) loadParishes(rows []csvload.Record) []error {
 		if _, dup := s.parishByCode[code]; dup {
 			fail("duplicate code %s", code)
 		}
+		checkOrder(prev, code, fail)
+		prev = code
 		checkName(name, fail)
 		i, ok := s.municipalityByCode[municipalityCode]
 		if !ok {
@@ -379,17 +388,30 @@ func clonePlace(p Place) Place {
 
 // paginate returns a copy of the window of items selected by p, so callers
 // cannot modify the store. It never returns nil.
+//
+// A Limit of zero or less selects no items: a Page that was never filled in
+// yields an empty list, not the whole dataset.
 func paginate[T any](items []T, p Page) []T {
 	start := min(max(p.Offset, 0), len(items))
-	end := len(items)
-	if p.Limit > 0 {
-		end = min(start+p.Limit, len(items))
-	}
-	return append(make([]T, 0, end-start), items[start:end]...)
+	// Clamp the size to what is left, so a huge Limit cannot overflow.
+	size := min(max(p.Limit, 0), len(items)-start)
+	return append(make([]T, 0, size), items[start:start+size]...)
 }
 
 func lineError(file string, line int, format string, args ...any) error {
 	return fmt.Errorf("%s:%d: %s", file, line, fmt.Sprintf(format, args...))
+}
+
+// checkOrder rejects a code that sorts before the one in the previous row.
+//
+// The store serves rows in file order and the API promises lists ordered by
+// code, so the files must be sorted. Codes have a fixed width, which makes
+// comparing them as text the same as comparing their numbers. An equal code
+// is left to the duplicate check, which gives a clearer message.
+func checkOrder(prev, code string, fail func(string, ...any)) {
+	if code < prev {
+		fail("code %s is out of order: it must come after %s", code, prev)
+	}
 }
 
 func checkName(name string, fail func(string, ...any)) {

@@ -271,6 +271,11 @@ func TestSearchPlaces(t *testing.T) {
 			path: "/v1/places/search?q=zzz",
 			want: `{"data": [], "meta": {"total": 0, "limit": 20, "offset": 0}}`,
 		},
+		{
+			// The longest query allowed.
+			path: "/v1/places/search?q=" + strings.Repeat("z", 100),
+			want: `{"data": [], "meta": {"total": 0, "limit": 20, "offset": 0}}`,
+		},
 	}
 
 	for _, tt := range tests {
@@ -287,6 +292,8 @@ func TestSearchPlaces(t *testing.T) {
 func TestSearchPlacesValidation(t *testing.T) {
 	h := newTestServer(t, loadValid(t))
 	long := strings.Repeat("a", 101)
+	// Only two characters once normalized, but far too long as received.
+	padded := strings.Repeat("%20", 150) + "ab"
 
 	tests := []struct {
 		path        string
@@ -297,6 +304,7 @@ func TestSearchPlacesValidation(t *testing.T) {
 		{"/v1/places/search?q=a", map[string]string{"q": "must have at least 2 characters"}},
 		{"/v1/places/search?q=%20%20a%20%20", map[string]string{"q": "must have at least 2 characters"}},
 		{"/v1/places/search?q=" + long, map[string]string{"q": "must have at most 100 characters"}},
+		{"/v1/places/search?q=" + padded, map[string]string{"q": "must have at most 100 characters"}},
 		{"/v1/places/search?q=caracas&type=city", map[string]string{"type": "must be one of: state, municipality, parish"}},
 		{
 			"/v1/places/search?q=a&type=city&limit=0",

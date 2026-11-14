@@ -81,7 +81,7 @@ func Recover(logger *slog.Logger) func(http.Handler) http.Handler {
 				// If the handler already started the response, its status
 				// line is gone; the client will see a truncated body.
 				if !rec.wroteHeader {
-					WriteProblem(rec, r, http.StatusInternalServerError, "an unexpected error occurred")
+					WriteProblem(rec, r, http.StatusInternalServerError, internalErrorDetail)
 				}
 			}()
 			next.ServeHTTP(rec, r)

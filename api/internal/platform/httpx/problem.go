@@ -24,16 +24,29 @@ type InvalidParam struct {
 	Reason string `json:"reason"`
 }
 
-// WriteProblem writes an application/problem+json response.
-func WriteProblem(w http.ResponseWriter, r *http.Request, status int, detail string, params ...InvalidParam) {
-	writeJSON(w, r, status, "application/problem+json", Problem{
+const (
+	problemContentType = "application/problem+json"
+
+	// internalErrorDetail is the only detail a 500 ever carries. The real
+	// cause may contain internal information, so it stays in the logs.
+	internalErrorDetail = "an unexpected error occurred"
+)
+
+// newProblem builds the problem for status, tagged with the request ID.
+func newProblem(r *http.Request, status int, detail string, params ...InvalidParam) Problem {
+	return Problem{
 		Type:          "about:blank",
 		Title:         http.StatusText(status),
 		Status:        status,
 		Detail:        detail,
 		RequestID:     RequestIDFrom(r.Context()),
 		InvalidParams: params,
-	})
+	}
+}
+
+// WriteProblem writes an application/problem+json response.
+func WriteProblem(w http.ResponseWriter, r *http.Request, status int, detail string, params ...InvalidParam) {
+	writeJSON(w, r, status, problemContentType, newProblem(r, status, detail, params...))
 }
 
 // BadRequest writes a 400 listing every invalid parameter.
@@ -55,5 +68,5 @@ func InternalError(w http.ResponseWriter, r *http.Request, err error) {
 		"method", r.Method,
 		"path", r.URL.Path,
 	)
-	WriteProblem(w, r, http.StatusInternalServerError, "an unexpected error occurred")
+	WriteProblem(w, r, http.StatusInternalServerError, internalErrorDetail)
 }

@@ -156,17 +156,21 @@ func (h *Handler) searchPlaces(w http.ResponseWriter, r *http.Request) {
 	page, invalid := httpx.ParsePage(r, searchDefaultLimit)
 	query := r.URL.Query()
 
+	// The maximum applies to q as received and is checked first, so an
+	// oversized query is rejected before doing any work on it. The minimum
+	// applies to the normalized text: surrounding and repeated spaces do not
+	// count.
 	q := query.Get("q")
-	switch n := utf8.RuneCountInString(textnorm.Normalize(q)); {
+	switch {
 	case !query.Has("q"):
 		invalid = append(invalid, httpx.InvalidParam{Name: "q", Reason: "is required"})
-	case n < searchMinQueryLen:
-		invalid = append(invalid, httpx.InvalidParam{
-			Name: "q", Reason: fmt.Sprintf("must have at least %d characters", searchMinQueryLen),
-		})
-	case n > searchMaxQueryLen:
+	case utf8.RuneCountInString(q) > searchMaxQueryLen:
 		invalid = append(invalid, httpx.InvalidParam{
 			Name: "q", Reason: fmt.Sprintf("must have at most %d characters", searchMaxQueryLen),
+		})
+	case utf8.RuneCountInString(textnorm.Normalize(q)) < searchMinQueryLen:
+		invalid = append(invalid, httpx.InvalidParam{
+			Name: "q", Reason: fmt.Sprintf("must have at least %d characters", searchMinQueryLen),
 		})
 	}
 

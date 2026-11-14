@@ -288,7 +288,9 @@ paths:
         - name: q
           in: query
           required: true
-          description: Text to search for.
+          description: |
+            Text to search for. Surrounding and repeated spaces are ignored,
+            and at least 2 characters must remain.
           schema:
             type: string
             minLength: 2
