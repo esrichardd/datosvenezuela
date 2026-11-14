@@ -9,9 +9,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/esrichardd/apivenezuela/api/internal/geo"
 )
 
 // Server timeouts. Go's http.Server has no timeouts by default, which leaves it
@@ -29,7 +32,8 @@ const (
 
 // config holds the settings read from environment variables.
 type config struct {
-	port int
+	port    int
+	dataDir string // directory with the CSV datasets (the repo's data/)
 }
 
 func main() {
@@ -55,12 +59,17 @@ func run(logger *slog.Logger) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /health", handleHealth)
+	// Load every dataset before opening the port: invalid data stops the
+	// server here instead of serving wrong answers.
+	geoStore, err := geo.LoadCSV(filepath.Join(cfg.dataDir, "geography"))
+	if err != nil {
+		return fmt.Errorf("load geography: %w", err)
+	}
+	logGeographyLoaded(ctx, logger, geoStore)
 
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.port),
-		Handler:           mux,
+		Handler:           newHandler(geoStore),
 		ReadHeaderTimeout: readHeaderTimeout,
 		ReadTimeout:       readTimeout,
 		WriteTimeout:      writeTimeout,
@@ -100,7 +109,8 @@ func run(logger *slog.Logger) error {
 // loadConfig reads the configuration from environment variables, applying
 // defaults. Invalid values fail fast at startup instead of at first use.
 func loadConfig() (config, error) {
-	cfg := config{port: 8080}
+	// The default dataDir works for `make run`, which runs from api/.
+	cfg := config{port: 8080, dataDir: "../data"}
 
 	if v, ok := os.LookupEnv("PORT"); ok {
 		port, err := strconv.Atoi(v)
@@ -109,13 +119,26 @@ func loadConfig() (config, error) {
 		}
 		cfg.port = port
 	}
+
+	if v, ok := os.LookupEnv("DATA_DIR"); ok {
+		cfg.dataDir = v
+	}
+	if info, err := os.Stat(cfg.dataDir); err != nil || !info.IsDir() {
+		return config{}, fmt.Errorf("invalid DATA_DIR %q: must be an existing directory", cfg.dataDir)
+	}
+
 	return cfg, nil
 }
 
-// handleHealth reports that the server is up. Load balancers and Docker use it
-// to decide whether to send traffic to this instance.
-func handleHealth(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(`{"status":"ok"}` + "\n"))
+// logGeographyLoaded logs how many records were loaded, to confirm at startup
+// that the expected data is being served.
+func logGeographyLoaded(ctx context.Context, logger *slog.Logger, s *geo.CSVStore) {
+	_, states, _ := s.States(ctx, geo.Page{})
+	_, municipalities, _ := s.Municipalities(ctx, geo.Page{})
+	_, parishes, _ := s.Parishes(ctx, geo.Page{})
+	logger.Info("geography loaded",
+		"states", states,
+		"municipalities", municipalities,
+		"parishes", parishes,
+	)
 }
