@@ -1,0 +1,53 @@
+package httpx
+
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+)
+
+// Pagination limits shared by every list endpoint.
+const (
+	DefaultLimit = 100
+	MaxLimit     = 500
+)
+
+// Page is the window of a list requested with the limit and offset query
+// parameters.
+type Page struct {
+	Limit  int
+	Offset int
+}
+
+// ParsePage reads the limit and offset query parameters. Missing values take
+// defaultLimit and 0. It reports every invalid parameter, so the caller can
+// answer with a single 400.
+func ParsePage(r *http.Request, defaultLimit int) (Page, []InvalidParam) {
+	q := r.URL.Query()
+	p := Page{Limit: defaultLimit}
+	var invalid []InvalidParam
+
+	if v := q.Get("limit"); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 1 || n > MaxLimit {
+			invalid = append(invalid, InvalidParam{
+				Name:   "limit",
+				Reason: fmt.Sprintf("must be an integer between 1 and %d", MaxLimit),
+			})
+		}
+		p.Limit = n
+	}
+
+	if v := q.Get("offset"); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 0 {
+			invalid = append(invalid, InvalidParam{
+				Name:   "offset",
+				Reason: "must be an integer greater than or equal to 0",
+			})
+		}
+		p.Offset = n
+	}
+
+	return p, invalid
+}
