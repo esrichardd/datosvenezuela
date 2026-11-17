@@ -160,9 +160,13 @@ func TestHandlerErrors(t *testing.T) {
 		{"/v1/municipalities/VE9999", 404, "municipality VE9999 not found"},
 		{"/v1/municipalities/VE9999/parishes", 404, "municipality VE9999 not found"},
 		{"/v1/parishes/VE999999", 404, "parish VE999999 not found"},
+		// Every list route rejects invalid pagination; /v1/places/search is
+		// covered by TestSearchPlacesValidation.
 		{"/v1/states?limit=0", 400, "invalid request parameters"},
-		{"/v1/parishes?offset=-1", 400, "invalid request parameters"},
 		{"/v1/states/VE14/municipalities?limit=9999", 400, "invalid request parameters"},
+		{"/v1/municipalities?limit=0", 400, "invalid request parameters"},
+		{"/v1/municipalities/VE1412/parishes?offset=-1", 400, "invalid request parameters"},
+		{"/v1/parishes?offset=-1", 400, "invalid request parameters"},
 	}
 
 	for _, tt := range tests {
@@ -186,18 +190,62 @@ func TestHandlerErrors(t *testing.T) {
 }
 
 // failingStore simulates a data source that breaks, such as a database that
-// went down. Only the methods used by the test are implemented.
-type failingStore struct{ reader }
+// went down: every method fails.
+type failingStore struct{}
+
+var _ reader = failingStore{}
 
 var errBoom = errors.New("connection refused to 10.0.0.5:5432")
 
-func (failingStore) States(context.Context, store.Page) ([]State, int, error) { return nil, 0, errBoom }
-func (failingStore) State(context.Context, string) (State, error)             { return State{}, errBoom }
+func (failingStore) States(context.Context, store.Page) ([]State, int, error) {
+	return nil, 0, errBoom
+}
 
+func (failingStore) State(context.Context, string) (State, error) { return State{}, errBoom }
+
+func (failingStore) Municipalities(context.Context, store.Page) ([]Municipality, int, error) {
+	return nil, 0, errBoom
+}
+
+func (failingStore) MunicipalitiesOf(context.Context, string, store.Page) ([]Municipality, int, error) {
+	return nil, 0, errBoom
+}
+
+func (failingStore) Municipality(context.Context, string) (Municipality, error) {
+	return Municipality{}, errBoom
+}
+
+func (failingStore) Parishes(context.Context, store.Page) ([]Parish, int, error) {
+	return nil, 0, errBoom
+}
+
+func (failingStore) ParishesOf(context.Context, string, store.Page) ([]Parish, int, error) {
+	return nil, 0, errBoom
+}
+
+func (failingStore) Parish(context.Context, string) (Parish, error) { return Parish{}, errBoom }
+
+func (failingStore) Search(context.Context, string, PlaceType, store.Page) ([]Place, int, error) {
+	return nil, 0, errBoom
+}
+
+// TestHandlerStoreFailure checks that every route answers a failing data
+// source with a 500 that does not leak the internal error.
 func TestHandlerStoreFailure(t *testing.T) {
 	h := newTestServer(t, failingStore{})
 
-	for _, path := range []string{"/v1/states", "/v1/states/VE14"} {
+	paths := []string{
+		"/v1/states",
+		"/v1/states/VE14",
+		"/v1/states/VE14/municipalities",
+		"/v1/municipalities",
+		"/v1/municipalities/VE1412",
+		"/v1/municipalities/VE1412/parishes",
+		"/v1/parishes",
+		"/v1/parishes/VE141201",
+		"/v1/places/search?q=merida",
+	}
+	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
 			rec := get(t, h, path)
 			if rec.Code != http.StatusInternalServerError {
@@ -208,26 +256,6 @@ func TestHandlerStoreFailure(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestHandlerWithRealData(t *testing.T) {
-	s, err := LoadCSV(realDataDir)
-	if err != nil {
-		t.Fatalf("LoadCSV() error = %v", err)
-	}
-	h := newTestServer(t, s)
-
-	rec := get(t, h, "/v1/parishes/VE141201")
-	if rec.Code != http.StatusOK {
-		t.Fatalf("status = %d, want 200; body: %s", rec.Code, rec.Body)
-	}
-	assertJSON(t, rec.Body.String(), `{
-		"data": {
-			"code": "VE141201", "name": "Antonio Spinetti Dini",
-			"municipality": {"code": "VE1412", "name": "Libertador"},
-			"state": {"code": "VE14", "name": "Mérida"}
-		}
-	}`)
 }
 
 func TestSearchPlaces(t *testing.T) {

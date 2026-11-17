@@ -68,6 +68,11 @@ func TestReadErrors(t *testing.T) {
 			wantErr: "states.csv: missing header",
 		},
 		{
+			name:    "malformed header",
+			input:   "code,\"name\nVE01,Distrito Capital\n",
+			wantErr: "states.csv: record on line 1; parse error",
+		},
+		{
 			name:    "wrong header",
 			input:   "code,nombre\nVE01,Distrito Capital\n",
 			wantErr: `states.csv: header mismatch: got ["code" "nombre"], want ["code" "name"]`,

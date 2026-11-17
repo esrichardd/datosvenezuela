@@ -54,20 +54,31 @@ func TestAccessLog(t *testing.T) {
 		WriteProblem(w, r, http.StatusInternalServerError, "boom")
 	})
 	mux.HandleFunc("GET /empty", func(http.ResponseWriter, *http.Request) {})
+	mux.HandleFunc("GET /implicit", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte("hi")) // no WriteHeader: net/http sends 200
+	})
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		JSON(w, r, http.StatusOK, "ok")
 	})
 	h := RequestID(AccessLog(newTestLogger(&buf), "/health")(mux))
 
-	for _, path := range []string{"/ok", "/fail", "/empty", "/health"} {
-		req := httptest.NewRequest(http.MethodGet, path, nil)
-		req.RemoteAddr = "203.0.113.7:51234"
+	requests := []struct{ path, remoteAddr string }{
+		{"/ok", "203.0.113.7:51234"},
+		{"/fail", "203.0.113.7:51234"},
+		{"/empty", "203.0.113.7:51234"},
+		{"/health", "203.0.113.7:51234"},
+		// Some connections, such as Unix sockets, have no port.
+		{"/implicit", "203.0.113.7"},
+	}
+	for _, rq := range requests {
+		req := httptest.NewRequest(http.MethodGet, rq.path, nil)
+		req.RemoteAddr = rq.remoteAddr
 		h.ServeHTTP(httptest.NewRecorder(), req)
 	}
 
 	lines := logLines(t, &buf)
-	if len(lines) != 3 {
-		t.Fatalf("got %d log lines, want 3 (/health is skipped):\n%s", len(lines), buf.String())
+	if len(lines) != 4 {
+		t.Fatalf("got %d log lines, want 4 (/health is skipped):\n%s", len(lines), buf.String())
 	}
 
 	ok := lines[0]
@@ -87,6 +98,10 @@ func TestAccessLog(t *testing.T) {
 	}
 	if empty := lines[2]; empty["status"] != float64(200) || empty["bytes"] != float64(0) {
 		t.Errorf("empty response log line = %v, want status 200 and 0 bytes", empty)
+	}
+	if implicit := lines[3]; implicit["status"] != float64(200) || implicit["bytes"] != float64(2) ||
+		implicit["ip"] != "203.0.113.7" {
+		t.Errorf("implicit status log line = %v, want status 200, 2 bytes and ip 203.0.113.7", implicit)
 	}
 }
 
@@ -120,6 +135,41 @@ func TestRecover(t *testing.T) {
 		entry["request_id"] != rec.Header().Get(RequestIDHeader) ||
 		!strings.Contains(stack, "observe_test.go") {
 		t.Errorf("log entry = %v", entry)
+	}
+}
+
+// TestRecoverWithoutPanic checks that a normal response goes through
+// untouched and nothing is logged.
+func TestRecoverWithoutPanic(t *testing.T) {
+	var buf bytes.Buffer
+	h := Recover(newTestLogger(&buf))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		JSON(w, r, http.StatusCreated, "ok")
+	}))
+
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+
+	if rec.Code != http.StatusCreated || rec.Body.String() != `"ok"`+"\n" {
+		t.Errorf("response = %d %q, want 201 \"ok\"", rec.Code, rec.Body)
+	}
+	if buf.Len() != 0 {
+		t.Errorf("logged %s, want nothing", buf.String())
+	}
+}
+
+// TestRecoverUnwrap checks that http.ResponseController can reach the
+// underlying writer through the recorder, so handlers can still flush.
+func TestRecoverUnwrap(t *testing.T) {
+	h := Recover(slog.New(slog.DiscardHandler))(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		if err := http.NewResponseController(w).Flush(); err != nil {
+			t.Errorf("Flush() error = %v", err)
+		}
+	}))
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+
+	if !rec.Flushed {
+		t.Error("the flush did not reach the underlying writer")
 	}
 }
 

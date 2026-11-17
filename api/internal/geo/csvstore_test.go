@@ -3,6 +3,7 @@ package geo
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -130,6 +131,11 @@ func TestLoadCSVValidationErrors(t *testing.T) {
 			wantErrs:       []string{"municipalities.csv:3: code VE1401 does not start with its state_code VE01"},
 		},
 		{
+			name:           "invalid municipality code",
+			municipalities: strings.Replace(validMunicipalities, "VE1412,VE14", "VE141,VE14", 1),
+			wantErrs:       []string{`municipalities.csv:4: invalid code "VE141"`},
+		},
+		{
 			name:           "duplicate municipality code",
 			municipalities: validMunicipalities + "VE1412,VE14,Otro\n",
 			wantErrs:       []string{"municipalities.csv:5: duplicate code VE1412"},
@@ -148,6 +154,11 @@ func TestLoadCSVValidationErrors(t *testing.T) {
 			name:     "invalid parish code",
 			parishes: strings.Replace(validParishes, "VE141202,", "VE14120,", 1),
 			wantErrs: []string{`parishes.csv:6: invalid code "VE14120"`},
+		},
+		{
+			name:     "duplicate parish code",
+			parishes: validParishes + "VE141202,VE1412,Otra\n",
+			wantErrs: []string{"parishes.csv:7: duplicate code VE141202"},
 		},
 		{
 			name:     "municipality without parishes",
@@ -207,13 +218,17 @@ func TestLoadCSVValidationErrors(t *testing.T) {
 }
 
 func TestLoadCSVMissingFile(t *testing.T) {
-	dir := writeDataset(t, validStates, validMunicipalities, validParishes)
-	if err := os.Remove(filepath.Join(dir, parishesFile)); err != nil {
-		t.Fatal(err)
-	}
+	for _, file := range []string{statesFile, municipalitiesFile, parishesFile} {
+		t.Run(file, func(t *testing.T) {
+			dir := writeDataset(t, validStates, validMunicipalities, validParishes)
+			if err := os.Remove(filepath.Join(dir, file)); err != nil {
+				t.Fatal(err)
+			}
 
-	if _, err := LoadCSV(dir); err == nil {
-		t.Fatal("LoadCSV() error = nil, want an error for the missing file")
+			if _, err := LoadCSV(dir); !errors.Is(err, fs.ErrNotExist) {
+				t.Errorf("LoadCSV() error = %v, want a not-exist error", err)
+			}
+		})
 	}
 }
 
@@ -418,6 +433,11 @@ func TestSearch(t *testing.T) {
 		},
 		{
 			name: "no matches", query: "zzz", page: store.Page{Limit: 20},
+			wantCodes: "", wantTotal: 0,
+		},
+		{
+			// An empty query would contain every name; it matches nothing.
+			name: "blank query", query: "   ", page: store.Page{Limit: 20},
 			wantCodes: "", wantTotal: 0,
 		},
 	}

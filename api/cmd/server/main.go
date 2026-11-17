@@ -41,28 +41,29 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
-	if err := run(logger); err != nil {
+	// ctx is canceled when the process receives Ctrl+C (SIGINT) or SIGTERM,
+	// which is what Docker and most process managers send to stop a service.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	// Once the first signal arrives, stop catching signals: a second Ctrl+C
+	// then kills the process at once instead of waiting for the shutdown.
+	context.AfterFunc(ctx, stop)
+
+	err := run(ctx, logger)
+	stop()
+	if err != nil {
 		logger.Error("server stopped with error", "error", err)
 		os.Exit(1)
 	}
 }
 
-// run prepares the server (configuration, data, port) and serves until it is
-// stopped by a signal or fails. Keeping the logic out of main makes errors
-// easy to return.
-func run(logger *slog.Logger) error {
+// run prepares the server (configuration, data, port) and serves until ctx
+// is canceled or the server fails. Keeping the logic out of main makes errors
+// easy to return, and receiving ctx lets tests stop it without a signal.
+func run(ctx context.Context, logger *slog.Logger) error {
 	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}
-
-	// ctx is canceled when the process receives Ctrl+C (SIGINT) or SIGTERM,
-	// which is what Docker and most process managers send to stop a service.
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-	// Once the first signal arrives, stop catching signals: a second Ctrl+C
-	// then kills the process at once instead of waiting for the shutdown.
-	context.AfterFunc(ctx, stop)
 
 	// Load every dataset before opening the port: invalid data stops the
 	// server here instead of serving wrong answers.
