@@ -9,6 +9,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 )
 
 // decode parses the JSON body of a recorded response into a T.
@@ -38,7 +40,7 @@ func TestWriteItem(t *testing.T) {
 
 func TestWriteList(t *testing.T) {
 	rec := httptest.NewRecorder()
-	WriteList(rec, httptest.NewRequest(http.MethodGet, "/", nil), []string{"a", "b"}, 7, Page{Limit: 2, Offset: 4})
+	WriteList(rec, httptest.NewRequest(http.MethodGet, "/", nil), []string{"a", "b"}, 7, store.Page{Limit: 2, Offset: 4})
 
 	want := `{"data":["a","b"],"meta":{"total":7,"limit":2,"offset":4}}` + "\n"
 	if body := rec.Body.String(); body != want {
@@ -48,7 +50,7 @@ func TestWriteList(t *testing.T) {
 
 func TestWriteListEmpty(t *testing.T) {
 	rec := httptest.NewRecorder()
-	WriteList[string](rec, httptest.NewRequest(http.MethodGet, "/", nil), nil, 0, Page{Limit: 100})
+	WriteList[string](rec, httptest.NewRequest(http.MethodGet, "/", nil), nil, 0, store.Page{Limit: 100})
 
 	if body := rec.Body.String(); !strings.HasPrefix(body, `{"data":[],`) {
 		t.Errorf("body = %q, want data to be an empty array", body)
@@ -144,21 +146,21 @@ func TestProblems(t *testing.T) {
 func TestParsePage(t *testing.T) {
 	tests := []struct {
 		query       string
-		want        Page
+		want        store.Page
 		wantInvalid []string
 	}{
-		{query: "", want: Page{Limit: 100, Offset: 0}},
-		{query: "limit=20&offset=40", want: Page{Limit: 20, Offset: 40}},
-		{query: "limit=1", want: Page{Limit: 1}},
-		{query: "limit=500", want: Page{Limit: 500}},
+		{query: "", want: store.Page{Limit: 100, Offset: 0}},
+		{query: "limit=20&offset=40", want: store.Page{Limit: 20, Offset: 40}},
+		{query: "limit=1", want: store.Page{Limit: 1}},
+		{query: "limit=500", want: store.Page{Limit: 500}},
 		// An invalid parameter is reported and keeps its default, so the page
 		// stays within the limits even if the caller ignores the errors.
-		{query: "limit=0", want: Page{Limit: 100}, wantInvalid: []string{"limit"}},
-		{query: "limit=501", want: Page{Limit: 100}, wantInvalid: []string{"limit"}},
-		{query: "limit=abc", want: Page{Limit: 100}, wantInvalid: []string{"limit"}},
-		{query: "offset=-1", want: Page{Limit: 100}, wantInvalid: []string{"offset"}},
-		{query: "limit=0&offset=x", want: Page{Limit: 100}, wantInvalid: []string{"limit", "offset"}},
-		{query: "limit=9999&offset=40", want: Page{Limit: 100, Offset: 40}, wantInvalid: []string{"limit"}},
+		{query: "limit=0", want: store.Page{Limit: 100}, wantInvalid: []string{"limit"}},
+		{query: "limit=501", want: store.Page{Limit: 100}, wantInvalid: []string{"limit"}},
+		{query: "limit=abc", want: store.Page{Limit: 100}, wantInvalid: []string{"limit"}},
+		{query: "offset=-1", want: store.Page{Limit: 100}, wantInvalid: []string{"offset"}},
+		{query: "limit=0&offset=x", want: store.Page{Limit: 100}, wantInvalid: []string{"limit", "offset"}},
+		{query: "limit=9999&offset=40", want: store.Page{Limit: 100, Offset: 40}, wantInvalid: []string{"limit"}},
 	}
 
 	for _, tt := range tests {

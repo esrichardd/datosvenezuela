@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/esrichardd/apivenezuela/api/internal/geo"
+	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 )
 
 // Server timeouts. Go's http.Server has no timeouts by default, which leaves it
@@ -147,9 +148,9 @@ func loadConfig() (config, error) {
 // that the expected data is being served. An empty Page selects no items, so
 // each call only returns the total.
 func logGeographyLoaded(ctx context.Context, logger *slog.Logger, s *geo.CSVStore) {
-	_, states, _ := s.States(ctx, geo.Page{})
-	_, municipalities, _ := s.Municipalities(ctx, geo.Page{})
-	_, parishes, _ := s.Parishes(ctx, geo.Page{})
+	_, states, _ := s.States(ctx, store.Page{})
+	_, municipalities, _ := s.Municipalities(ctx, store.Page{})
+	_, parishes, _ := s.Parishes(ctx, store.Page{})
 	logger.Info("geography loaded",
 		"states", states,
 		"municipalities", municipalities,

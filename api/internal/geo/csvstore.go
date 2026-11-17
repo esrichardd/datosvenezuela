@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/esrichardd/apivenezuela/api/internal/platform/csvload"
+	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 	"github.com/esrichardd/apivenezuela/api/internal/platform/textnorm"
 )
 
@@ -59,7 +60,7 @@ type indexedPlace struct {
 }
 
 // CSVStore must satisfy the handlers' port; this fails to compile otherwise.
-var _ store = (*CSVStore)(nil)
+var _ reader = (*CSVStore)(nil)
 
 // LoadCSV reads, validates and indexes the geography dataset in dir.
 //
@@ -257,34 +258,34 @@ func (s *CSVStore) loadParishes(rows []csvload.Record) []error {
 }
 
 // States returns a page of all states, ordered by code, and the total count.
-func (s *CSVStore) States(_ context.Context, p Page) ([]State, int, error) {
-	return paginate(s.states, p), len(s.states), nil
+func (s *CSVStore) States(_ context.Context, p store.Page) ([]State, int, error) {
+	return store.Paginate(s.states, p), len(s.states), nil
 }
 
 // State returns the state with the given code. The code is case-insensitive.
 func (s *CSVStore) State(_ context.Context, code string) (State, error) {
 	i, ok := s.stateByCode[strings.ToUpper(code)]
 	if !ok {
-		return State{}, ErrNotFound
+		return State{}, store.ErrNotFound
 	}
 	return s.states[i], nil
 }
 
 // Municipalities returns a page of all municipalities, ordered by code, and
 // the total count.
-func (s *CSVStore) Municipalities(_ context.Context, p Page) ([]Municipality, int, error) {
-	return paginate(s.municipalities, p), len(s.municipalities), nil
+func (s *CSVStore) Municipalities(_ context.Context, p store.Page) ([]Municipality, int, error) {
+	return store.Paginate(s.municipalities, p), len(s.municipalities), nil
 }
 
 // MunicipalitiesOf returns a page of the municipalities of a state and their
-// total count. It returns ErrNotFound if the state does not exist.
-func (s *CSVStore) MunicipalitiesOf(_ context.Context, stateCode string, p Page) ([]Municipality, int, error) {
+// total count. It returns store.ErrNotFound if the state does not exist.
+func (s *CSVStore) MunicipalitiesOf(_ context.Context, stateCode string, p store.Page) ([]Municipality, int, error) {
 	stateCode = strings.ToUpper(stateCode)
 	if _, ok := s.stateByCode[stateCode]; !ok {
-		return nil, 0, ErrNotFound
+		return nil, 0, store.ErrNotFound
 	}
 	all := s.municipalitiesByState[stateCode]
-	return paginate(all, p), len(all), nil
+	return store.Paginate(all, p), len(all), nil
 }
 
 // Municipality returns the municipality with the given code. The code is
@@ -292,26 +293,26 @@ func (s *CSVStore) MunicipalitiesOf(_ context.Context, stateCode string, p Page)
 func (s *CSVStore) Municipality(_ context.Context, code string) (Municipality, error) {
 	i, ok := s.municipalityByCode[strings.ToUpper(code)]
 	if !ok {
-		return Municipality{}, ErrNotFound
+		return Municipality{}, store.ErrNotFound
 	}
 	return s.municipalities[i], nil
 }
 
 // Parishes returns a page of all parishes, ordered by code, and the total
 // count.
-func (s *CSVStore) Parishes(_ context.Context, p Page) ([]Parish, int, error) {
-	return paginate(s.parishes, p), len(s.parishes), nil
+func (s *CSVStore) Parishes(_ context.Context, p store.Page) ([]Parish, int, error) {
+	return store.Paginate(s.parishes, p), len(s.parishes), nil
 }
 
 // ParishesOf returns a page of the parishes of a municipality and their total
-// count. It returns ErrNotFound if the municipality does not exist.
-func (s *CSVStore) ParishesOf(_ context.Context, municipalityCode string, p Page) ([]Parish, int, error) {
+// count. It returns store.ErrNotFound if the municipality does not exist.
+func (s *CSVStore) ParishesOf(_ context.Context, municipalityCode string, p store.Page) ([]Parish, int, error) {
 	municipalityCode = strings.ToUpper(municipalityCode)
 	if _, ok := s.municipalityByCode[municipalityCode]; !ok {
-		return nil, 0, ErrNotFound
+		return nil, 0, store.ErrNotFound
 	}
 	all := s.parishesByMunicipality[municipalityCode]
-	return paginate(all, p), len(all), nil
+	return store.Paginate(all, p), len(all), nil
 }
 
 // Parish returns the parish with the given code. The code is
@@ -319,7 +320,7 @@ func (s *CSVStore) ParishesOf(_ context.Context, municipalityCode string, p Page
 func (s *CSVStore) Parish(_ context.Context, code string) (Parish, error) {
 	i, ok := s.parishByCode[strings.ToUpper(code)]
 	if !ok {
-		return Parish{}, ErrNotFound
+		return Parish{}, store.ErrNotFound
 	}
 	return s.parishes[i], nil
 }
@@ -332,7 +333,7 @@ func (s *CSVStore) Parish(_ context.Context, code string) (Parish, error) {
 // start with the query, then names that contain it. Within each group,
 // states come before municipalities and municipalities before parishes,
 // ordered by code.
-func (s *CSVStore) Search(_ context.Context, query string, placeType PlaceType, p Page) ([]Place, int, error) {
+func (s *CSVStore) Search(_ context.Context, query string, placeType PlaceType, p store.Page) ([]Place, int, error) {
 	q := textnorm.Normalize(query)
 	if q == "" {
 		return []Place{}, 0, nil
@@ -365,7 +366,7 @@ func (s *CSVStore) Search(_ context.Context, query string, placeType PlaceType, 
 	for i, m := range matches {
 		results[i] = m.place
 	}
-	page := paginate(results, p)
+	page := store.Paginate(results, p)
 	// The parents are pointers into the index: copy them so callers cannot
 	// modify the store through a result.
 	for i := range page {
@@ -384,18 +385,6 @@ func clonePlace(p Place) Place {
 		p.State = &st
 	}
 	return p
-}
-
-// paginate returns a copy of the window of items selected by p, so callers
-// cannot modify the store. It never returns nil.
-//
-// A Limit of zero or less selects no items: a Page that was never filled in
-// yields an empty list, not the whole dataset.
-func paginate[T any](items []T, p Page) []T {
-	start := min(max(p.Offset, 0), len(items))
-	// Clamp the size to what is left, so a huge Limit cannot overflow.
-	size := min(max(p.Limit, 0), len(items)-start)
-	return append(make([]T, 0, size), items[start:start+size]...)
 }
 
 func lineError(file string, line int, format string, args ...any) error {

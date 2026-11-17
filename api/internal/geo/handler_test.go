@@ -11,14 +11,15 @@ import (
 	"testing"
 
 	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 )
 
 // newTestServer serves the geography routes from the small valid dataset,
 // wrapped in the same middleware as the real server.
-func newTestServer(t *testing.T, s store) http.Handler {
+func newTestServer(t *testing.T, r reader) http.Handler {
 	t.Helper()
 	mux := http.NewServeMux()
-	NewHandler(s).Register(mux)
+	NewHandler(r).Register(mux)
 	return httpx.RequestID(httpx.RouteErrors(mux))
 }
 
@@ -186,12 +187,12 @@ func TestHandlerErrors(t *testing.T) {
 
 // failingStore simulates a data source that breaks, such as a database that
 // went down. Only the methods used by the test are implemented.
-type failingStore struct{ store }
+type failingStore struct{ reader }
 
 var errBoom = errors.New("connection refused to 10.0.0.5:5432")
 
-func (failingStore) States(context.Context, Page) ([]State, int, error) { return nil, 0, errBoom }
-func (failingStore) State(context.Context, string) (State, error)       { return State{}, errBoom }
+func (failingStore) States(context.Context, store.Page) ([]State, int, error) { return nil, 0, errBoom }
+func (failingStore) State(context.Context, string) (State, error)             { return State{}, errBoom }
 
 func TestHandlerStoreFailure(t *testing.T) {
 	h := newTestServer(t, failingStore{})

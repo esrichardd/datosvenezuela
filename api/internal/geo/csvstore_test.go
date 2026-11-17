@@ -3,12 +3,12 @@ package geo
 import (
 	"context"
 	"errors"
-	"math"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"testing"
+
+	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 )
 
 const (
@@ -232,7 +232,7 @@ func TestState(t *testing.T) {
 		}
 	}
 
-	if _, err := s.State(ctx, "VE99"); !errors.Is(err, ErrNotFound) {
+	if _, err := s.State(ctx, "VE99"); !errors.Is(err, store.ErrNotFound) {
 		t.Errorf("State(VE99) error = %v, want ErrNotFound", err)
 	}
 }
@@ -240,7 +240,7 @@ func TestState(t *testing.T) {
 func TestStates(t *testing.T) {
 	s := loadValid(t)
 
-	got, total, err := s.States(context.Background(), Page{Limit: 2, Offset: 1})
+	got, total, err := s.States(context.Background(), store.Page{Limit: 2, Offset: 1})
 	if err != nil {
 		t.Fatalf("States() error = %v", err)
 	}
@@ -256,7 +256,7 @@ func TestMunicipalitiesOf(t *testing.T) {
 	s := loadValid(t)
 	ctx := context.Background()
 
-	got, total, err := s.MunicipalitiesOf(ctx, "ve14", Page{Limit: 100})
+	got, total, err := s.MunicipalitiesOf(ctx, "ve14", store.Page{Limit: 100})
 	if err != nil {
 		t.Fatalf("MunicipalitiesOf() error = %v", err)
 	}
@@ -269,12 +269,12 @@ func TestMunicipalitiesOf(t *testing.T) {
 	}
 
 	// A state without municipalities exists, so it returns an empty list.
-	got, total, err = s.MunicipalitiesOf(ctx, "VE25", Page{Limit: 100})
+	got, total, err = s.MunicipalitiesOf(ctx, "VE25", store.Page{Limit: 100})
 	if err != nil || total != 0 || got == nil || len(got) != 0 {
 		t.Errorf("MunicipalitiesOf(VE25) = %v, %d, %v; want empty non-nil list", got, total, err)
 	}
 
-	if _, _, err := s.MunicipalitiesOf(ctx, "VE99", Page{Limit: 100}); !errors.Is(err, ErrNotFound) {
+	if _, _, err := s.MunicipalitiesOf(ctx, "VE99", store.Page{Limit: 100}); !errors.Is(err, store.ErrNotFound) {
 		t.Errorf("MunicipalitiesOf(VE99) error = %v, want ErrNotFound", err)
 	}
 }
@@ -291,7 +291,7 @@ func TestMunicipality(t *testing.T) {
 		t.Errorf("state = %+v, want VE14 Mérida", m.State)
 	}
 
-	if _, err := s.Municipality(ctx, "VE9999"); !errors.Is(err, ErrNotFound) {
+	if _, err := s.Municipality(ctx, "VE9999"); !errors.Is(err, store.ErrNotFound) {
 		t.Errorf("Municipality(VE9999) error = %v, want ErrNotFound", err)
 	}
 }
@@ -300,7 +300,7 @@ func TestParishesOfAndParish(t *testing.T) {
 	s := loadValid(t)
 	ctx := context.Background()
 
-	got, total, err := s.ParishesOf(ctx, "VE1412", Page{Limit: 1})
+	got, total, err := s.ParishesOf(ctx, "VE1412", store.Page{Limit: 1})
 	if err != nil {
 		t.Fatalf("ParishesOf() error = %v", err)
 	}
@@ -308,7 +308,7 @@ func TestParishesOfAndParish(t *testing.T) {
 		t.Errorf("ParishesOf() = %+v (total %d), want [VE141201] (total 2)", got, total)
 	}
 
-	if _, _, err := s.ParishesOf(ctx, "VE9999", Page{Limit: 1}); !errors.Is(err, ErrNotFound) {
+	if _, _, err := s.ParishesOf(ctx, "VE9999", store.Page{Limit: 1}); !errors.Is(err, store.ErrNotFound) {
 		t.Errorf("ParishesOf(VE9999) error = %v, want ErrNotFound", err)
 	}
 
@@ -326,7 +326,7 @@ func TestParishesOfAndParish(t *testing.T) {
 		t.Errorf("Parish() = %+v, want %+v", p, want)
 	}
 
-	if _, err := s.Parish(ctx, "VE999999"); !errors.Is(err, ErrNotFound) {
+	if _, err := s.Parish(ctx, "VE999999"); !errors.Is(err, store.ErrNotFound) {
 		t.Errorf("Parish(VE999999) error = %v, want ErrNotFound", err)
 	}
 }
@@ -335,41 +335,12 @@ func TestListsReturnCopies(t *testing.T) {
 	s := loadValid(t)
 	ctx := context.Background()
 
-	got, _, _ := s.Parishes(ctx, Page{Limit: 10})
+	got, _, _ := s.Parishes(ctx, store.Page{Limit: 10})
 	got[0].Name = "changed"
 
-	again, _, _ := s.Parishes(ctx, Page{Limit: 10})
+	again, _, _ := s.Parishes(ctx, store.Page{Limit: 10})
 	if again[0].Name == "changed" {
 		t.Error("modifying a returned list changed the store")
-	}
-}
-
-func TestPaginate(t *testing.T) {
-	items := []int{1, 2, 3, 4, 5}
-	tests := []struct {
-		page Page
-		want []int
-	}{
-		{Page{Limit: 2, Offset: 0}, []int{1, 2}},
-		{Page{Limit: 2, Offset: 4}, []int{5}},
-		{Page{Limit: 2, Offset: 5}, []int{}},
-		{Page{Limit: 2, Offset: 99}, []int{}},
-		{Page{Limit: 99, Offset: 3}, []int{4, 5}},
-		{Page{Limit: 2, Offset: -1}, []int{1, 2}},
-		// Without a positive limit there is nothing to return: a Page that
-		// was never filled in must not select the whole list.
-		{Page{}, []int{}},
-		{Page{Limit: 0, Offset: 3}, []int{}},
-		{Page{Limit: -1}, []int{}},
-		// A huge limit must not overflow when added to the offset.
-		{Page{Limit: math.MaxInt, Offset: 3}, []int{4, 5}},
-	}
-
-	for _, tt := range tests {
-		got := paginate(items, tt.page)
-		if got == nil || !slices.Equal(got, tt.want) {
-			t.Errorf("paginate(%+v) = %v, want %v", tt.page, got, tt.want)
-		}
 	}
 }
 
@@ -382,9 +353,9 @@ func TestRealData(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	_, states, _ := s.States(ctx, Page{})
-	_, municipalities, _ := s.Municipalities(ctx, Page{})
-	_, parishes, _ := s.Parishes(ctx, Page{})
+	_, states, _ := s.States(ctx, store.Page{})
+	_, municipalities, _ := s.Municipalities(ctx, store.Page{})
+	_, parishes, _ := s.Parishes(ctx, store.Page{})
 	if states != 25 || municipalities != 335 || parishes != 1134 {
 		t.Errorf("got %d states, %d municipalities, %d parishes; want 25, 335, 1134",
 			states, municipalities, parishes)
@@ -414,7 +385,7 @@ func TestSearch(t *testing.T) {
 		name      string
 		query     string
 		placeType PlaceType
-		page      Page
+		page      store.Page
 		wantCodes string
 		wantTotal int
 	}{
@@ -422,31 +393,31 @@ func TestSearch(t *testing.T) {
 			// Prefix matches (Antímano, Antonio Spinetti Dini) come before
 			// names that only contain "an" (Alberto Adriani, Presidente
 			// Betancourt); within each group, municipalities before parishes.
-			name: "ranked by relevance", query: "an", page: Page{Limit: 20},
+			name: "ranked by relevance", query: "an", page: store.Page{Limit: 20},
 			wantCodes: "VE010102,VE141201,VE1401,VE140101", wantTotal: 4,
 		},
 		{
-			name: "exact match first", query: "libertador", page: Page{Limit: 20},
+			name: "exact match first", query: "libertador", page: store.Page{Limit: 20},
 			wantCodes: "VE0101,VE1412", wantTotal: 2,
 		},
 		{
-			name: "ignores case and accents", query: "  ANTIMANO ", page: Page{Limit: 20},
+			name: "ignores case and accents", query: "  ANTIMANO ", page: store.Page{Limit: 20},
 			wantCodes: "VE010102", wantTotal: 1,
 		},
 		{
-			name: "matches accented query against plain name", query: "Árias", page: Page{Limit: 20},
+			name: "matches accented query against plain name", query: "Árias", page: store.Page{Limit: 20},
 			wantCodes: "VE141202", wantTotal: 1,
 		},
 		{
-			name: "filters by type", query: "an", placeType: PlaceParish, page: Page{Limit: 20},
+			name: "filters by type", query: "an", placeType: PlaceParish, page: store.Page{Limit: 20},
 			wantCodes: "VE010102,VE141201,VE140101", wantTotal: 3,
 		},
 		{
-			name: "paginates", query: "an", page: Page{Limit: 2, Offset: 1},
+			name: "paginates", query: "an", page: store.Page{Limit: 2, Offset: 1},
 			wantCodes: "VE141201,VE1401", wantTotal: 4,
 		},
 		{
-			name: "no matches", query: "zzz", page: Page{Limit: 20},
+			name: "no matches", query: "zzz", page: store.Page{Limit: 20},
 			wantCodes: "", wantTotal: 0,
 		},
 	}
@@ -472,12 +443,12 @@ func TestSearchParents(t *testing.T) {
 	s := loadValid(t)
 	ctx := context.Background()
 
-	got, _, _ := s.Search(ctx, "merida", PlaceState, Page{Limit: 20})
+	got, _, _ := s.Search(ctx, "merida", PlaceState, store.Page{Limit: 20})
 	if len(got) != 1 || got[0].State != nil || got[0].Municipality != nil {
 		t.Errorf("state result = %+v, want no parents", got)
 	}
 
-	got, _, _ = s.Search(ctx, "arias", "", Page{Limit: 20})
+	got, _, _ = s.Search(ctx, "arias", "", store.Page{Limit: 20})
 	want := Place{
 		Type: PlaceParish, Code: "VE141202", Name: "Arias",
 		Municipality: &MunicipalityRef{Code: "VE1412", Name: "Libertador"},
@@ -490,7 +461,7 @@ func TestSearchParents(t *testing.T) {
 
 	// Results must not share memory with the index.
 	got[0].State.Name = "changed"
-	again, _, _ := s.Search(ctx, "arias", "", Page{Limit: 20})
+	again, _, _ := s.Search(ctx, "arias", "", store.Page{Limit: 20})
 	if again[0].State.Name == "changed" {
 		t.Error("modifying a search result changed the store")
 	}
@@ -503,7 +474,7 @@ func TestSearchRealData(t *testing.T) {
 	}
 
 	// The example documented in openapi.yaml.
-	got, total, err := s.Search(context.Background(), "san cristobal", "", Page{Limit: 20})
+	got, total, err := s.Search(context.Background(), "san cristobal", "", store.Page{Limit: 20})
 	if err != nil {
 		t.Fatalf("Search() error = %v", err)
 	}

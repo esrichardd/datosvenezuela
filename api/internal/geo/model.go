@@ -2,11 +2,6 @@
 // states, municipalities and parishes.
 package geo
 
-import "errors"
-
-// ErrNotFound is returned by every store when a code does not exist.
-var ErrNotFound = errors.New("not found")
-
 // StateType classifies a first-level division.
 type StateType string
 
@@ -73,11 +68,4 @@ type Place struct {
 	Name         string
 	Municipality *MunicipalityRef
 	State        *StateRef
-}
-
-// Page selects a window of a list: at most Limit items, skipping the first
-// Offset. A Limit of zero or less selects no items.
-type Page struct {
-	Limit  int
-	Offset int
 }

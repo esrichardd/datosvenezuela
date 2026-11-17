@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+
+	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 )
 
 // Item is the envelope of a single-resource response.
@@ -34,7 +36,7 @@ func WriteItem[T any](w http.ResponseWriter, r *http.Request, v T) {
 
 // WriteList writes a page of items wrapped in {"data": [...], "meta": {...}}
 // with status 200. total is the number of items across all pages.
-func WriteList[T any](w http.ResponseWriter, r *http.Request, items []T, total int, p Page) {
+func WriteList[T any](w http.ResponseWriter, r *http.Request, items []T, total int, p store.Page) {
 	if items == nil {
 		items = []T{} // encode as [] instead of null
 	}

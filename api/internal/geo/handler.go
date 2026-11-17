@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 	"github.com/esrichardd/apivenezuela/api/internal/platform/textnorm"
 )
 
@@ -18,28 +19,28 @@ const (
 	searchMaxQueryLen  = 100
 )
 
-// store is the port the handlers depend on. CSVStore implements it; any
+// reader is the port the handlers depend on. CSVStore implements it; any
 // other data source (a database, a test fake) only needs these methods.
-type store interface {
-	States(ctx context.Context, p Page) ([]State, int, error)
+type reader interface {
+	States(ctx context.Context, p store.Page) ([]State, int, error)
 	State(ctx context.Context, code string) (State, error)
-	Municipalities(ctx context.Context, p Page) ([]Municipality, int, error)
-	MunicipalitiesOf(ctx context.Context, stateCode string, p Page) ([]Municipality, int, error)
+	Municipalities(ctx context.Context, p store.Page) ([]Municipality, int, error)
+	MunicipalitiesOf(ctx context.Context, stateCode string, p store.Page) ([]Municipality, int, error)
 	Municipality(ctx context.Context, code string) (Municipality, error)
-	Parishes(ctx context.Context, p Page) ([]Parish, int, error)
-	ParishesOf(ctx context.Context, municipalityCode string, p Page) ([]Parish, int, error)
+	Parishes(ctx context.Context, p store.Page) ([]Parish, int, error)
+	ParishesOf(ctx context.Context, municipalityCode string, p store.Page) ([]Parish, int, error)
 	Parish(ctx context.Context, code string) (Parish, error)
-	Search(ctx context.Context, query string, placeType PlaceType, p Page) ([]Place, int, error)
+	Search(ctx context.Context, query string, placeType PlaceType, p store.Page) ([]Place, int, error)
 }
 
 // Handler serves the geography endpoints.
 type Handler struct {
-	store store
+	reader reader
 }
 
-// NewHandler returns a Handler that reads from s.
-func NewHandler(s store) *Handler {
-	return &Handler{store: s}
+// NewHandler returns a Handler that reads from r.
+func NewHandler(r reader) *Handler {
+	return &Handler{reader: r}
 }
 
 // Register adds the geography routes to mux.
@@ -60,7 +61,7 @@ func (h *Handler) listStates(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	states, total, err := h.store.States(r.Context(), toDomainPage(page))
+	states, total, err := h.reader.States(r.Context(), page)
 	if err != nil {
 		fail(w, r, err, "")
 		return
@@ -70,7 +71,7 @@ func (h *Handler) listStates(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getState(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
-	st, err := h.store.State(r.Context(), code)
+	st, err := h.reader.State(r.Context(), code)
 	if err != nil {
 		fail(w, r, err, "state %s not found", code)
 		return
@@ -84,7 +85,7 @@ func (h *Handler) listStateMunicipalities(w http.ResponseWriter, r *http.Request
 		return
 	}
 	code := r.PathValue("code")
-	municipalities, total, err := h.store.MunicipalitiesOf(r.Context(), code, toDomainPage(page))
+	municipalities, total, err := h.reader.MunicipalitiesOf(r.Context(), code, page)
 	if err != nil {
 		fail(w, r, err, "state %s not found", code)
 		return
@@ -97,7 +98,7 @@ func (h *Handler) listMunicipalities(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	municipalities, total, err := h.store.Municipalities(r.Context(), toDomainPage(page))
+	municipalities, total, err := h.reader.Municipalities(r.Context(), page)
 	if err != nil {
 		fail(w, r, err, "")
 		return
@@ -107,7 +108,7 @@ func (h *Handler) listMunicipalities(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getMunicipality(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
-	m, err := h.store.Municipality(r.Context(), code)
+	m, err := h.reader.Municipality(r.Context(), code)
 	if err != nil {
 		fail(w, r, err, "municipality %s not found", code)
 		return
@@ -121,7 +122,7 @@ func (h *Handler) listMunicipalityParishes(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	code := r.PathValue("code")
-	parishes, total, err := h.store.ParishesOf(r.Context(), code, toDomainPage(page))
+	parishes, total, err := h.reader.ParishesOf(r.Context(), code, page)
 	if err != nil {
 		fail(w, r, err, "municipality %s not found", code)
 		return
@@ -134,7 +135,7 @@ func (h *Handler) listParishes(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	parishes, total, err := h.store.Parishes(r.Context(), toDomainPage(page))
+	parishes, total, err := h.reader.Parishes(r.Context(), page)
 	if err != nil {
 		fail(w, r, err, "")
 		return
@@ -144,7 +145,7 @@ func (h *Handler) listParishes(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getParish(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
-	p, err := h.store.Parish(r.Context(), code)
+	p, err := h.reader.Parish(r.Context(), code)
 	if err != nil {
 		fail(w, r, err, "parish %s not found", code)
 		return
@@ -188,7 +189,7 @@ func (h *Handler) searchPlaces(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	places, total, err := h.store.Search(r.Context(), q, placeType, toDomainPage(page))
+	places, total, err := h.reader.Search(r.Context(), q, placeType, page)
 	if err != nil {
 		fail(w, r, err, "")
 		return
@@ -198,7 +199,7 @@ func (h *Handler) searchPlaces(w http.ResponseWriter, r *http.Request) {
 
 // parsePage reads the pagination parameters. If they are invalid it writes
 // a 400 and returns false.
-func parsePage(w http.ResponseWriter, r *http.Request) (httpx.Page, bool) {
+func parsePage(w http.ResponseWriter, r *http.Request) (store.Page, bool) {
 	page, invalid := httpx.ParsePage(r, httpx.DefaultLimit)
 	if len(invalid) > 0 {
 		httpx.BadRequest(w, r, invalid)
@@ -207,18 +208,14 @@ func parsePage(w http.ResponseWriter, r *http.Request) (httpx.Page, bool) {
 	return page, true
 }
 
-// fail answers a store error: ErrNotFound becomes a 404 with the given
+// fail answers a store error: store.ErrNotFound becomes a 404 with the given
 // detail; anything else is an unexpected 500.
 func fail(w http.ResponseWriter, r *http.Request, err error, notFoundFormat string, args ...any) {
-	if errors.Is(err, ErrNotFound) && notFoundFormat != "" {
+	if errors.Is(err, store.ErrNotFound) && notFoundFormat != "" {
 		httpx.NotFound(w, r, notFoundFormat, args...)
 		return
 	}
 	httpx.InternalError(w, r, err)
-}
-
-func toDomainPage(p httpx.Page) Page {
-	return Page{Limit: p.Limit, Offset: p.Offset}
 }
 
 func mapSlice[T, J any](items []T, f func(T) J) []J {
