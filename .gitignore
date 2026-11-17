@@ -1,3 +1,6 @@
 .DS_Store
 api/bin/
 Claude outputs/
+
+# Go test coverage profiles
+*.out
