@@ -2,7 +2,6 @@ package geo
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"unicode/utf8"
@@ -57,97 +56,97 @@ func (h *Handler) Register(mux *http.ServeMux) {
 }
 
 func (h *Handler) listStates(w http.ResponseWriter, r *http.Request) {
-	page, ok := parsePage(w, r)
+	page, ok := httpx.ReadPage(w, r)
 	if !ok {
 		return
 	}
 	states, total, err := h.reader.States(r.Context(), page)
 	if err != nil {
-		fail(w, r, err, "")
+		httpx.StoreError(w, r, err, "")
 		return
 	}
-	httpx.WriteList(w, r, mapSlice(states, toStateJSON), total, page)
+	httpx.WriteList(w, r, httpx.Map(states, toStateJSON), total, page)
 }
 
 func (h *Handler) getState(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
 	st, err := h.reader.State(r.Context(), code)
 	if err != nil {
-		fail(w, r, err, "state %s not found", code)
+		httpx.StoreError(w, r, err, "state %s not found", code)
 		return
 	}
 	httpx.WriteItem(w, r, toStateJSON(st))
 }
 
 func (h *Handler) listStateMunicipalities(w http.ResponseWriter, r *http.Request) {
-	page, ok := parsePage(w, r)
+	page, ok := httpx.ReadPage(w, r)
 	if !ok {
 		return
 	}
 	code := r.PathValue("code")
 	municipalities, total, err := h.reader.MunicipalitiesOf(r.Context(), code, page)
 	if err != nil {
-		fail(w, r, err, "state %s not found", code)
+		httpx.StoreError(w, r, err, "state %s not found", code)
 		return
 	}
-	httpx.WriteList(w, r, mapSlice(municipalities, toMunicipalitySummaryJSON), total, page)
+	httpx.WriteList(w, r, httpx.Map(municipalities, toMunicipalitySummaryJSON), total, page)
 }
 
 func (h *Handler) listMunicipalities(w http.ResponseWriter, r *http.Request) {
-	page, ok := parsePage(w, r)
+	page, ok := httpx.ReadPage(w, r)
 	if !ok {
 		return
 	}
 	municipalities, total, err := h.reader.Municipalities(r.Context(), page)
 	if err != nil {
-		fail(w, r, err, "")
+		httpx.StoreError(w, r, err, "")
 		return
 	}
-	httpx.WriteList(w, r, mapSlice(municipalities, toMunicipalityJSON), total, page)
+	httpx.WriteList(w, r, httpx.Map(municipalities, toMunicipalityJSON), total, page)
 }
 
 func (h *Handler) getMunicipality(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
 	m, err := h.reader.Municipality(r.Context(), code)
 	if err != nil {
-		fail(w, r, err, "municipality %s not found", code)
+		httpx.StoreError(w, r, err, "municipality %s not found", code)
 		return
 	}
 	httpx.WriteItem(w, r, toMunicipalityJSON(m))
 }
 
 func (h *Handler) listMunicipalityParishes(w http.ResponseWriter, r *http.Request) {
-	page, ok := parsePage(w, r)
+	page, ok := httpx.ReadPage(w, r)
 	if !ok {
 		return
 	}
 	code := r.PathValue("code")
 	parishes, total, err := h.reader.ParishesOf(r.Context(), code, page)
 	if err != nil {
-		fail(w, r, err, "municipality %s not found", code)
+		httpx.StoreError(w, r, err, "municipality %s not found", code)
 		return
 	}
-	httpx.WriteList(w, r, mapSlice(parishes, toParishSummaryJSON), total, page)
+	httpx.WriteList(w, r, httpx.Map(parishes, toParishSummaryJSON), total, page)
 }
 
 func (h *Handler) listParishes(w http.ResponseWriter, r *http.Request) {
-	page, ok := parsePage(w, r)
+	page, ok := httpx.ReadPage(w, r)
 	if !ok {
 		return
 	}
 	parishes, total, err := h.reader.Parishes(r.Context(), page)
 	if err != nil {
-		fail(w, r, err, "")
+		httpx.StoreError(w, r, err, "")
 		return
 	}
-	httpx.WriteList(w, r, mapSlice(parishes, toParishJSON), total, page)
+	httpx.WriteList(w, r, httpx.Map(parishes, toParishJSON), total, page)
 }
 
 func (h *Handler) getParish(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
 	p, err := h.reader.Parish(r.Context(), code)
 	if err != nil {
-		fail(w, r, err, "parish %s not found", code)
+		httpx.StoreError(w, r, err, "parish %s not found", code)
 		return
 	}
 	httpx.WriteItem(w, r, toParishJSON(p))
@@ -191,39 +190,10 @@ func (h *Handler) searchPlaces(w http.ResponseWriter, r *http.Request) {
 
 	places, total, err := h.reader.Search(r.Context(), q, placeType, page)
 	if err != nil {
-		fail(w, r, err, "")
+		httpx.StoreError(w, r, err, "")
 		return
 	}
-	httpx.WriteList(w, r, mapSlice(places, toPlaceJSON), total, page)
-}
-
-// parsePage reads the pagination parameters. If they are invalid it writes
-// a 400 and returns false.
-func parsePage(w http.ResponseWriter, r *http.Request) (store.Page, bool) {
-	page, invalid := httpx.ParsePage(r, httpx.DefaultLimit)
-	if len(invalid) > 0 {
-		httpx.BadRequest(w, r, invalid)
-		return page, false
-	}
-	return page, true
-}
-
-// fail answers a store error: store.ErrNotFound becomes a 404 with the given
-// detail; anything else is an unexpected 500.
-func fail(w http.ResponseWriter, r *http.Request, err error, notFoundFormat string, args ...any) {
-	if errors.Is(err, store.ErrNotFound) && notFoundFormat != "" {
-		httpx.NotFound(w, r, notFoundFormat, args...)
-		return
-	}
-	httpx.InternalError(w, r, err)
-}
-
-func mapSlice[T, J any](items []T, f func(T) J) []J {
-	out := make([]J, len(items))
-	for i, item := range items {
-		out[i] = f(item)
-	}
-	return out
+	httpx.WriteList(w, r, httpx.Map(places, toPlaceJSON), total, page)
 }
 
 // JSON representations, as defined in openapi.yaml. They keep the wire format

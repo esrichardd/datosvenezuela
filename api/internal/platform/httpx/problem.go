@@ -1,9 +1,12 @@
 package httpx
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+
+	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 )
 
 // Problem is an RFC 9457 problem details object.
@@ -69,4 +72,18 @@ func InternalError(w http.ResponseWriter, r *http.Request, err error) {
 		"path", r.URL.Path,
 	)
 	WriteProblem(w, r, http.StatusInternalServerError, internalErrorDetail)
+}
+
+// StoreError answers an error returned by a data source. store.ErrNotFound
+// becomes a 404 whose detail is formatted from notFoundFormat; anything else
+// is an unexpected 500.
+//
+// Pass an empty notFoundFormat where nothing can be missing, such as a list
+// of every item: an ErrNotFound there is a bug, so it is answered as a 500.
+func StoreError(w http.ResponseWriter, r *http.Request, err error, notFoundFormat string, args ...any) {
+	if errors.Is(err, store.ErrNotFound) && notFoundFormat != "" {
+		NotFound(w, r, notFoundFormat, args...)
+		return
+	}
+	InternalError(w, r, err)
 }

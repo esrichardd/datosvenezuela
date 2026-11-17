@@ -51,3 +51,15 @@ func ParsePage(r *http.Request, defaultLimit int) (store.Page, []InvalidParam) {
 
 	return p, invalid
 }
+
+// ReadPage reads the limit and offset query parameters with DefaultLimit. If
+// any is invalid it writes a 400 listing them and returns false, so the
+// handler only has to return.
+func ReadPage(w http.ResponseWriter, r *http.Request) (store.Page, bool) {
+	p, invalid := ParsePage(r, DefaultLimit)
+	if len(invalid) > 0 {
+		BadRequest(w, r, invalid)
+		return p, false
+	}
+	return p, true
+}

@@ -3,6 +3,7 @@ package httpx
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -110,6 +111,35 @@ func TestProblems(t *testing.T) {
 			name: "internal error hides the cause",
 			write: func(w http.ResponseWriter, r *http.Request) {
 				InternalError(w, r, errors.New("database password is hunter2"))
+			},
+			want: Problem{
+				Type: "about:blank", Title: "Internal Server Error", Status: 500,
+				Detail: "an unexpected error occurred",
+			},
+		},
+		{
+			name: "store not found",
+			write: func(w http.ResponseWriter, r *http.Request) {
+				err := fmt.Errorf("lookup: %w", store.ErrNotFound)
+				StoreError(w, r, err, "state %s not found", "VE99")
+			},
+			want: Problem{Type: "about:blank", Title: "Not Found", Status: 404, Detail: "state VE99 not found"},
+		},
+		{
+			// Without a not-found detail, ErrNotFound was not expected: a bug.
+			name: "store not found without detail",
+			write: func(w http.ResponseWriter, r *http.Request) {
+				StoreError(w, r, store.ErrNotFound, "")
+			},
+			want: Problem{
+				Type: "about:blank", Title: "Internal Server Error", Status: 500,
+				Detail: "an unexpected error occurred",
+			},
+		},
+		{
+			name: "store failure hides the cause",
+			write: func(w http.ResponseWriter, r *http.Request) {
+				StoreError(w, r, errors.New("connection refused to 10.0.0.5:5432"), "state %s not found", "VE14")
 			},
 			want: Problem{
 				Type: "about:blank", Title: "Internal Server Error", Status: 500,
@@ -255,5 +285,54 @@ func TestRouteErrors(t *testing.T) {
 				t.Errorf("problem = %+v, want detail %q and a request_id", got, tt.wantDetail)
 			}
 		})
+	}
+}
+
+func TestReadPage(t *testing.T) {
+	t.Run("valid", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		p, ok := ReadPage(rec, httptest.NewRequest(http.MethodGet, "/?limit=20&offset=40", nil))
+
+		if !ok {
+			t.Fatal("ok = false, want true")
+		}
+		if want := (store.Page{Limit: 20, Offset: 40}); p != want {
+			t.Errorf("page = %+v, want %+v", p, want)
+		}
+		if rec.Body.Len() != 0 {
+			t.Errorf("wrote a response for valid parameters: %s", rec.Body)
+		}
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		_, ok := ReadPage(rec, httptest.NewRequest(http.MethodGet, "/?limit=0&offset=x", nil))
+
+		if ok {
+			t.Fatal("ok = true, want false")
+		}
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("status = %d, want 400", rec.Code)
+		}
+		got := decode[Problem](t, rec)
+		var names []string
+		for _, ip := range got.InvalidParams {
+			names = append(names, ip.Name)
+		}
+		if want := []string{"limit", "offset"}; !slices.Equal(names, want) {
+			t.Errorf("invalid params = %v, want %v", names, want)
+		}
+	})
+}
+
+func TestMap(t *testing.T) {
+	got := Map([]int{1, 2, 3}, func(n int) string { return fmt.Sprint(n * 10) })
+	if want := []string{"10", "20", "30"}; !slices.Equal(got, want) {
+		t.Errorf("Map = %v, want %v", got, want)
+	}
+
+	// An empty input must give an empty slice, not nil, so it encodes as [].
+	if got := Map[int, string](nil, func(int) string { return "" }); got == nil || len(got) != 0 {
+		t.Errorf("Map(nil) = %#v, want an empty non-nil slice", got)
 	}
 }

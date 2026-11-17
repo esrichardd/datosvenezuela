@@ -46,6 +46,17 @@ func WriteList[T any](w http.ResponseWriter, r *http.Request, items []T, total i
 	})
 }
 
+// Map returns the result of applying f to each item, usually to turn domain
+// values into their JSON representation before WriteList. It never returns
+// nil, so an empty list encodes as [].
+func Map[T, J any](items []T, f func(T) J) []J {
+	out := make([]J, len(items))
+	for i, item := range items {
+		out[i] = f(item)
+	}
+	return out
+}
+
 // JSON writes v as a JSON response with the given status.
 func JSON(w http.ResponseWriter, r *http.Request, status int, v any) {
 	writeJSON(w, r, status, "application/json", v)
