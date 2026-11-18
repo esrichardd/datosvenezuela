@@ -138,7 +138,7 @@ func (s *CSVStore) loadStates(rows []csvload.Record) []error {
 			Capital: r.Fields[4],
 		}
 		fail := func(format string, args ...any) {
-			errs = append(errs, lineError(statesFile, r.Line, format, args...))
+			errs = append(errs, csvload.LineError(statesFile, r.Line, format, args...))
 		}
 
 		if !stateCodeRe.MatchString(st.Code) {
@@ -147,9 +147,9 @@ func (s *CSVStore) loadStates(rows []csvload.Record) []error {
 		if _, dup := s.stateByCode[st.Code]; dup {
 			fail("duplicate code %s", st.Code)
 		}
-		checkOrder(prev, st.Code, fail)
+		csvload.CheckOrder(prev, st.Code, fail)
 		prev = st.Code
-		checkName(st.Name, fail)
+		csvload.CheckText("name", st.Name, fail)
 		switch st.Type {
 		case TypeState, TypeCapitalDistrict, TypeFederalDependencies:
 		default:
@@ -166,7 +166,7 @@ func (s *CSVStore) loadStates(rows []csvload.Record) []error {
 			fail("federal dependencies must not have a capital")
 		}
 		if st.Type != TypeFederalDependencies {
-			checkText("capital", st.Capital, fail)
+			csvload.CheckText("capital", st.Capital, fail)
 		}
 
 		s.stateByCode[st.Code] = len(s.states)
@@ -183,7 +183,7 @@ func (s *CSVStore) loadMunicipalities(rows []csvload.Record) []error {
 	for _, r := range rows {
 		code, stateCode, name := r.Fields[0], r.Fields[1], r.Fields[2]
 		fail := func(format string, args ...any) {
-			errs = append(errs, lineError(municipalitiesFile, r.Line, format, args...))
+			errs = append(errs, csvload.LineError(municipalitiesFile, r.Line, format, args...))
 		}
 
 		if !municipalityCodeRe.MatchString(code) {
@@ -192,9 +192,9 @@ func (s *CSVStore) loadMunicipalities(rows []csvload.Record) []error {
 		if _, dup := s.municipalityByCode[code]; dup {
 			fail("duplicate code %s", code)
 		}
-		checkOrder(prev, code, fail)
+		csvload.CheckOrder(prev, code, fail)
 		prev = code
-		checkName(name, fail)
+		csvload.CheckText("name", name, fail)
 		i, ok := s.stateByCode[stateCode]
 		if !ok {
 			fail("unknown state_code %s", stateCode)
@@ -221,7 +221,7 @@ func (s *CSVStore) loadParishes(rows []csvload.Record) []error {
 	for _, r := range rows {
 		code, municipalityCode, name := r.Fields[0], r.Fields[1], r.Fields[2]
 		fail := func(format string, args ...any) {
-			errs = append(errs, lineError(parishesFile, r.Line, format, args...))
+			errs = append(errs, csvload.LineError(parishesFile, r.Line, format, args...))
 		}
 
 		if !parishCodeRe.MatchString(code) {
@@ -230,9 +230,9 @@ func (s *CSVStore) loadParishes(rows []csvload.Record) []error {
 		if _, dup := s.parishByCode[code]; dup {
 			fail("duplicate code %s", code)
 		}
-		checkOrder(prev, code, fail)
+		csvload.CheckOrder(prev, code, fail)
 		prev = code
-		checkName(name, fail)
+		csvload.CheckText("name", name, fail)
 		i, ok := s.municipalityByCode[municipalityCode]
 		if !ok {
 			fail("unknown municipality_code %s", municipalityCode)
@@ -385,34 +385,4 @@ func clonePlace(p Place) Place {
 		p.State = &st
 	}
 	return p
-}
-
-func lineError(file string, line int, format string, args ...any) error {
-	return fmt.Errorf("%s:%d: %s", file, line, fmt.Sprintf(format, args...))
-}
-
-// checkOrder rejects a code that sorts before the one in the previous row.
-//
-// The store serves rows in file order and the API promises lists ordered by
-// code, so the files must be sorted. Codes have a fixed width, which makes
-// comparing them as text the same as comparing their numbers. An equal code
-// is left to the duplicate check, which gives a clearer message.
-func checkOrder(prev, code string, fail func(string, ...any)) {
-	if code < prev {
-		fail("code %s is out of order: it must come after %s", code, prev)
-	}
-}
-
-func checkName(name string, fail func(string, ...any)) {
-	checkText("name", name, fail)
-}
-
-// checkText rejects empty values and surrounding whitespace.
-func checkText(field, value string, fail func(string, ...any)) {
-	switch {
-	case value == "":
-		fail("empty %s", field)
-	case value != strings.TrimSpace(value):
-		fail("%s %q has surrounding whitespace", field, value)
-	}
 }

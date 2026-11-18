@@ -2,6 +2,7 @@ package csvload
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -131,5 +132,69 @@ func TestReadFileMissing(t *testing.T) {
 	_, err := ReadFile(filepath.Join(t.TempDir(), "missing.csv"), header)
 	if !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("ReadFile() error = %v, want a not-exist error", err)
+	}
+}
+
+func TestLineError(t *testing.T) {
+	err := LineError("states.csv", 3, "invalid code %q", "VE2X")
+	if want := `states.csv:3: invalid code "VE2X"`; err.Error() != want {
+		t.Errorf("LineError() = %q, want %q", err, want)
+	}
+}
+
+// recordFails returns a FailFunc that collects the messages it receives.
+func recordFails(msgs *[]string) FailFunc {
+	return func(format string, args ...any) {
+		*msgs = append(*msgs, fmt.Sprintf(format, args...))
+	}
+}
+
+func TestCheckText(t *testing.T) {
+	tests := []struct {
+		value string
+		want  []string
+	}{
+		{"Mérida", nil},
+		{"San Cristóbal", nil}, // inner spaces are fine
+		{"", []string{"empty name"}},
+		{" Mérida", []string{`name " Mérida" has surrounding whitespace`}},
+		{"Mérida\t", []string{`name "Mérida\t" has surrounding whitespace`}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.value, func(t *testing.T) {
+			var got []string
+			CheckText("name", tt.value, recordFails(&got))
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("CheckText(%q) reported %q, want %q", tt.value, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCheckOrder(t *testing.T) {
+	tests := []struct {
+		name       string
+		prev, code string
+		want       []string
+	}{
+		{name: "first row", prev: "", code: "VE01"},
+		{name: "ascending", prev: "VE01", code: "VE02"},
+		// Duplicates are reported by the duplicate check, not as disorder.
+		{name: "equal", prev: "VE02", code: "VE02"},
+		{
+			name: "descending", prev: "VE25", code: "VE02",
+			want: []string{"code VE02 is out of order: it must come after VE25"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got []string
+			CheckOrder(tt.prev, tt.code, recordFails(&got))
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("CheckOrder(%q, %q) reported %q, want %q", tt.prev, tt.code, got, tt.want)
+			}
+		})
 	}
 }

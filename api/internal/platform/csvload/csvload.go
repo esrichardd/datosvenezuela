@@ -1,8 +1,9 @@
 // Package csvload reads the CSV files of the data directory.
 //
-// It only knows about CSV structure: it checks that the header is exactly the
-// expected one and that every row has the same number of fields. What the
-// values mean is validated by each domain package.
+// It checks the CSV structure (the header is exactly the expected one and every
+// row has the same number of fields) and offers the value checks every dataset
+// shares: line-tagged errors, text without stray whitespace and codes in
+// order. Rules specific to a dataset are validated by its domain package.
 package csvload
 
 import (
@@ -79,4 +80,39 @@ func Read(r io.Reader, name string, header []string) ([]Record, error) {
 	}
 
 	return records, nil
+}
+
+// FailFunc records a validation problem found in a row. Domain packages build
+// one per row that tags each message with the file and line, so the checks
+// below can report several problems instead of stopping at the first.
+type FailFunc func(format string, args ...any)
+
+// LineError returns a validation error for a line of a file, formatted as
+// "file:line: message".
+func LineError(file string, line int, format string, args ...any) error {
+	return fmt.Errorf("%s:%d: %s", file, line, fmt.Sprintf(format, args...))
+}
+
+// CheckText reports an empty value or one with surrounding whitespace. field
+// names the column in the message.
+func CheckText(field, value string, fail FailFunc) {
+	switch {
+	case value == "":
+		fail("empty %s", field)
+	case value != strings.TrimSpace(value):
+		fail("%s %q has surrounding whitespace", field, value)
+	}
+}
+
+// CheckOrder reports a code that sorts before prev, the code of the previous
+// row. Pass "" for the first row.
+//
+// Stores serve rows in file order and the API promises lists ordered by code,
+// so the files must be sorted. Codes have a fixed width, which makes comparing
+// them as text the same as comparing their numbers. An equal code is left to
+// the duplicate check, which gives a clearer message.
+func CheckOrder(prev, code string, fail FailFunc) {
+	if code < prev {
+		fail("code %s is out of order: it must come after %s", code, prev)
+	}
 }
