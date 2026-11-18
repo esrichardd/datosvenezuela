@@ -2,9 +2,9 @@
 
 ## Qué contiene
 
-| Archivo     | Registros | Columnas       |
-| ----------- | --------- | -------------- |
-| `banks.csv` | 27        | `code`, `name` |
+| Archivo     | Registros | Columnas                     |
+| ----------- | --------- | ---------------------------- |
+| `banks.csv` | 27        | `code`, `name`, `legal_name` |
 
 - **`code`**: Código de Institución Bancaria de 4 dígitos que asigna el Banco Central
   de Venezuela para el Sistema de Cámara de Compensación Electrónica. Son los primeros
