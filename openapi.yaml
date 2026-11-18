@@ -13,7 +13,10 @@ info:
       also include `meta` with pagination information.
     - Errors use [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) problem
       details (`application/problem+json`) and are never wrapped in `data`.
-    - Codes are OCHA P-codes (e.g. `VE14`) and are matched case-insensitively.
+    - Geography codes are OCHA P-codes (e.g. `VE14`) and are matched
+      case-insensitively.
+    - Bank codes are the 4-digit codes assigned by the Central Bank of
+      Venezuela (e.g. `0102`). The leading zero is part of the code.
     - Every response carries an `X-Request-ID` header. Include it when reporting
       a problem.
     - Requests are rate limited per IP. Every response carries `RateLimit-*`
@@ -38,6 +41,8 @@ servers:
 tags:
   - name: Geography
     description: States, municipalities and parishes.
+  - name: Banks
+    description: Banking institutions and their codes.
   - name: System
     description: Operational endpoints.
 
@@ -351,6 +356,59 @@ paths:
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "500": { $ref: "#/components/responses/InternalError" }
 
+  /v1/banks:
+    get:
+      tags: [Banks]
+      operationId: listBanks
+      summary: List banks
+      description: |
+        Returns the active banks and the Central Bank of Venezuela (`0001`),
+        ordered by code.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: List of banks.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Bank" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/banks/{code}:
+    get:
+      tags: [Banks]
+      operationId: getBank
+      summary: Get a bank
+      parameters:
+        - $ref: "#/components/parameters/BankCode"
+      responses:
+        "200":
+          description: The bank.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: "#/components/schemas/Bank" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
 components:
   parameters:
     StateCode:
@@ -380,6 +438,15 @@ components:
         type: string
         pattern: "^[Vv][Ee][0-9]{6}$"
       example: VE141201
+    BankCode:
+      name: code
+      in: path
+      required: true
+      description: 4-digit bank code, with its leading zero.
+      schema:
+        type: string
+        pattern: "^[0-9]{4}$"
+      example: "0102"
     Limit:
       name: limit
       in: query
@@ -528,6 +595,26 @@ components:
         name: { type: string }
         municipality: { $ref: "#/components/schemas/MunicipalityRef" }
         state: { $ref: "#/components/schemas/StateRef" }
+
+    Bank:
+      type: object
+      required: [code, name, legal_name]
+      properties:
+        code:
+          type: string
+          description: |
+            Code assigned by the Central Bank of Venezuela. It is the first 4
+            digits of a 20-digit bank account number.
+          pattern: "^[0-9]{4}$"
+          example: "0102"
+        name:
+          type: string
+          description: Trade name.
+          example: Banco de Venezuela
+        legal_name:
+          type: string
+          description: Registered legal name, as published by the source.
+          example: "Banco de Venezuela, S.A. Banco Universal"
 
     PageMeta:
       type: object
