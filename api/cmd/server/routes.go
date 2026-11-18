@@ -4,16 +4,18 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/esrichardd/apivenezuela/api/internal/banks"
 	"github.com/esrichardd/apivenezuela/api/internal/geo"
 	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
 )
 
 // newHandler builds the HTTP handler of the API: every route and the
 // middleware around them. It is the one place to see what the API serves.
-func newHandler(logger *slog.Logger, geoStore *geo.CSVStore) http.Handler {
+func newHandler(logger *slog.Logger, geoStore *geo.CSVStore, bankStore *banks.CSVStore) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handleHealth)
 	geo.NewHandler(geoStore).Register(mux)
+	banks.NewHandler(bankStore).Register(mux)
 
 	// Middleware is applied inside-out, so a request goes through it in the
 	// reverse order of the lines below:

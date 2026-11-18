@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/esrichardd/apivenezuela/api/internal/banks"
 	"github.com/esrichardd/apivenezuela/api/internal/geo"
 	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
 )
@@ -18,10 +19,14 @@ import (
 func TestRoutes(t *testing.T) {
 	geoStore, err := geo.LoadCSV(filepath.Join(realDataDir, "geography"))
 	if err != nil {
-		t.Fatalf("LoadCSV() error = %v", err)
+		t.Fatalf("geo.LoadCSV() error = %v", err)
+	}
+	bankStore, err := banks.LoadCSV(filepath.Join(realDataDir, "banks"))
+	if err != nil {
+		t.Fatalf("banks.LoadCSV() error = %v", err)
 	}
 	var logs bytes.Buffer
-	h := newHandler(slog.New(slog.NewJSONHandler(&logs, nil)), geoStore)
+	h := newHandler(slog.New(slog.NewJSONHandler(&logs, nil)), geoStore, bankStore)
 
 	tests := []struct {
 		method      string
@@ -34,6 +39,8 @@ func TestRoutes(t *testing.T) {
 		{"GET", "/v1/states/VE14", 200, "application/json", `"name":"Mérida"`},
 		{"GET", "/v1/municipalities/VE1412/parishes?limit=1", 200, "application/json", `"total":15`},
 		{"GET", "/v1/places/search?q=san%20cristobal", 200, "application/json", `"total":3`},
+		{"GET", "/v1/banks?limit=1", 200, "application/json", `"total":27`},
+		{"GET", "/v1/banks/0102", 200, "application/json", `"name":"Banco de Venezuela"`},
 		{"GET", "/v1/nope", 404, "application/problem+json", `"status":404`},
 		{"POST", "/v1/states", 405, "application/problem+json", `"status":405`},
 	}

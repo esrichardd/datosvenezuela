@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -61,7 +62,7 @@ func TestRun(t *testing.T) {
 	}
 
 	// run has returned, so nothing else is writing to logs.
-	for _, want := range []string{`"msg":"geography loaded"`, `"states":25`, `"msg":"server stopped"`} {
+	for _, want := range []string{`"msg":"data loaded"`, `"states":25`, `"banks":27`, `"msg":"server stopped"`} {
 		if !strings.Contains(logs.String(), want) {
 			t.Errorf("logs = %s\nwant them to contain %s", logs.String(), want)
 		}
@@ -83,6 +84,12 @@ func TestRunFails(t *testing.T) {
 	defer func() { _ = busy.Close() }()
 	busyPort := busy.Addr().(*net.TCPAddr).Port
 
+	// Valid geography but no banks: the second dataset must also be loaded.
+	onlyGeography := t.TempDir()
+	if err := os.CopyFS(filepath.Join(onlyGeography, "geography"), os.DirFS(filepath.Join(realDataDir, "geography"))); err != nil {
+		t.Fatal(err)
+	}
+
 	tests := []struct {
 		name    string
 		port    int
@@ -91,7 +98,8 @@ func TestRunFails(t *testing.T) {
 	}{
 		{name: "invalid config", port: 0, dataDir: realDataDir, wantErr: "invalid PORT"},
 		// An existing directory without the datasets.
-		{name: "invalid data", port: freePort(t), dataDir: t.TempDir(), wantErr: "load geography: "},
+		{name: "invalid geography", port: freePort(t), dataDir: t.TempDir(), wantErr: "load geography: "},
+		{name: "invalid banks", port: freePort(t), dataDir: onlyGeography, wantErr: "load banks: "},
 		{name: "port in use", port: busyPort, dataDir: realDataDir, wantErr: "listen: "},
 	}
 

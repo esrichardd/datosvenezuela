@@ -5,48 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"net/http/httptest"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx/httpxtest"
 	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
 )
 
-// newTestServer serves the geography routes from the small valid dataset,
-// wrapped in the same middleware as the real server.
-func newTestServer(t *testing.T, r reader) http.Handler {
-	t.Helper()
-	mux := http.NewServeMux()
-	NewHandler(r).Register(mux)
-	return httpx.RequestID(httpx.RouteErrors(mux))
-}
-
-func get(t *testing.T, h http.Handler, path string) *httptest.ResponseRecorder {
-	t.Helper()
-	rec := httptest.NewRecorder()
-	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
-	return rec
-}
-
-// assertJSON compares two JSON documents ignoring formatting.
-func assertJSON(t *testing.T, got, want string) {
-	t.Helper()
-	var g, w any
-	if err := json.Unmarshal([]byte(got), &g); err != nil {
-		t.Fatalf("response is not JSON: %v\n%s", err, got)
-	}
-	if err := json.Unmarshal([]byte(want), &w); err != nil {
-		t.Fatalf("expected value is not JSON: %v", err)
-	}
-	if !reflect.DeepEqual(g, w) {
-		t.Errorf("body mismatch\n got: %s\nwant: %s", strings.TrimSpace(got), want)
-	}
-}
-
 func TestHandlerSuccess(t *testing.T) {
-	h := newTestServer(t, loadValid(t))
+	h := httpxtest.Handler(NewHandler(loadValid(t)))
 
 	tests := []struct {
 		path string
@@ -134,20 +103,20 @@ func TestHandlerSuccess(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
-			rec := get(t, h, tt.path)
+			rec := httpxtest.Get(h, tt.path)
 			if rec.Code != http.StatusOK {
 				t.Fatalf("status = %d, want 200; body: %s", rec.Code, rec.Body)
 			}
 			if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
 				t.Errorf("Content-Type = %q, want application/json", ct)
 			}
-			assertJSON(t, rec.Body.String(), tt.want)
+			httpxtest.AssertJSON(t, rec.Body.String(), tt.want)
 		})
 	}
 }
 
 func TestHandlerErrors(t *testing.T) {
-	h := newTestServer(t, loadValid(t))
+	h := httpxtest.Handler(NewHandler(loadValid(t)))
 
 	tests := []struct {
 		path       string
@@ -171,7 +140,7 @@ func TestHandlerErrors(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
-			rec := get(t, h, tt.path)
+			rec := httpxtest.Get(h, tt.path)
 			if rec.Code != tt.wantStatus {
 				t.Fatalf("status = %d, want %d; body: %s", rec.Code, tt.wantStatus, rec.Body)
 			}
@@ -232,7 +201,7 @@ func (failingStore) Search(context.Context, string, PlaceType, store.Page) ([]Pl
 // TestHandlerStoreFailure checks that every route answers a failing data
 // source with a 500 that does not leak the internal error.
 func TestHandlerStoreFailure(t *testing.T) {
-	h := newTestServer(t, failingStore{})
+	h := httpxtest.Handler(NewHandler(failingStore{}))
 
 	paths := []string{
 		"/v1/states",
@@ -247,7 +216,7 @@ func TestHandlerStoreFailure(t *testing.T) {
 	}
 	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
-			rec := get(t, h, path)
+			rec := httpxtest.Get(h, path)
 			if rec.Code != http.StatusInternalServerError {
 				t.Fatalf("status = %d, want 500", rec.Code)
 			}
@@ -259,7 +228,7 @@ func TestHandlerStoreFailure(t *testing.T) {
 }
 
 func TestSearchPlaces(t *testing.T) {
-	h := newTestServer(t, loadValid(t))
+	h := httpxtest.Handler(NewHandler(loadValid(t)))
 
 	tests := []struct {
 		path string
@@ -309,17 +278,17 @@ func TestSearchPlaces(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
-			rec := get(t, h, tt.path)
+			rec := httpxtest.Get(h, tt.path)
 			if rec.Code != http.StatusOK {
 				t.Fatalf("status = %d, want 200; body: %s", rec.Code, rec.Body)
 			}
-			assertJSON(t, rec.Body.String(), tt.want)
+			httpxtest.AssertJSON(t, rec.Body.String(), tt.want)
 		})
 	}
 }
 
 func TestSearchPlacesValidation(t *testing.T) {
-	h := newTestServer(t, loadValid(t))
+	h := httpxtest.Handler(NewHandler(loadValid(t)))
 	long := strings.Repeat("a", 101)
 	// Only two characters once normalized, but far too long as received.
 	padded := strings.Repeat("%20", 150) + "ab"
@@ -347,7 +316,7 @@ func TestSearchPlacesValidation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
-			rec := get(t, h, tt.path)
+			rec := httpxtest.Get(h, tt.path)
 			if rec.Code != http.StatusBadRequest {
 				t.Fatalf("status = %d, want 400; body: %s", rec.Code, rec.Body)
 			}
