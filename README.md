@@ -3,8 +3,9 @@
 API pública y gratuita con datos de Venezuela, pensada para desarrolladores.
 Centraliza información que hoy está dispersa, desactualizada o difícil de consumir.
 
-> 🚧 **Estado:** en desarrollo. Los datos de la v1 ya están disponibles como CSV en
-> [`data/`](data/); la API todavía no tiene endpoints.
+> 🚧 **Estado:** en desarrollo. La API ya sirve geografía y bancos (ver
+> [`openapi.yaml`](openapi.yaml)); prefijos telefónicos y feriados están disponibles
+> por ahora como CSV en [`data/`](data/).
 
 ## ¿Qué datos ofrece?
 
@@ -37,12 +38,12 @@ Cada dataset documenta sus fuentes, criterios y correcciones en su propio `SOURC
 
 ## Stack
 
-| Capa                  | Tecnología                                         |
-| --------------------- | -------------------------------------------------- |
-| API                   | Go                                                 |
-| Base de datos         | PostgreSQL                                         |
-| Sitio y documentación | Astro                                              |
-| Infraestructura       | VPS + Docker Compose + Caddy, detrás de Cloudflare |
+| Capa                  | Tecnología                                           |
+| --------------------- | ---------------------------------------------------- |
+| API                   | Go                                                   |
+| Base de datos         | PostgreSQL (desde la v2; la v1 sirve CSV en memoria) |
+| Sitio y documentación | Astro                                                |
+| Infraestructura       | VPS + Docker Compose + Caddy, detrás de Cloudflare   |
 
 ## Estructura del repositorio
 
@@ -62,8 +63,8 @@ apivenezuela/
 
 ## Contribuir
 
-El proyecto aún está en etapa de planificación. Si quieres aportar ideas o fuentes
-de datos confiables, abre un issue.
+El proyecto está en desarrollo. Si quieres aportar ideas o fuentes de datos
+confiables, abre un issue.
 
 ## Licencia
 
