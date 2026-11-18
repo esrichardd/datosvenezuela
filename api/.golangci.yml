@@ -31,4 +31,4 @@ formatters:
     goimports:
       # Group this project's imports separately from third-party ones.
       local-prefixes:
-        - github.com/esrichardd/apivenezuela
+        - github.com/esrichardd/datosvenezuela

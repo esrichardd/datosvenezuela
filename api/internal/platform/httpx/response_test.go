@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
 // decode parses the JSON body of a recorded response into a T.

@@ -1,4 +1,4 @@
-# apivenezuela
+# datosvenezuela
 
 API pública y gratuita con datos de Venezuela, pensada para desarrolladores.
 Centraliza información que hoy está dispersa, desactualizada o difícil de consumir.
@@ -48,7 +48,7 @@ Cada dataset documenta sus fuentes, criterios y correcciones en su propio `SOURC
 ## Estructura del repositorio
 
 ```
-apivenezuela/
+datosvenezuela/
 ├── api/            # Backend en Go
 ├── web/            # Sitio: documentación, playground y datasets (Astro)
 ├── data/           # Datos de referencia versionados (CSV), bajo CC BY 4.0
@@ -70,4 +70,4 @@ confiables, abre un issue.
 
 - **Código:** [MIT](LICENSE)
 - **Datos:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.es).
-  Puedes usarlos libremente, incluso con fines comerciales, citando la fuente: _apivenezuela_.
+  Puedes usarlos libremente, incluso con fines comerciales, citando la fuente: _datosvenezuela_.

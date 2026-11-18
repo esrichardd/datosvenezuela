@@ -1,7 +1,7 @@
 openapi: 3.1.0
 
 info:
-  title: apivenezuela
+  title: datosvenezuela
   version: 0.1.0
   summary: Public, free API with reference data about Venezuela.
   description: |
@@ -26,7 +26,7 @@ info:
 
     The data is published under
     [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribution:
-    *apivenezuela*. Each dataset documents its sources in the repository.
+    *datosvenezuela*. Each dataset documents its sources in the repository.
   license:
     name: MIT (code)
     identifier: MIT

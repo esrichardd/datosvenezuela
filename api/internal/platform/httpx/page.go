@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
 // Pagination limits shared by every list endpoint.

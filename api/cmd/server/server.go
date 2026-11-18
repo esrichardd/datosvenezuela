@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/esrichardd/apivenezuela/api/internal/banks"
-	"github.com/esrichardd/apivenezuela/api/internal/geo"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/banks"
+	"github.com/esrichardd/datosvenezuela/api/internal/geo"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
 // Server timeouts. Go's http.Server has no timeouts by default, which leaves it

@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
 // Item is the envelope of a single-resource response.

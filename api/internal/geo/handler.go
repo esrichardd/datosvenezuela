@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"unicode/utf8"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/textnorm"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/textnorm"
 )
 
 // Search limits, as documented in openapi.yaml.

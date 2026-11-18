@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/httpx"
 )
 
 // pingHandler is a minimal domain handler with a single route.

@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/esrichardd/apivenezuela/api/internal/banks"
-	"github.com/esrichardd/apivenezuela/api/internal/geo"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/datosvenezuela/api/internal/banks"
+	"github.com/esrichardd/datosvenezuela/api/internal/geo"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/httpx"
 )
 
 // TestRoutes checks the assembled API with the real data: routes are

@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
 // reader is the port the handlers depend on. CSVStore implements it; any

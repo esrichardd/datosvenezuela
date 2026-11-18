@@ -9,9 +9,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/csvload"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/textnorm"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/csvload"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/textnorm"
 )
 
 // Files of the geography dataset, relative to its directory.

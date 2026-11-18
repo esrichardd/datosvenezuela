@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
 const (

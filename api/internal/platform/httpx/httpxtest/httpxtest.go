@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/httpx"
 )
 
 // Registrar is a domain handler that adds its routes to a mux.

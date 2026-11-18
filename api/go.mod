@@ -1,4 +1,4 @@
-module github.com/esrichardd/apivenezuela/api
+module github.com/esrichardd/datosvenezuela/api
 
 go 1.27.4
 

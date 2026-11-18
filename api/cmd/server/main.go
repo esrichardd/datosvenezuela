@@ -1,4 +1,4 @@
-// Command server runs the apivenezuela HTTP API.
+// Command server runs the datosvenezuela HTTP API.
 package main
 
 import (

@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/esrichardd/apivenezuela/api/internal/platform/csvload"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/store"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/csvload"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
 // banksFile is the banks dataset, relative to its directory.

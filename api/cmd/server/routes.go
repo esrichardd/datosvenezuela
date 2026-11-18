@@ -4,9 +4,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/esrichardd/apivenezuela/api/internal/banks"
-	"github.com/esrichardd/apivenezuela/api/internal/geo"
-	"github.com/esrichardd/apivenezuela/api/internal/platform/httpx"
+	"github.com/esrichardd/datosvenezuela/api/internal/banks"
+	"github.com/esrichardd/datosvenezuela/api/internal/geo"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/httpx"
 )
 
 // newHandler builds the HTTP handler of the API: every route and the
