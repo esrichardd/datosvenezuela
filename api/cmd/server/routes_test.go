@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"log/slog"
 	"net/http/httptest"
 	"path/filepath"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/esrichardd/datosvenezuela/api/internal/banks"
 	"github.com/esrichardd/datosvenezuela/api/internal/geo"
+	"github.com/esrichardd/datosvenezuela/api/internal/phones"
 	"github.com/esrichardd/datosvenezuela/api/internal/platform/httpx"
 )
 
@@ -25,8 +27,12 @@ func TestRoutes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("banks.LoadCSV() error = %v", err)
 	}
+	phoneStore, err := phones.LoadCSV(context.Background(), filepath.Join(realDataDir, "phones"), geoStore)
+	if err != nil {
+		t.Fatalf("phones.LoadCSV() error = %v", err)
+	}
 	var logs bytes.Buffer
-	h := newHandler(slog.New(slog.NewJSONHandler(&logs, nil)), geoStore, bankStore)
+	h := newHandler(slog.New(slog.NewJSONHandler(&logs, nil)), geoStore, bankStore, phoneStore)
 
 	tests := []struct {
 		method      string
@@ -41,6 +47,9 @@ func TestRoutes(t *testing.T) {
 		{"GET", "/v1/places/search?q=san%20cristobal", 200, "application/json", `"total":3`},
 		{"GET", "/v1/banks?limit=1", 200, "application/json", `"total":27`},
 		{"GET", "/v1/banks/0102", 200, "application/json", `"name":"Banco de Venezuela"`},
+		{"GET", "/v1/phone-prefixes?limit=1", 200, "application/json", `"total":68`},
+		{"GET", "/v1/phone-prefixes/414", 200, "application/json", `"operator":"Movistar"`},
+		{"GET", "/v1/states/VE23/phone-prefixes?limit=1", 200, "application/json", `"total":9`},
 		{"GET", "/v1/nope", 404, "application/problem+json", `"status":404`},
 		{"POST", "/v1/states", 405, "application/problem+json", `"status":405`},
 	}

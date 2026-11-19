@@ -451,16 +451,16 @@ paths:
               example:
                 data:
                   - type: landline
-                    code: "295"
+                    code: "296"
                     states:
-                      - { code: VE17, name: Nueva Esparta }
+                      - { code: VE02, name: Amazonas }
                   - type: non_geographic
                     code: "400"
                     description: Número personal universal
                   - type: mobile
                     code: "412"
                     operator: Digitel
-                meta: { total: 68, limit: 3, offset: 56 }
+                meta: { total: 68, limit: 3, offset: 57 }
         "400": { $ref: "#/components/responses/BadRequest" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "500": { $ref: "#/components/responses/InternalError" }

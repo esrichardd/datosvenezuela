@@ -11,6 +11,7 @@ import (
 
 	"github.com/esrichardd/datosvenezuela/api/internal/banks"
 	"github.com/esrichardd/datosvenezuela/api/internal/geo"
+	"github.com/esrichardd/datosvenezuela/api/internal/phones"
 	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
@@ -46,7 +47,12 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("load banks: %w", err)
 	}
-	logDataLoaded(ctx, logger, geoStore, bankStore)
+	// Phones refers to the states of geography, so it is loaded after it.
+	phoneStore, err := phones.LoadCSV(ctx, filepath.Join(cfg.dataDir, "phones"), geoStore)
+	if err != nil {
+		return fmt.Errorf("load phones: %w", err)
+	}
+	logDataLoaded(ctx, logger, geoStore, bankStore, phoneStore)
 
 	// Open the port before announcing the server, so "server started" is only
 	// logged when it is true. A port that is already in use fails here.
@@ -58,7 +64,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	logger.Info("server started", "port", cfg.port)
 
 	srv := &http.Server{
-		Handler:           newHandler(logger, geoStore, bankStore),
+		Handler:           newHandler(logger, geoStore, bankStore, phoneStore),
 		ReadHeaderTimeout: readHeaderTimeout,
 		ReadTimeout:       readTimeout,
 		WriteTimeout:      writeTimeout,
@@ -99,15 +105,20 @@ func serve(ctx context.Context, logger *slog.Logger, srv *http.Server, ln net.Li
 // logDataLoaded logs how many records of each dataset were loaded, to confirm
 // at startup that the expected data is being served. An empty Page selects no
 // items, so each call only returns the total.
-func logDataLoaded(ctx context.Context, logger *slog.Logger, geoStore *geo.CSVStore, bankStore *banks.CSVStore) {
+func logDataLoaded(
+	ctx context.Context, logger *slog.Logger,
+	geoStore *geo.CSVStore, bankStore *banks.CSVStore, phoneStore *phones.CSVStore,
+) {
 	_, states, _ := geoStore.States(ctx, store.Page{})
 	_, municipalities, _ := geoStore.Municipalities(ctx, store.Page{})
 	_, parishes, _ := geoStore.Parishes(ctx, store.Page{})
 	_, bankCount, _ := bankStore.Banks(ctx, store.Page{})
+	_, phonePrefixes, _ := phoneStore.Prefixes(ctx, "", store.Page{})
 	logger.Info("data loaded",
 		"states", states,
 		"municipalities", municipalities,
 		"parishes", parishes,
 		"banks", bankCount,
+		"phone_prefixes", phonePrefixes,
 	)
 }

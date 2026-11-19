@@ -62,7 +62,7 @@ func TestRun(t *testing.T) {
 	}
 
 	// run has returned, so nothing else is writing to logs.
-	for _, want := range []string{`"msg":"data loaded"`, `"states":25`, `"banks":27`, `"msg":"server stopped"`} {
+	for _, want := range []string{`"msg":"data loaded"`, `"states":25`, `"banks":27`, `"phone_prefixes":68`, `"msg":"server stopped"`} {
 		if !strings.Contains(logs.String(), want) {
 			t.Errorf("logs = %s\nwant them to contain %s", logs.String(), want)
 		}
@@ -89,6 +89,13 @@ func TestRunFails(t *testing.T) {
 	if err := os.CopyFS(filepath.Join(onlyGeography, "geography"), os.DirFS(filepath.Join(realDataDir, "geography"))); err != nil {
 		t.Fatal(err)
 	}
+	// Valid geography and banks but no phones: the third dataset too.
+	noPhones := t.TempDir()
+	for _, dataset := range []string{"geography", "banks"} {
+		if err := os.CopyFS(filepath.Join(noPhones, dataset), os.DirFS(filepath.Join(realDataDir, dataset))); err != nil {
+			t.Fatal(err)
+		}
+	}
 
 	tests := []struct {
 		name    string
@@ -100,6 +107,7 @@ func TestRunFails(t *testing.T) {
 		// An existing directory without the datasets.
 		{name: "invalid geography", port: freePort(t), dataDir: t.TempDir(), wantErr: "load geography: "},
 		{name: "invalid banks", port: freePort(t), dataDir: onlyGeography, wantErr: "load banks: "},
+		{name: "invalid phones", port: freePort(t), dataDir: noPhones, wantErr: "load phones: "},
 		{name: "port in use", port: busyPort, dataDir: realDataDir, wantErr: "listen: "},
 	}
 

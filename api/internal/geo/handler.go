@@ -207,41 +207,36 @@ type stateJSON struct {
 	Capital *string `json:"capital"` // null when the state has no capital
 }
 
-type refJSON struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
-}
-
 type municipalityJSON struct {
-	Code  string  `json:"code"`
-	Name  string  `json:"name"`
-	State refJSON `json:"state"`
+	Code  string    `json:"code"`
+	Name  string    `json:"name"`
+	State httpx.Ref `json:"state"`
 }
 
 type parishJSON struct {
-	Code         string  `json:"code"`
-	Name         string  `json:"name"`
-	Municipality refJSON `json:"municipality"`
-	State        refJSON `json:"state"`
+	Code         string    `json:"code"`
+	Name         string    `json:"name"`
+	Municipality httpx.Ref `json:"municipality"`
+	State        httpx.Ref `json:"state"`
 }
 
 // placeJSON is a search result. Parents are omitted when the level has none.
 type placeJSON struct {
-	Type         string   `json:"type"`
-	Code         string   `json:"code"`
-	Name         string   `json:"name"`
-	Municipality *refJSON `json:"municipality,omitempty"`
-	State        *refJSON `json:"state,omitempty"`
+	Type         string     `json:"type"`
+	Code         string     `json:"code"`
+	Name         string     `json:"name"`
+	Municipality *httpx.Ref `json:"municipality,omitempty"`
+	State        *httpx.Ref `json:"state,omitempty"`
 }
 
 func toPlaceJSON(p Place) placeJSON {
 	out := placeJSON{Type: string(p.Type), Code: p.Code, Name: p.Name}
 	if p.Municipality != nil {
-		m := refJSON(*p.Municipality)
+		m := httpx.Ref(*p.Municipality)
 		out.Municipality = &m
 	}
 	if p.State != nil {
-		st := refJSON(*p.State)
+		st := httpx.Ref(*p.State)
 		out.State = &st
 	}
 	return out
@@ -255,27 +250,27 @@ func toStateJSON(st State) stateJSON {
 	return out
 }
 
-func toMunicipalitySummaryJSON(m Municipality) refJSON {
-	return refJSON{Code: m.Code, Name: m.Name}
+func toMunicipalitySummaryJSON(m Municipality) httpx.Ref {
+	return httpx.Ref{Code: m.Code, Name: m.Name}
 }
 
 func toMunicipalityJSON(m Municipality) municipalityJSON {
 	return municipalityJSON{
 		Code:  m.Code,
 		Name:  m.Name,
-		State: refJSON(m.State),
+		State: httpx.Ref(m.State),
 	}
 }
 
-func toParishSummaryJSON(p Parish) refJSON {
-	return refJSON{Code: p.Code, Name: p.Name}
+func toParishSummaryJSON(p Parish) httpx.Ref {
+	return httpx.Ref{Code: p.Code, Name: p.Name}
 }
 
 func toParishJSON(p Parish) parishJSON {
 	return parishJSON{
 		Code:         p.Code,
 		Name:         p.Name,
-		Municipality: refJSON(p.Municipality),
-		State:        refJSON(p.State),
+		Municipality: httpx.Ref(p.Municipality),
+		State:        httpx.Ref(p.State),
 	}
 }

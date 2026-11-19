@@ -22,8 +22,8 @@ con un servicio.
   estados (ej. `275`: Zulia, Mérida y Táchira) y un estado tener varios códigos.
 - **`state_name`**: solo ayuda de lectura para quien edita el archivo a mano. La
   referencia real es `state_code`; `state_name` debe coincidir con el nombre en
-  `../geography/states.csv` (validación pendiente en CI). Si un estado cambia de
-  nombre, esta columna se regenera.
+  `../geography/states.csv`; la API lo valida al cargar los datos y no arranca si
+  no coincide. Si un estado cambia de nombre, esta columna se regenera.
 - **`operator`**: nombre comercial de la operadora móvil.
 
 **Código de país:** `+58`. No se guarda en un CSV porque es un único valor.

@@ -29,6 +29,13 @@ type PageMeta struct {
 	Offset int `json:"offset"`
 }
 
+// Ref is the representation of a reference to another resource by its code
+// and name, such as the state of a municipality.
+type Ref struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
 // WriteItem writes v wrapped in {"data": ...} with status 200.
 func WriteItem[T any](w http.ResponseWriter, r *http.Request, v T) {
 	JSON(w, r, http.StatusOK, Item[T]{Data: v})
