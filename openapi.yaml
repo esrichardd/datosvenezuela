@@ -17,6 +17,9 @@ info:
       case-insensitively.
     - Bank codes are the 4-digit codes assigned by the Central Bank of
       Venezuela (e.g. `0102`). The leading zero is part of the code.
+    - Phone prefix codes are national destination codes without the trunk
+      prefix `0` (e.g. `414`, not `0414`), as in E.164. Dial `0414…` within
+      Venezuela or `+58 414…` from abroad.
     - Every response carries an `X-Request-ID` header. Include it when reporting
       a problem.
     - Requests are rate limited per IP. Every response carries `RateLimit-*`
@@ -43,6 +46,8 @@ tags:
     description: States, municipalities and parishes.
   - name: Banks
     description: Banking institutions and their codes.
+  - name: Phones
+    description: Telephone prefixes (landline area codes, mobile and non-geographic).
   - name: System
     description: Operational endpoints.
 
@@ -409,6 +414,135 @@ paths:
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "500": { $ref: "#/components/responses/InternalError" }
 
+  /v1/phone-prefixes:
+    get:
+      tags: [Phones]
+      operationId: listPhonePrefixes
+      summary: List phone prefixes
+      description: |
+        Returns landline, mobile and non-geographic prefixes, ordered by code.
+        Without `type`, the list mixes the three types: read `type` to know
+        which fields each item has.
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: Restrict results to one type.
+          schema:
+            type: string
+            enum: [landline, mobile, non_geographic]
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: List of phone prefixes.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/PhonePrefix" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+              example:
+                data:
+                  - type: landline
+                    code: "295"
+                    states:
+                      - { code: VE17, name: Nueva Esparta }
+                  - type: non_geographic
+                    code: "400"
+                    description: Número personal universal
+                  - type: mobile
+                    code: "412"
+                    operator: Digitel
+                meta: { total: 68, limit: 3, offset: 56 }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/phone-prefixes/{code}:
+    get:
+      tags: [Phones]
+      operationId: getPhonePrefix
+      summary: Get a phone prefix
+      parameters:
+        - $ref: "#/components/parameters/PhonePrefixCode"
+      responses:
+        "200":
+          description: The phone prefix.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: "#/components/schemas/PhonePrefix" }
+              example:
+                data:
+                  type: landline
+                  code: "275"
+                  states:
+                    - { code: VE14, name: Mérida }
+                    - { code: VE20, name: Táchira }
+                    - { code: VE23, name: Zulia }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/states/{code}/phone-prefixes:
+    get:
+      tags: [Phones]
+      operationId: listStatePhonePrefixes
+      summary: List the landline prefixes of a state
+      description: |
+        Returns the landline prefixes that cover the state, ordered by code.
+        Each prefix lists every state it covers, not only this one (e.g.
+        `212` covers Distrito Capital, Miranda and La Guaira). Mobile and
+        non-geographic prefixes are national and are not listed here.
+      parameters:
+        - $ref: "#/components/parameters/StateCode"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Landline prefixes of the state. Empty if it has none.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/LandlinePrefix" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+              example:
+                data:
+                  - type: landline
+                    code: "267"
+                    states:
+                      - { code: VE23, name: Zulia }
+                  - type: landline
+                    code: "271"
+                    states:
+                      - { code: VE14, name: Mérida }
+                      - { code: VE21, name: Trujillo }
+                      - { code: VE23, name: Zulia }
+                meta: { total: 9, limit: 2, offset: 6 }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
 components:
   parameters:
     StateCode:
@@ -447,6 +581,15 @@ components:
         type: string
         pattern: "^[0-9]{4}$"
       example: "0102"
+    PhonePrefixCode:
+      name: code
+      in: path
+      required: true
+      description: 3-digit prefix code, without the leading `0`.
+      schema:
+        type: string
+        pattern: "^[0-9]{3}$"
+      example: "414"
     Limit:
       name: limit
       in: query
@@ -615,6 +758,64 @@ components:
           type: string
           description: Registered legal name, as published by the source.
           example: "Banco de Venezuela, S.A. Banco Universal"
+
+    PhonePrefix:
+      oneOf:
+        - $ref: "#/components/schemas/LandlinePrefix"
+        - $ref: "#/components/schemas/MobilePrefix"
+        - $ref: "#/components/schemas/NonGeographicPrefix"
+      discriminator:
+        propertyName: type
+        mapping:
+          landline: "#/components/schemas/LandlinePrefix"
+          mobile: "#/components/schemas/MobilePrefix"
+          non_geographic: "#/components/schemas/NonGeographicPrefix"
+
+    LandlinePrefix:
+      type: object
+      description: Geographic area code.
+      required: [type, code, states]
+      properties:
+        type: { type: string, const: landline }
+        code:
+          type: string
+          pattern: "^[0-9]{3}$"
+          example: "275"
+        states:
+          type: array
+          description: States the code covers, ordered by code.
+          minItems: 1
+          items: { $ref: "#/components/schemas/StateRef" }
+
+    MobilePrefix:
+      type: object
+      required: [type, code, operator]
+      properties:
+        type: { type: string, const: mobile }
+        code:
+          type: string
+          pattern: "^[0-9]{3}$"
+          example: "414"
+        operator:
+          type: string
+          description: |
+            Trade name of the operator the prefix is assigned to. It is not
+            necessarily the current operator of a given line.
+          example: Movistar
+
+    NonGeographicPrefix:
+      type: object
+      required: [type, code, description]
+      properties:
+        type: { type: string, const: non_geographic }
+        code:
+          type: string
+          pattern: "^[0-9]{3}$"
+          example: "800"
+        description:
+          type: string
+          description: Service the prefix is used for.
+          example: Acceso universal con cargo al destino (gratuito para quien llama)
 
     PageMeta:
       type: object
