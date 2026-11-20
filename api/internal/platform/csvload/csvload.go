@@ -7,6 +7,7 @@
 package csvload
 
 import (
+	"cmp"
 	"encoding/csv"
 	"errors"
 	"fmt"
@@ -104,15 +105,18 @@ func CheckText(field, value string, fail FailFunc) {
 	}
 }
 
-// CheckOrder reports a code that sorts before prev, the code of the previous
-// row. Pass "" for the first row.
+// CheckOrder reports a value that sorts before prev, the value of the
+// previous row. field names the column in the message. For the first row,
+// pass as prev the smallest possible value: "" for text, math.MinInt for
+// numbers.
 //
-// Stores serve rows in file order and the API promises lists ordered by code,
-// so the files must be sorted. Codes have a fixed width, which makes comparing
-// them as text the same as comparing their numbers. An equal code is left to
-// the duplicate check, which gives a clearer message.
-func CheckOrder(prev, code string, fail FailFunc) {
-	if code < prev {
-		fail("code %s is out of order: it must come after %s", code, prev)
+// Stores serve rows in file order and the API promises ordered lists, so the
+// files must be sorted. Text values (codes, ISO dates) have a fixed width,
+// which makes comparing them as text the same as comparing them as numbers
+// or dates. An equal value is left to the duplicate check, which gives a
+// clearer message.
+func CheckOrder[T cmp.Ordered](field string, prev, value T, fail FailFunc) {
+	if value < prev {
+		fail("%s %v is out of order: it must come after %v", field, value, prev)
 	}
 }

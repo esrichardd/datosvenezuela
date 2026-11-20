@@ -55,7 +55,7 @@ func LoadCSV(dir string) (*CSVStore, error) {
 		if _, dup := s.byCode[b.Code]; dup {
 			fail("duplicate code %s", b.Code)
 		}
-		csvload.CheckOrder(prev, b.Code, fail)
+		csvload.CheckOrder("code", prev, b.Code, fail)
 		prev = b.Code
 		csvload.CheckText("name", b.Name, fail)
 		csvload.CheckText("legal_name", b.LegalName, fail)

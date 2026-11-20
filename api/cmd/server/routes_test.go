@@ -5,34 +5,22 @@ import (
 	"context"
 	"log/slog"
 	"net/http/httptest"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 
-	"github.com/esrichardd/datosvenezuela/api/internal/banks"
-	"github.com/esrichardd/datosvenezuela/api/internal/geo"
-	"github.com/esrichardd/datosvenezuela/api/internal/phones"
 	"github.com/esrichardd/datosvenezuela/api/internal/platform/httpx"
 )
 
 // TestRoutes checks the assembled API with the real data: routes are
 // registered and the middleware is in place.
 func TestRoutes(t *testing.T) {
-	geoStore, err := geo.LoadCSV(filepath.Join(realDataDir, "geography"))
+	st, err := loadStores(context.Background(), realDataDir)
 	if err != nil {
-		t.Fatalf("geo.LoadCSV() error = %v", err)
-	}
-	bankStore, err := banks.LoadCSV(filepath.Join(realDataDir, "banks"))
-	if err != nil {
-		t.Fatalf("banks.LoadCSV() error = %v", err)
-	}
-	phoneStore, err := phones.LoadCSV(context.Background(), filepath.Join(realDataDir, "phones"), geoStore)
-	if err != nil {
-		t.Fatalf("phones.LoadCSV() error = %v", err)
+		t.Fatalf("loadStores() error = %v", err)
 	}
 	var logs bytes.Buffer
-	h := newHandler(slog.New(slog.NewJSONHandler(&logs, nil)), geoStore, bankStore, phoneStore)
+	h := newHandler(slog.New(slog.NewJSONHandler(&logs, nil)), st)
 
 	tests := []struct {
 		method      string
@@ -50,6 +38,8 @@ func TestRoutes(t *testing.T) {
 		{"GET", "/v1/phone-prefixes?limit=1", 200, "application/json", `"total":68`},
 		{"GET", "/v1/phone-prefixes/414", 200, "application/json", `"operator":"Movistar"`},
 		{"GET", "/v1/states/VE23/phone-prefixes?limit=1", 200, "application/json", `"total":9`},
+		{"GET", "/v1/holidays/national?year=2026&limit=1", 200, "application/json", `"total":14`},
+		{"GET", "/v1/holidays/bank?year=2026&limit=1", 200, "application/json", `"total":22`},
 		{"GET", "/v1/nope", 404, "application/problem+json", `"status":404`},
 		{"POST", "/v1/states", 405, "application/problem+json", `"status":405`},
 	}

@@ -25,11 +25,27 @@ Venezuela tiene **dos calendarios** distintos:
 Los días de asueto que el Ejecutivo decreta sobre la marcha **no se incluyen**: no son
 predecibles. Los domingos tampoco, por ser implícitos.
 
+## Años disponibles
+
+- **Nacionales: de 2013 a 2030.** Las reglas vienen de la LOTTT (art. 184), vigente desde
+  el 7 de mayo de 2012, así que 2013 es el primer año completo que cubren. La ley anterior
+  (LOT de 1997, art. 212) tenía otra lista: no incluía Carnaval ni el 24 y el 31 de
+  diciembre, por lo que calcular años previos con estas reglas daría fechas falsas. 2030 es
+  un tope de planificación que se revisa con los años; las reglas valen mientras la ley no
+  cambie.
+- **Bancarios: solo los años con archivo** (`bank_YYYY.csv`). Para agregar un año basta con
+  agregar su archivo cuando SUDEBAN lo publique.
+
+Si dos feriados nacionales caen el mismo día (en 2019 el Viernes Santo fue el 19 de abril),
+la API lista ambos: son feriados distintos, con distinta base legal.
+
 ## Fuentes
 
 | Fuente                                                                                                                                                             | Fecha      | Uso                                                                                   |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------- |
 | Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras (LOTTT), art. 184, vía [Acceso a la Justicia](https://accesoalajusticia.org/glossary/dias-festivos/) | 2012       | 1 de enero, Carnaval, Jueves y Viernes Santo, 1 de mayo, 24, 25 y 31 de diciembre     |
+| [Ley Orgánica del Trabajo de 1997 (LOT)](https://venezuela.justia.com/estatales/miranda/leyes/ley-organica-del-trabajo-1997/gdoc/), art. 212                       | 1997       | Feriados de la ley anterior, para fijar desde qué año valen las reglas actuales       |
+| [Gaceta Oficial N° 6.076 Extraordinario](https://faolex.fao.org/docs/pdf/ven219669.pdf)                                                                            | 2012-05-07 | Publicación y entrada en vigencia de la LOTTT                                         |
 | [Ley de Fiestas Nacionales](https://venezuela.justia.com/federales/leyes/ley-de-fiestas-nacionales/gdoc), Gaceta Oficial N° 29.541                                 | 1971-06-22 | 19 de abril, 24 de junio, 5 de julio, 24 de julio y 12 de octubre                     |
 | [Bloomberg Línea: lunes bancarios 2026](https://www.bloomberglinea.com/latinoamerica/venezuela/calendario-de-lunes-bancarios-en-venezuela-para-2026/)              | 2026       | Fechas efectivas (trasladadas a lunes) del calendario SUDEBAN 2026 y total de 22 días |
 | [Finanzas Digital: calendario bancario 2026](https://finanzasdigital.com/sudeban-calendario-bancario-2026-feriados/)                                               | 2026       | Lista de feriados bancarios y base legal                                              |
@@ -38,6 +54,13 @@ predecibles. Los domingos tampoco, por ser implícitos.
 Consultado el 2026-11-13.
 
 ## Validaciones realizadas
+
+La API valida los archivos al cargarlos y no arranca si encuentra un error: fechas
+válidas, sin duplicados y en orden; fechas bancarias dentro del año de su archivo y
+entre semana. Además, un test comprueba en cada calendario bancario que estén todos los
+feriados nacionales que caen entre semana.
+
+Verificaciones hechas a mano:
 
 - La Pascua de 2026 calculada (5 de abril) produce Carnaval el 16 y 17 de febrero y
   Semana Santa el 2 y 3 de abril, igual que el calendario publicado.

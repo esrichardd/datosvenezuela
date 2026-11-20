@@ -3,9 +3,8 @@
 API pública y gratuita con datos de Venezuela, pensada para desarrolladores.
 Centraliza información que hoy está dispersa, desactualizada o difícil de consumir.
 
-> 🚧 **Estado:** en desarrollo. La API ya sirve geografía, bancos y prefijos
-> telefónicos (ver [`openapi.yaml`](openapi.yaml)); los feriados están disponibles
-> por ahora como CSV en [`data/`](data/).
+> 🚧 **Estado:** en desarrollo. La API ya sirve todos los datos de la v1: geografía,
+> bancos, prefijos telefónicos y feriados (ver [`openapi.yaml`](openapi.yaml)).
 
 ## ¿Qué datos ofrece?
 

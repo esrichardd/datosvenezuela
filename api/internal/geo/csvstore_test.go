@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/csvload/csvloadtest"
 	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
@@ -39,18 +40,11 @@ var realDataDir = filepath.Join("..", "..", "..", "data", "geography")
 // returns its path.
 func writeDataset(t *testing.T, states, municipalities, parishes string) string {
 	t.Helper()
-	dir := t.TempDir()
-	files := map[string]string{
+	return csvloadtest.WriteFiles(t, map[string]string{
 		statesFile:         states,
 		municipalitiesFile: municipalities,
 		parishesFile:       parishes,
-	}
-	for name, content := range files {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
-	return dir
+	})
 }
 
 func loadValid(t *testing.T) *CSVStore {

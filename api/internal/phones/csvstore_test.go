@@ -1,6 +1,7 @@
 package phones
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"io/fs"
@@ -11,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/esrichardd/datosvenezuela/api/internal/geo"
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/csvload/csvloadtest"
 	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
@@ -70,25 +72,12 @@ type dataset struct {
 // write writes the dataset to a temporary directory and returns its path.
 func (d dataset) write(t *testing.T) string {
 	t.Helper()
-	or := func(content, valid string) string {
-		if content == "" {
-			return valid
-		}
-		return content
-	}
-	files := map[string]string{
-		landlineFile:       or(d.landline, validLandline),
-		landlineStatesFile: or(d.landlineStates, validLandlineStates),
-		mobileFile:         or(d.mobile, validMobile),
-		nonGeographicFile:  or(d.nonGeographic, validNonGeographic),
-	}
-	dir := t.TempDir()
-	for name, content := range files {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
-	return dir
+	return csvloadtest.WriteFiles(t, map[string]string{
+		landlineFile:       cmp.Or(d.landline, validLandline),
+		landlineStatesFile: cmp.Or(d.landlineStates, validLandlineStates),
+		mobileFile:         cmp.Or(d.mobile, validMobile),
+		nonGeographicFile:  cmp.Or(d.nonGeographic, validNonGeographic),
+	})
 }
 
 func loadValid(t *testing.T) *CSVStore {

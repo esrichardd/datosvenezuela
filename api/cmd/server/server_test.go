@@ -62,7 +62,7 @@ func TestRun(t *testing.T) {
 	}
 
 	// run has returned, so nothing else is writing to logs.
-	for _, want := range []string{`"msg":"data loaded"`, `"states":25`, `"banks":27`, `"phone_prefixes":68`, `"msg":"server stopped"`} {
+	for _, want := range []string{`"msg":"data loaded"`, `"states":25`, `"banks":27`, `"phone_prefixes":68`, `"bank_holiday_years":[2026]`, `"msg":"server stopped"`} {
 		if !strings.Contains(logs.String(), want) {
 			t.Errorf("logs = %s\nwant them to contain %s", logs.String(), want)
 		}
@@ -84,18 +84,11 @@ func TestRunFails(t *testing.T) {
 	defer func() { _ = busy.Close() }()
 	busyPort := busy.Addr().(*net.TCPAddr).Port
 
-	// Valid geography but no banks: the second dataset must also be loaded.
-	onlyGeography := t.TempDir()
-	if err := os.CopyFS(filepath.Join(onlyGeography, "geography"), os.DirFS(filepath.Join(realDataDir, "geography"))); err != nil {
-		t.Fatal(err)
-	}
-	// Valid geography and banks but no phones: the third dataset too.
-	noPhones := t.TempDir()
-	for _, dataset := range []string{"geography", "banks"} {
-		if err := os.CopyFS(filepath.Join(noPhones, dataset), os.DirFS(filepath.Join(realDataDir, dataset))); err != nil {
-			t.Fatal(err)
-		}
-	}
+	// Each directory has the valid datasets loaded before the missing one, so
+	// every dataset must be loaded, not only the first.
+	noBanks := copyDatasets(t, "geography")
+	noPhones := copyDatasets(t, "geography", "banks")
+	noHolidays := copyDatasets(t, "geography", "banks", "phones")
 
 	tests := []struct {
 		name    string
@@ -106,8 +99,9 @@ func TestRunFails(t *testing.T) {
 		{name: "invalid config", port: 0, dataDir: realDataDir, wantErr: "invalid PORT"},
 		// An existing directory without the datasets.
 		{name: "invalid geography", port: freePort(t), dataDir: t.TempDir(), wantErr: "load geography: "},
-		{name: "invalid banks", port: freePort(t), dataDir: onlyGeography, wantErr: "load banks: "},
+		{name: "invalid banks", port: freePort(t), dataDir: noBanks, wantErr: "load banks: "},
 		{name: "invalid phones", port: freePort(t), dataDir: noPhones, wantErr: "load phones: "},
+		{name: "invalid holidays", port: freePort(t), dataDir: noHolidays, wantErr: "load holidays: "},
 		{name: "port in use", port: busyPort, dataDir: realDataDir, wantErr: "listen: "},
 	}
 
@@ -155,4 +149,17 @@ func TestServeFails(t *testing.T) {
 	if err == nil || !strings.HasPrefix(err.Error(), "serve: ") {
 		t.Errorf("serve() error = %v, want a serve error", err)
 	}
+}
+
+// copyDatasets copies the given datasets of the real data directory to a new
+// temporary directory and returns its path.
+func copyDatasets(t *testing.T, datasets ...string) string {
+	t.Helper()
+	dir := t.TempDir()
+	for _, d := range datasets {
+		if err := os.CopyFS(filepath.Join(dir, d), os.DirFS(filepath.Join(realDataDir, d))); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return dir
 }

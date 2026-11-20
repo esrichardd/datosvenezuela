@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"math"
 	"os"
 	"path/filepath"
 	"slices"
@@ -191,10 +192,25 @@ func TestCheckOrder(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var got []string
-			CheckOrder(tt.prev, tt.code, recordFails(&got))
+			CheckOrder("code", tt.prev, tt.code, recordFails(&got))
 			if !slices.Equal(got, tt.want) {
 				t.Errorf("CheckOrder(%q, %q) reported %q, want %q", tt.prev, tt.code, got, tt.want)
 			}
 		})
+	}
+}
+
+// TestCheckOrderNumbers checks numbers, which can be negative, are compared
+// as numbers and not as text.
+func TestCheckOrderNumbers(t *testing.T) {
+	var got []string
+	fail := recordFails(&got)
+	CheckOrder("offset", math.MinInt, -48, fail)
+	CheckOrder("offset", -48, -3, fail)
+	CheckOrder("offset", -3, -47, fail)
+
+	want := []string{"offset -47 is out of order: it must come after -3"}
+	if !slices.Equal(got, want) {
+		t.Errorf("CheckOrder reported %q, want %q", got, want)
 	}
 }

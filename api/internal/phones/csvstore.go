@@ -128,7 +128,7 @@ func (s *CSVStore) loadPrefixes(file string, typ Type, rows []csvload.Record, de
 			fail("code %s is already defined in %s", p.Code, other)
 		}
 		definedIn[p.Code] = file
-		csvload.CheckOrder(prev, p.Code, fail)
+		csvload.CheckOrder("code", prev, p.Code, fail)
 		prev = p.Code
 
 		switch typ {
@@ -168,9 +168,7 @@ func (s *CSVStore) loadLandlineStates(ctx context.Context, rows []csvload.Record
 			fail("duplicate row %s", row)
 		}
 		seen[row] = true
-		if row < prev {
-			fail("row %s is out of order: it must come after %s", row, prev)
-		}
+		csvload.CheckOrder("row", prev, row, fail)
 		prev = row
 
 		i, ok := s.byCode[code]

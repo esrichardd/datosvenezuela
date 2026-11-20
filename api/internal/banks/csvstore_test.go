@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/esrichardd/datosvenezuela/api/internal/platform/csvload/csvloadtest"
 	"github.com/esrichardd/datosvenezuela/api/internal/platform/store"
 )
 
@@ -24,11 +24,7 @@ var realDataDir = filepath.Join("..", "..", "..", "data", "banks")
 // writeDataset writes banks.csv to a temporary directory and returns its path.
 func writeDataset(t *testing.T, content string) string {
 	t.Helper()
-	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, banksFile), []byte(content), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	return dir
+	return csvloadtest.WriteFiles(t, map[string]string{banksFile: content})
 }
 
 func loadValid(t *testing.T) *CSVStore {

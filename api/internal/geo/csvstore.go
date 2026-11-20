@@ -147,7 +147,7 @@ func (s *CSVStore) loadStates(rows []csvload.Record) []error {
 		if _, dup := s.stateByCode[st.Code]; dup {
 			fail("duplicate code %s", st.Code)
 		}
-		csvload.CheckOrder(prev, st.Code, fail)
+		csvload.CheckOrder("code", prev, st.Code, fail)
 		prev = st.Code
 		csvload.CheckText("name", st.Name, fail)
 		switch st.Type {
@@ -192,7 +192,7 @@ func (s *CSVStore) loadMunicipalities(rows []csvload.Record) []error {
 		if _, dup := s.municipalityByCode[code]; dup {
 			fail("duplicate code %s", code)
 		}
-		csvload.CheckOrder(prev, code, fail)
+		csvload.CheckOrder("code", prev, code, fail)
 		prev = code
 		csvload.CheckText("name", name, fail)
 		i, ok := s.stateByCode[stateCode]
@@ -230,7 +230,7 @@ func (s *CSVStore) loadParishes(rows []csvload.Record) []error {
 		if _, dup := s.parishByCode[code]; dup {
 			fail("duplicate code %s", code)
 		}
-		csvload.CheckOrder(prev, code, fail)
+		csvload.CheckOrder("code", prev, code, fail)
 		prev = code
 		csvload.CheckText("name", name, fail)
 		i, ok := s.municipalityByCode[municipalityCode]
