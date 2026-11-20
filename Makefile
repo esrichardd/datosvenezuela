@@ -1,11 +1,12 @@
 # Common project commands. Run `make` (or `make help`) to list them.
 API_DIR := api
+WEB_DIR := web
 
 .DEFAULT_GOAL := help
-.PHONY: help setup run build test lint fmt tidy vuln check
+.PHONY: help setup run build test lint fmt tidy vuln check web-install web-dev web-build
 
 help: ## Show available commands
-	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-8s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
 setup: ## Install git hooks (run once after cloning)
 	lefthook install
@@ -32,3 +33,12 @@ vuln: ## Check dependencies for known vulnerabilities
 	cd $(API_DIR) && go tool govulncheck ./...
 
 check: lint test vuln ## Run all checks (same as CI)
+
+web-install: ## Install web dependencies exactly as locked
+	cd $(WEB_DIR) && pnpm install --frozen-lockfile
+
+web-dev: ## Run the web dev server (http://localhost:4321)
+	cd $(WEB_DIR) && pnpm dev
+
+web-build: ## Build the static site into web/dist
+	cd $(WEB_DIR) && pnpm build
