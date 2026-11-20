@@ -18,6 +18,19 @@ pre-commit:
       glob: "*.go"
       run: golangci-lint run ./...
       priority: 2
+    # Format staged web files and add the fixes to the commit.
+    web-fmt:
+      root: "web/"
+      glob: "*.{astro,js,mjs,ts,json,css,md,yaml,yml}"
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+      priority: 1
+    # Lint only; fixes are left to the developer to review.
+    web-lint:
+      root: "web/"
+      glob: "*.{astro,js,mjs,ts}"
+      run: pnpm exec eslint --no-warn-ignored {staged_files}
+      priority: 2
 
 commit-msg:
   commands:
@@ -37,3 +50,6 @@ pre-push:
     go-test:
       root: "api/"
       run: go test -race ./...
+    web-typecheck:
+      root: "web/"
+      run: pnpm typecheck
