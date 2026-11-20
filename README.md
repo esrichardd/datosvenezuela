@@ -41,7 +41,7 @@ Cada dataset documenta sus fuentes, criterios y correcciones en su propio `SOURC
 | --------------------- | ---------------------------------------------------- |
 | API                   | Go                                                   |
 | Base de datos         | PostgreSQL (desde la v2; la v1 sirve CSV en memoria) |
-| Sitio y documentación | Astro                                                |
+| Sitio y documentación | Astro 7                                              |
 | Infraestructura       | VPS + Docker Compose + Caddy, detrás de Cloudflare   |
 
 ## Estructura del repositorio
@@ -59,6 +59,23 @@ datosvenezuela/
 ```
 
 > Las carpetas se irán creando a medida que el proyecto avance.
+
+## Desarrollo local
+
+### Sitio (`web/`)
+
+Requisitos:
+
+- **Node.js 24.** La versión está en `web/.nvmrc`; con nvm basta `nvm use` dentro de `web/`.
+- **pnpm 12.** La versión exacta está fijada en `web/package.json` (`packageManager`) y pnpm
+  la usa automáticamente. Con pnpm 10 el cambio automático falla: actualiza con
+  `npm install -g pnpm@latest`.
+
+```bash
+make web-install   # instala las dependencias tal como están en el lockfile
+make web-dev       # servidor de desarrollo en http://localhost:4321
+make web-build     # genera el sitio estático en web/dist
+```
 
 ## Contribuir
 
