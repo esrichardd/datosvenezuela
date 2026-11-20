@@ -20,6 +20,7 @@ info:
     - Phone prefix codes are national destination codes without the trunk
       prefix `0` (e.g. `414`, not `0414`), as in E.164. Dial `0414…` within
       Venezuela or `+58 414…` from abroad.
+    - Dates use ISO 8601 (`YYYY-MM-DD`).
     - Every response carries an `X-Request-ID` header. Include it when reporting
       a problem.
     - Requests are rate limited per IP. Every response carries `RateLimit-*`
@@ -48,6 +49,8 @@ tags:
     description: Banking institutions and their codes.
   - name: Phones
     description: Telephone prefixes (landline area codes, mobile and non-geographic).
+  - name: Holidays
+    description: National (labor) and bank holidays.
   - name: System
     description: Operational endpoints.
 
@@ -543,6 +546,162 @@ paths:
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "500": { $ref: "#/components/responses/InternalError" }
 
+  /v1/holidays/national:
+    get:
+      tags: [Holidays]
+      operationId: listNationalHolidays
+      summary: List the national holidays of a year
+      description: |
+        Returns the national (labor) holidays of a year, ordered by date. They
+        are calculated from the rules of the LOTTT (art. 184) and the Ley de
+        Fiestas Nacionales, so any year in the supported range is available.
+        Holidays that fall on a Sunday are included. Days off decreed by the
+        Executive on short notice are not.
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: |
+            Year to list. Starts in 2013, the first full year under the LOTTT
+            (in force since 2012-05-07); earlier years had different rules.
+            The upper bound is reviewed as the years go by.
+          schema:
+            type: integer
+            minimum: 2013
+            maximum: 2030
+          example: 2026
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: National holidays of the year.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/NationalHoliday" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+              example:
+                data:
+                  - date: "2026-01-01"
+                    name: Año Nuevo
+                    legal_basis: LOTTT art. 184
+                  - date: "2026-02-16"
+                    name: Lunes de Carnaval
+                    legal_basis: LOTTT art. 184
+                  - date: "2026-02-17"
+                    name: Martes de Carnaval
+                    legal_basis: LOTTT art. 184
+                meta: { total: 14, limit: 3, offset: 0 }
+        "400":
+          description: |
+            One or more parameters are invalid. `year` is rejected when it is
+            missing (`is required`) or is not an integer between 2013 and 2030.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+              example:
+                type: about:blank
+                title: Bad Request
+                status: 400
+                detail: invalid request parameters
+                invalid_params:
+                  - name: year
+                    reason: must be an integer between 2013 and 2030
+                request_id: 4f1c2a9e8b7d6c5e4f3a2b1c0d9e8f7a
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /v1/holidays/bank:
+    get:
+      tags: [Holidays]
+      operationId: listBankHolidays
+      summary: List the bank holidays of a year
+      description: |
+        Returns the days without banking activity of a year, as published by
+        SUDEBAN (art. 68 of the Ley de Instituciones del Sector Bancario),
+        ordered by date. It includes the national holidays that fall on a
+        weekday and the religious holidays SUDEBAN moves, usually to a Monday.
+        Weekends are not listed.
+
+        The calendar is published once a year, so only published years are
+        available.
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: Year to list.
+          schema:
+            type: integer
+          example: 2026
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Bank holidays of the year.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/BankHoliday" }
+                  meta: { $ref: "#/components/schemas/PageMeta" }
+              example:
+                data:
+                  - date: "2026-01-01"
+                    name: Año Nuevo
+                  - date: "2026-01-12"
+                    name: Día de Reyes
+                  - date: "2026-01-19"
+                    name: Día de la Divina Pastora
+                meta: { total: 22, limit: 3, offset: 0 }
+        "400":
+          description: |
+            One or more parameters are invalid. `year` is rejected when it is
+            missing (`is required`) or is not an integer.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+              example:
+                type: about:blank
+                title: Bad Request
+                status: 400
+                detail: invalid request parameters
+                invalid_params:
+                  - name: year
+                    reason: must be an integer
+                request_id: 4f1c2a9e8b7d6c5e4f3a2b1c0d9e8f7a
+        "404":
+          description: The bank calendar of the year has not been published or loaded.
+          headers:
+            X-Request-ID: { $ref: "#/components/headers/X-Request-ID" }
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+              example:
+                type: about:blank
+                title: Not Found
+                status: 404
+                detail: "bank calendar for 2027 is not available; available years: 2026"
+                request_id: 4f1c2a9e8b7d6c5e4f3a2b1c0d9e8f7a
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
 components:
   parameters:
     StateCode:
@@ -816,6 +975,34 @@ components:
           type: string
           description: Service the prefix is used for.
           example: Acceso universal con cargo al destino (gratuito para quien llama)
+
+    NationalHoliday:
+      type: object
+      required: [date, name, legal_basis]
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2026-07-05"
+        name:
+          type: string
+          example: Día de la Independencia
+        legal_basis:
+          type: string
+          description: Law and article that establish the holiday.
+          example: Ley de Fiestas Nacionales art. 1
+
+    BankHoliday:
+      type: object
+      required: [date, name]
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2026-03-19"
+        name:
+          type: string
+          example: Día de San José
 
     PageMeta:
       type: object
