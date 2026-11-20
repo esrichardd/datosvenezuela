@@ -3,7 +3,7 @@ API_DIR := api
 WEB_DIR := web
 
 .DEFAULT_GOAL := help
-.PHONY: help setup run build test lint fmt tidy vuln check web-install web-dev web-build
+.PHONY: help setup run build test lint fmt tidy vuln check web-install web-dev web-build web-fmt
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -42,3 +42,6 @@ web-dev: ## Run the web dev server (http://localhost:4321)
 
 web-build: ## Build the static site into web/dist
 	cd $(WEB_DIR) && pnpm build
+
+web-fmt: ## Format web code with Prettier
+	cd $(WEB_DIR) && pnpm format
