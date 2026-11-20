@@ -3,10 +3,10 @@ API_DIR := api
 WEB_DIR := web
 
 .DEFAULT_GOAL := help
-.PHONY: help setup run build test lint fmt tidy vuln check web-install web-dev web-build web-fmt
+.PHONY: help setup run build test lint fmt tidy vuln check web-install web-dev web-build web-fmt web-lint web-typecheck web-check
 
 help: ## Show available commands
-	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
 setup: ## Install git hooks (run once after cloning)
 	lefthook install
@@ -45,3 +45,12 @@ web-build: ## Build the static site into web/dist
 
 web-fmt: ## Format web code with Prettier
 	cd $(WEB_DIR) && pnpm format
+
+web-lint: ## Lint web code with ESLint (includes a11y rules)
+	cd $(WEB_DIR) && pnpm lint
+
+web-typecheck: ## Type-check web code with astro check
+	cd $(WEB_DIR) && pnpm typecheck
+
+web-check: ## Run all web checks: format, lint, types (same as CI)
+	cd $(WEB_DIR) && pnpm format:check && pnpm lint && pnpm typecheck
