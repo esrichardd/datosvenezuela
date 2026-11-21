@@ -1,0 +1,41 @@
+---
+/** A small color square that identifies a dataset. Decorative. */
+import type { DatasetTone } from "../../config/datasets";
+
+interface Props {
+  tone: DatasetTone;
+}
+
+const { tone } = Astro.props;
+---
+
+<span class:list={["swatch", `swatch--${tone}`]} aria-hidden="true"></span>
+
+<style>
+  .swatch {
+    display: inline-block;
+    flex: none;
+    width: var(--space-3);
+    height: var(--space-3);
+  }
+
+  .swatch--decor-1 {
+    background-color: var(--color-decor-1);
+  }
+
+  .swatch--decor-2 {
+    background-color: var(--color-decor-2);
+  }
+
+  .swatch--decor-3 {
+    background-color: var(--color-decor-3);
+  }
+
+  .swatch--fg {
+    background-color: var(--color-fg);
+  }
+
+  .swatch--pending {
+    border: var(--border-width) dashed currentColor;
+  }
+</style>

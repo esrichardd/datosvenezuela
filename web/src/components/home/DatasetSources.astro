@@ -1,0 +1,147 @@
+---
+/**
+ * Table of the datasets: how many records, where they come from and which
+ * endpoints serve them. On narrow screens each row becomes a card.
+ */
+import { datasets } from "../../config/datasets";
+import Swatch from "../ui/Swatch.astro";
+
+const formatCount = (count: number) => count.toLocaleString("es-VE");
+---
+
+<table class="sources">
+  <thead>
+    <tr>
+      <th scope="col">Dataset</th>
+      <th scope="col">Registros</th>
+      <th scope="col">Fuente</th>
+      <th scope="col">Endpoints</th>
+    </tr>
+  </thead>
+  <tbody>
+    {datasets.map((dataset) => (
+      <tr class:list={{ "sources__row--pending": !dataset.available }}>
+        <th scope="row" class="sources__name">
+          <Swatch tone={dataset.tone} />
+          {dataset.name}
+        </th>
+        <td data-label="Registros">
+          <ul class="sources__list">
+            {dataset.records.map((record) => (
+              <li>
+                {record.count !== undefined && formatCount(record.count)}{" "}
+                {record.label}
+              </li>
+            ))}
+          </ul>
+        </td>
+        <td data-label="Fuente" class="sources__source">
+          {dataset.source}
+        </td>
+        <td data-label="Endpoints">
+          <ul class="sources__list sources__endpoints">
+            {dataset.endpoints.map((endpoint) => (
+              <li>{endpoint}</li>
+            ))}
+          </ul>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .sources {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: var(--border-width) solid var(--color-border);
+    text-align: left;
+  }
+
+  .sources th,
+  .sources td {
+    padding: var(--space-6) var(--space-4);
+    vertical-align: top;
+  }
+
+  .sources th:first-child {
+    padding-left: 0;
+  }
+
+  .sources thead th {
+    padding-block: var(--space-4);
+    color: var(--color-fg-muted);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .sources tbody tr {
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .sources__name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 22%;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+    font-stretch: var(--font-stretch-expanded);
+  }
+
+  .sources__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    line-height: var(--line-height-relaxed);
+  }
+
+  .sources__source {
+    color: var(--color-fg-muted);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .sources__endpoints {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+  }
+
+  .sources__row--pending {
+    color: var(--color-fg-muted);
+  }
+
+  /* Narrow screens: each row becomes a card, with the column as a label. */
+  @media (width < 760px) {
+    .sources thead {
+      display: none;
+    }
+
+    .sources,
+    .sources tbody,
+    .sources tr,
+    .sources th,
+    .sources td {
+      display: block;
+      width: 100%;
+    }
+
+    .sources tbody tr {
+      padding-block: var(--space-5);
+    }
+
+    .sources th,
+    .sources td {
+      padding: var(--space-2) 0;
+    }
+
+    .sources td::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: var(--space-1);
+      color: var(--color-fg-muted);
+      font-family: var(--font-mono);
+      font-size: var(--font-size-xs);
+    }
+  }
+</style>

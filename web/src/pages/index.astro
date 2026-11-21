@@ -1,6 +1,8 @@
 ---
+import DatasetSources from "../components/home/DatasetSources.astro";
 import Hero from "../components/home/Hero.astro";
 import VenezuelaMap from "../components/home/VenezuelaMap.astro";
+import Section from "../components/ui/Section.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
@@ -8,4 +10,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <Hero slot="hero">
     <VenezuelaMap slot="aside" />
   </Hero>
+  <Section
+    id="datos"
+    title="Los datos y de dónde salen"
+    note="Cada dataset documenta su fuente en SOURCES.md"
+  >
+    <DatasetSources />
+  </Section>
 </BaseLayout>

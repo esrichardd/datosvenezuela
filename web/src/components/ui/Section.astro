@@ -1,0 +1,58 @@
+---
+/**
+ * A page section: centered container, heading and an optional note
+ * aligned to the right of the heading.
+ */
+import Container from "./Container.astro";
+import Heading from "./Heading.astro";
+
+interface Props {
+  /** Anchor of the section; also used to label it for screen readers. */
+  id: string;
+  title: string;
+  note?: string;
+}
+
+const { id, title, note } = Astro.props;
+const titleId = `${id}-title`;
+---
+
+<section id={id} class="section" aria-labelledby={titleId}>
+  <Container>
+    <header class="section__header">
+      <Heading level={2} id={titleId}>
+        {title}
+      </Heading>
+      {note && <p class="section__note">{note}</p>}
+    </header>
+    <slot />
+  </Container>
+</section>
+
+<style>
+  .section {
+    padding-block: var(--space-24);
+  }
+
+  .section__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  .section__note {
+    margin: 0;
+    color: var(--color-fg-muted);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+  }
+
+  @media (width < 560px) {
+    .section {
+      padding-block: var(--space-16);
+    }
+  }
+</style>
