@@ -1,13 +1,8 @@
 ---
-import Container from "../components/ui/Container.astro";
+import Hero from "../components/home/Hero.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout>
-  <Container>
-    <h1>datosvenezuela</h1>
-    <p>
-      Datos de referencia de Venezuela. <code>GET /v1/states/VE14</code>
-    </p>
-  </Container>
+  <Hero slot="hero" />
 </BaseLayout>

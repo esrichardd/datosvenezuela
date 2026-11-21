@@ -1,9 +1,9 @@
 ---
 /** Site logo: the stripe mark and the name, linking to the home page. */
-import { site } from "../../config/site";
+import { routes, site } from "../../config/site";
 ---
 
-<a href="/" class="logo">
+<a href={routes.home} class="logo">
   <span class="logo__mark" aria-hidden="true"></span>
   {site.name}
 </a>

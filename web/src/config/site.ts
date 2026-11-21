@@ -2,6 +2,13 @@
 
 const repoUrl = "https://github.com/esrichardd/datosvenezuela";
 
+/** Internal routes, so a path is written in one place only. */
+export const routes = {
+  home: "/",
+  docs: "/docs/",
+  datasets: "/datasets/",
+} as const;
+
 export interface NavLink {
   label: string;
   href: string;
@@ -24,8 +31,8 @@ export const site = {
     ],
   },
   nav: [
-    { label: "Documentación", href: "/docs/" },
-    { label: "Datasets", href: "/datasets/" },
+    { label: "Documentación", href: routes.docs },
+    { label: "Datasets", href: routes.datasets },
     { label: "GitHub", href: repoUrl, external: true },
   ] satisfies NavLink[],
   license: "Código MIT · datos CC BY 4.0",

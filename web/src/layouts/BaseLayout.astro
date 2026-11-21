@@ -1,7 +1,8 @@
 ---
 /**
  * The frame every page shares: document head, header and footer.
- * Pages pass their own title and description.
+ * Pages pass their own title and description, and may fill the "hero"
+ * slot, which goes right below the header, before the stripe band.
  */
 import { Font } from "astro:assets";
 import SiteFooter from "../components/layout/SiteFooter.astro";
@@ -39,8 +40,9 @@ const fullTitle = title ? `${title} · ${site.name}` : site.name;
       Saltar al contenido
     </a>
     <SiteHeader />
-    <StripeBand />
     <main id="main">
+      <slot name="hero" />
+      <StripeBand />
       <slot />
     </main>
     <SiteFooter />

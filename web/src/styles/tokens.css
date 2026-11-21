@@ -65,6 +65,7 @@
     var(--palette-neutral-400)
   );
   --color-fg-on-emphasis: var(--palette-neutral-50);
+  --color-fg-muted-on-emphasis: var(--palette-neutral-200);
   --color-fg-on-primary: var(--palette-neutral-900);
 
   /* Borders */
@@ -124,6 +125,18 @@
   --font-size-4xl: 3.25rem; /* 52px */
   --font-size-5xl: 5rem; /* 80px */
 
+  /* Fluid sizes: they grow with the viewport between two limits. */
+  --font-size-display: clamp(
+    var(--font-size-3xl),
+    1.5rem + 5vw,
+    var(--font-size-5xl)
+  ); /* 44px to 80px */
+  --font-size-heading: clamp(
+    var(--font-size-2xl),
+    1.5rem + 2vw,
+    var(--font-size-3xl)
+  ); /* 32px to 44px */
+
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -141,6 +154,10 @@
   --line-height-relaxed: 1.65;
 
   --letter-spacing-tight: -0.02em;
+
+  /* Comfortable line lengths for reading. */
+  --measure: 65ch;
+  --measure-narrow: 34ch;
 
   /* ---------- Semantic: space, shape, layout ---------- */
 
@@ -164,6 +181,16 @@
   /* Brand stripe pattern: width of each color stripe and of the gap. */
   --pattern-stripe: 6px;
   --pattern-gap: 3px;
+
+  /* Moiré background of the emphasis surface: three sets of thin lines
+     with different spacing, which interfere with each other. */
+  --pattern-moire-line: 1px;
+  --pattern-moire-1: color-mix(in srgb, var(--color-decor-1) 13%, transparent);
+  --pattern-moire-2: color-mix(in srgb, var(--color-decor-2) 11%, transparent);
+  --pattern-moire-3: color-mix(in srgb, var(--color-decor-3) 7%, transparent);
+  --pattern-moire-step-1: 7px;
+  --pattern-moire-step-2: 9px;
+  --pattern-moire-step-3: 13px;
 
   /* Touch targets: minimum size of interactive controls (WCAG 2.5.8). */
   --control-size: 2.75rem; /* 44px */

@@ -1,0 +1,28 @@
+---
+/** The introductory paragraph under a page or section heading. */
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"p">;
+
+const { class: className, ...rest } = Astro.props;
+---
+
+<p class:list={["lead", className]} {...rest}>
+  <slot />
+</p>
+
+<style>
+  .lead {
+    margin: 0;
+    max-width: var(--measure-narrow);
+    color: var(--color-fg-muted);
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-normal);
+  }
+
+  @media (width >= 560px) {
+    .lead {
+      font-size: var(--font-size-lg);
+    }
+  }
+</style>

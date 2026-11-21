@@ -1,0 +1,48 @@
+---
+/**
+ * A heading with the brand's expanded type.
+ *
+ * level sets the HTML tag (document outline); size sets the look, so both
+ * can be chosen independently.
+ */
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"h1"> & {
+  level?: 1 | 2 | 3;
+  size?: "display" | "heading" | "title";
+};
+
+const { level = 2, size = "heading", class: className, ...rest } = Astro.props;
+
+const Tag = `h${level}` as const;
+---
+
+<Tag class:list={["heading", `heading--${size}`, className]} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .heading {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-black);
+    font-stretch: var(--font-stretch-expanded);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  .heading--display {
+    font-size: var(--font-size-display);
+    line-height: var(--line-height-tight);
+  }
+
+  .heading--heading {
+    font-size: var(--font-size-heading);
+    line-height: var(--line-height-snug);
+  }
+
+  .heading--title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+    line-height: var(--line-height-snug);
+  }
+</style>

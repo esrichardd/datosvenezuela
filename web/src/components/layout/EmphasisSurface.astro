@@ -1,0 +1,50 @@
+---
+/**
+ * The dark brand surface with the moiré background (site header, hero).
+ *
+ * It stays dark in both themes, so it remaps the text and border tokens for
+ * everything inside it: children keep using --color-fg, --color-fg-muted and
+ * --color-border and get the right colors automatically.
+ *
+ * The pattern only repeats horizontally, so two surfaces stacked one under
+ * the other (header, then hero) look like a single one.
+ */
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"div"> & {
+  as?: "div" | "header" | "section";
+};
+
+const { as: Tag = "div", class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={["emphasis-surface", className]} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .emphasis-surface {
+    --color-fg: var(--color-fg-on-emphasis);
+    --color-fg-muted: var(--color-fg-muted-on-emphasis);
+    --color-border: var(--color-fg-on-emphasis);
+
+    background-color: var(--color-bg-emphasis);
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        var(--pattern-moire-1) 0 var(--pattern-moire-line),
+        transparent var(--pattern-moire-line) var(--pattern-moire-step-1)
+      ),
+      repeating-linear-gradient(
+        90deg,
+        var(--pattern-moire-2) 0 var(--pattern-moire-line),
+        transparent var(--pattern-moire-line) var(--pattern-moire-step-2)
+      ),
+      repeating-linear-gradient(
+        90deg,
+        var(--pattern-moire-3) 0 var(--pattern-moire-line),
+        transparent var(--pattern-moire-line) var(--pattern-moire-step-3)
+      );
+    color: var(--color-fg);
+  }
+</style>
