@@ -76,6 +76,8 @@
     var(--palette-neutral-200),
     var(--palette-neutral-700)
   );
+  /* Borders on the emphasis surface (dark in both themes). */
+  --color-border-on-emphasis: var(--palette-neutral-500);
 
   /* Roles */
   --color-primary: var(--palette-yellow-500); /* main call to action */
@@ -158,6 +160,13 @@
   --border-width: 1.5px;
   --border-width-thick: 5px; /* current-item indicator */
   --radius: 0;
+
+  /* Brand stripe pattern: width of each color stripe and of the gap. */
+  --pattern-stripe: 6px;
+  --pattern-gap: 3px;
+
+  /* Touch targets: minimum size of interactive controls (WCAG 2.5.8). */
+  --control-size: 2.75rem; /* 44px */
 
   --container-max: 77.5rem; /* 1240px */
   --container-padding: var(--space-8);

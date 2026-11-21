@@ -1,0 +1,43 @@
+---
+/** Site logo: the stripe mark and the name, linking to the home page. */
+import { site } from "../../config/site";
+---
+
+<a href="/" class="logo">
+  <span class="logo__mark" aria-hidden="true"></span>
+  {site.name}
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--control-size);
+    color: inherit;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-extrabold);
+    font-stretch: var(--font-stretch-expanded);
+    text-decoration: none;
+  }
+
+  .logo__mark {
+    --s: calc(var(--pattern-stripe) / 2);
+    --g: calc(var(--pattern-gap) * 2 / 3);
+
+    width: var(--space-6);
+    height: var(--space-6);
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-decor-1) 0 var(--s),
+      transparent var(--s) calc(var(--s) + var(--g)),
+      var(--color-decor-2) calc(var(--s) + var(--g))
+        calc(2 * var(--s) + var(--g)),
+      transparent calc(2 * var(--s) + var(--g)) calc(2 * (var(--s) + var(--g))),
+      var(--color-decor-3) calc(2 * (var(--s) + var(--g)))
+        calc(3 * var(--s) + 2 * var(--g)),
+      transparent calc(3 * var(--s) + 2 * var(--g))
+        calc(3 * (var(--s) + var(--g)))
+    );
+  }
+</style>

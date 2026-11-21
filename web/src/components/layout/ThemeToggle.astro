@@ -1,0 +1,63 @@
+---
+/** Switches between light and dark themes and remembers the choice. */
+import Icon from "../ui/Icon.astro";
+import IconButton from "../ui/IconButton.astro";
+---
+
+<IconButton class="theme-toggle" data-theme-toggle aria-label="Cambiar tema">
+  <Icon name="moon" class="theme-toggle__moon" />
+  <Icon name="sun" class="theme-toggle__sun" />
+</IconButton>
+
+<style>
+  /* Subtle border at rest, so the toggle does not compete with the nav. */
+  :global(.theme-toggle:not(:hover)) {
+    border-color: var(--color-border-on-emphasis);
+  }
+
+  /* Show the icon of the theme the button switches to. */
+  :global([data-theme="dark"] .theme-toggle__moon),
+  :global([data-theme="light"] .theme-toggle__sun) {
+    display: none;
+  }
+</style>
+
+<script>
+  import {
+    applyTheme,
+    getCurrentTheme,
+    onSystemThemeChange,
+    saveTheme,
+    type Theme,
+  } from "../../lib/theme";
+
+  const labels: Record<Theme, string> = {
+    light: "Cambiar a modo oscuro",
+    dark: "Cambiar a modo claro",
+  };
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>(
+    "[data-theme-toggle]",
+  );
+
+  function updateLabels(): void {
+    const label = labels[getCurrentTheme()];
+    buttons.forEach((button) => button.setAttribute("aria-label", label));
+  }
+
+  buttons.forEach((button) =>
+    button.addEventListener("click", () => {
+      const next: Theme = getCurrentTheme() === "dark" ? "light" : "dark";
+      applyTheme(next);
+      saveTheme(next);
+      updateLabels();
+    }),
+  );
+
+  onSystemThemeChange((theme) => {
+    applyTheme(theme);
+    updateLabels();
+  });
+
+  updateLabels();
+</script>

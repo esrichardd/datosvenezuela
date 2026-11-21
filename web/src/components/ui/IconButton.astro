@@ -1,0 +1,42 @@
+---
+/**
+ * A square button for a single icon (or a short label). It needs an
+ * accessible name: pass aria-label when the content is only an icon.
+ */
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"button">;
+
+const { class: className, ...rest } = Astro.props;
+---
+
+<button type="button" class:list={["icon-button", className]} {...rest}>
+  <slot />
+</button>
+
+<style>
+  .icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-width: var(--control-size);
+    min-height: var(--control-size);
+    padding-inline: var(--space-3);
+    border: var(--border-width) solid currentColor;
+    border-radius: var(--radius);
+    background-color: transparent;
+    color: inherit;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) var(--easing-standard),
+      border-color var(--duration-fast) var(--easing-standard);
+  }
+
+  .icon-button:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+</style>

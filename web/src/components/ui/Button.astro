@@ -1,0 +1,99 @@
+---
+/**
+ * A button, or a link styled as one when it has an href.
+ *
+ * Variants: primary (main call to action), outline, ghost.
+ * Sizes: sm, md.
+ */
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends Omit<HTMLAttributes<"a">, "type"> {
+  variant?: "primary" | "outline" | "ghost";
+  size?: "sm" | "md";
+  /** Button type when there is no href. */
+  type?: "button" | "submit" | "reset";
+}
+
+const {
+  href,
+  variant = "primary",
+  size = "md",
+  type = "button",
+  class: className,
+  ...rest
+} = Astro.props;
+
+const Tag = href ? "a" : "button";
+---
+
+<Tag
+  href={href}
+  type={href ? undefined : type}
+  class:list={["button", `button--${variant}`, `button--${size}`, className]}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    border: var(--border-width) solid transparent;
+    border-radius: var(--radius);
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-extrabold);
+    font-stretch: var(--font-stretch-expanded);
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--easing-standard),
+      color var(--duration-fast) var(--easing-standard),
+      border-color var(--duration-fast) var(--easing-standard);
+  }
+
+  .button--md {
+    min-height: var(--control-size);
+    padding-inline: var(--space-6);
+    font-size: var(--font-size-base);
+  }
+
+  .button--sm {
+    min-height: var(--space-8);
+    padding-inline: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    font-stretch: var(--font-stretch-normal);
+  }
+
+  .button--primary {
+    background-color: var(--color-primary);
+    color: var(--color-fg-on-primary);
+  }
+
+  .button--outline {
+    border-color: currentColor;
+    background-color: transparent;
+    color: inherit;
+  }
+
+  .button--ghost {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  .button--outline:hover,
+  .button--ghost:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+    color: var(--color-fg-on-primary);
+  }
+
+  .button--primary:hover {
+    filter: brightness(1.08);
+  }
+</style>

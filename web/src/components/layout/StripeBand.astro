@@ -1,0 +1,42 @@
+---
+/** The brand's band of colored stripes, used as a section divider. */
+interface Props {
+  size?: "sm" | "md";
+}
+
+const { size = "md" } = Astro.props;
+---
+
+<div
+  class:list={["stripe-band", `stripe-band--${size}`]}
+  aria-hidden="true"
+></div>
+
+<style>
+  .stripe-band {
+    --s: var(--pattern-stripe);
+    --g: var(--pattern-gap);
+
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-decor-1) 0 var(--s),
+      var(--color-bg-emphasis) var(--s) calc(var(--s) + var(--g)),
+      var(--color-decor-2) calc(var(--s) + var(--g))
+        calc(2 * var(--s) + var(--g)),
+      var(--color-bg-emphasis) calc(2 * var(--s) + var(--g))
+        calc(2 * (var(--s) + var(--g))),
+      var(--color-decor-3) calc(2 * (var(--s) + var(--g)))
+        calc(3 * var(--s) + 2 * var(--g)),
+      var(--color-bg-emphasis) calc(3 * var(--s) + 2 * var(--g))
+        calc(3 * (var(--s) + var(--g)))
+    );
+  }
+
+  .stripe-band--sm {
+    height: var(--space-2);
+  }
+
+  .stripe-band--md {
+    height: var(--space-4);
+  }
+</style>

@@ -1,0 +1,66 @@
+---
+/**
+ * The frame every page shares: document head, header and footer.
+ * Pages pass their own title and description.
+ */
+import { Font } from "astro:assets";
+import SiteFooter from "../components/layout/SiteFooter.astro";
+import SiteHeader from "../components/layout/SiteHeader.astro";
+import StripeBand from "../components/layout/StripeBand.astro";
+import ThemeScript from "../components/layout/ThemeScript.astro";
+import { site } from "../config/site";
+import "../styles/global.css";
+
+interface Props {
+  /** Page title. The site name is appended; omit it on the home page. */
+  title?: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const fullTitle = title ? `${title} · ${site.name}` : site.name;
+---
+
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <ThemeScript />
+    <Font cssVariable="--font-archivo" preload />
+    <Font cssVariable="--font-ibm-plex-mono" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Saltar al contenido
+    </a>
+    <SiteHeader />
+    <StripeBand />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    z-index: 100;
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-primary);
+    color: var(--color-fg-on-primary);
+    font-weight: var(--font-weight-bold);
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+</style>

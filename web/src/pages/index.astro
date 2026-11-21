@@ -1,23 +1,13 @@
 ---
-import { Font } from "astro:assets";
-import "../styles/global.css";
+import Container from "../components/ui/Container.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <Font cssVariable="--font-archivo" preload />
-    <Font cssVariable="--font-ibm-plex-mono" />
-    <title>datosvenezuela</title>
-  </head>
-  <body>
+<BaseLayout>
+  <Container>
     <h1>datosvenezuela</h1>
     <p>
       Datos de referencia de Venezuela. <code>GET /v1/states/VE14</code>
     </p>
-  </body>
-</html>
+  </Container>
+</BaseLayout>
