@@ -60,6 +60,12 @@ const hasIntro = Astro.slots.has("intro");
     border-top: var(--border-width) solid var(--color-border);
   }
 
+  /* Consecutive sections share the space between them instead of adding
+     both paddings. A divider keeps the space on both sides of its rule. */
+  .section + .section:not(.section--divider) {
+    padding-top: 0;
+  }
+
   .section__body {
     display: grid;
     gap: var(--space-8);
