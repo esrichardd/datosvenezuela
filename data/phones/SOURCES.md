@@ -57,3 +57,8 @@ Consultado el 2026-11-13.
 - La lista de códigos fijos es de 2011. Los códigos geográficos cambian poco, pero
   debería contrastarse con una publicación más reciente de CONATEL.
 - No se indica qué ciudades cubre cada código dentro de un estado.
+
+## Sitio web
+
+Si cambia el número de registros, actualiza también `recordCounts` en
+`web/src/config/datasets.ts`, que es lo que muestra el sitio.

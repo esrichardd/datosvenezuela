@@ -74,3 +74,8 @@ Verificaciones hechas a mano:
   efectivo en que cierra la banca. Se usa la fecha efectiva.
 - El calendario SUDEBAN de cada año debe agregarse cuando se publique (normalmente a fines
   del año anterior).
+
+## Sitio web
+
+Si cambia el número de registros, actualiza también `recordCounts` en
+`web/src/config/datasets.ts`, que es lo que muestra el sitio.

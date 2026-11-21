@@ -61,3 +61,8 @@ Consultado el 2026-11-13.
   publicación del propio banco; la puntuación podría variar levemente.
 - Los códigos son estables, pero la lista de bancos cambia por fusiones y nuevas
   autorizaciones: debe revisarse periódicamente.
+
+## Sitio web
+
+Si cambia el número de registros, actualiza también `recordCounts` en
+`web/src/config/datasets.ts`, que es lo que muestra el sitio.

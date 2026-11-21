@@ -274,3 +274,8 @@ de la persona homenajeada).
   (convención del INE). Algunas fuentes la nombran por el pueblo capital (ej. Miranda/Timotes
   en Mérida, Diego Bautista Urbaneja/Lechería en Anzoátegui); sin verificar contra leyes estadales.
 - No incluye capitales de municipios.
+
+## Sitio web
+
+Si cambia el número de registros, actualiza también `recordCounts` en
+`web/src/config/datasets.ts`, que es lo que muestra el sitio.
