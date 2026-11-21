@@ -23,6 +23,9 @@ info:
     - Dates use ISO 8601 (`YYYY-MM-DD`).
     - Every response carries an `X-Request-ID` header. Include it when reporting
       a problem.
+    - Cross-origin requests (CORS) are allowed from any origin, so web pages can
+      call the API directly from the browser. `X-Request-ID` is readable from
+      browser code.
     - Requests are rate limited per IP. Every response carries `RateLimit-*`
       headers; exceeding the limit returns `429` with `Retry-After`.
 

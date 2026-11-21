@@ -24,15 +24,18 @@ func newHandler(logger *slog.Logger, s stores) http.Handler {
 	// Middleware is applied inside-out, so a request goes through it in the
 	// reverse order of the lines below:
 	//
-	//	RequestID → SecurityHeaders → AccessLog → Recover → RouteErrors → mux
+	//	RequestID → CORS → SecurityHeaders → AccessLog → Recover → RouteErrors → mux
 	//
 	// RequestID comes first so every log line and error carries the ID.
+	// CORS wraps everything else so errors carry its headers too; without
+	// them browsers hide error responses from the page.
 	// AccessLog wraps Recover so a panic is logged with its 500.
 	var h http.Handler = mux
 	h = httpx.RouteErrors(h)
 	h = httpx.Recover(logger)(h)
 	h = httpx.AccessLog(logger, "/health")(h)
 	h = httpx.SecurityHeaders(h)
+	h = httpx.CORS(h)
 	h = httpx.RequestID(h)
 	return h
 }

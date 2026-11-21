@@ -62,6 +62,9 @@ func TestRoutes(t *testing.T) {
 			if got := rec.Header().Get("X-Content-Type-Options"); got != "nosniff" {
 				t.Errorf("X-Content-Type-Options = %q, want nosniff", got)
 			}
+			if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {
+				t.Errorf("Access-Control-Allow-Origin = %q, want *", got)
+			}
 			if id := rec.Header().Get(httpx.RequestIDHeader); !idRe.MatchString(id) {
 				t.Errorf("%s = %q, want a request ID", httpx.RequestIDHeader, id)
 			}
