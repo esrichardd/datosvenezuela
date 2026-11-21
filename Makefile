@@ -3,7 +3,7 @@ API_DIR := api
 WEB_DIR := web
 
 .DEFAULT_GOAL := help
-.PHONY: help setup run build test lint fmt tidy vuln check web-install web-dev web-build web-fmt web-lint web-typecheck web-check
+.PHONY: help setup run build test lint fmt tidy vuln check web-install web-dev web-build web-fmt web-lint web-typecheck web-test web-check
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -52,5 +52,8 @@ web-lint: ## Lint web code with ESLint (includes a11y rules)
 web-typecheck: ## Type-check web code with astro check
 	cd $(WEB_DIR) && pnpm typecheck
 
-web-check: ## Run all web checks: format, lint, types (same as CI)
-	cd $(WEB_DIR) && pnpm format:check && pnpm lint && pnpm typecheck
+web-test: ## Run web unit tests with Vitest
+	cd $(WEB_DIR) && pnpm test
+
+web-check: ## Run all web checks: format, lint, types, tests (same as CI)
+	cd $(WEB_DIR) && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test

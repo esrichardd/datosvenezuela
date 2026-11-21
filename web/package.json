@@ -17,6 +17,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "astro check",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "map:simplify": "pnpm dlx mapshaper@0.8.6 tmp/ven_admin1.geojson -proj +proj=merc +lon_0=-66 -simplify 2% keep-shapes -clean -o tmp/states.json format=geojson precision=0.1",
     "map:build": "node scripts/build-map.mjs tmp/states.json src/data/ve-states.json"
   },
@@ -32,6 +34,7 @@
     "prettier": "3.10.1",
     "prettier-plugin-astro": "1.1.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.73.0"
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.1"
   }
 }
