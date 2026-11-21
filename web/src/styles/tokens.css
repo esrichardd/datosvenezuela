@@ -1,0 +1,191 @@
+/*
+ * Design tokens.
+ *
+ * Two layers, as in the W3C Design Tokens format:
+ *   1. Palette: raw values, named by what they are (hue and step).
+ *      Only the semantic layer below may use them.
+ *   2. Semantic: named by role (background, text, primary action...).
+ *      Components use only these, so a visual change means remapping a
+ *      role to another palette value, never renaming a token.
+ *
+ * Light and dark themes use light-dark(): each semantic color declares both
+ * values in one place. The theme follows the operating system unless
+ * <html data-theme="light|dark"> forces one.
+ *
+ * Breakpoints cannot be CSS variables (media queries do not read them).
+ * Use these values: 560px (phone), 760px (small tablet), 1100px (desktop).
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------- Palette ---------- */
+
+  --palette-neutral-50: #f4f1ea;
+  --palette-neutral-100: #eae5da;
+  --palette-neutral-200: #d6d0c3;
+  --palette-neutral-400: #a9a499;
+  --palette-neutral-500: #8e8a82;
+  --palette-neutral-600: #56524a;
+  --palette-neutral-700: #333333;
+  --palette-neutral-800: #242424;
+  --palette-neutral-850: #1a1a1a;
+  --palette-neutral-900: #121212;
+  --palette-neutral-950: #0b0b0b;
+
+  --palette-yellow-100: #fff3b0;
+  --palette-yellow-500: #ffd100;
+  --palette-yellow-900: #3a3414;
+
+  --palette-magenta-300: #ff5caa;
+  --palette-magenta-500: #e6007e;
+
+  --palette-cyan-300: #5cc8f2;
+  --palette-cyan-500: #00a3e0;
+
+  /* ---------- Semantic: color ---------- */
+
+  /* Backgrounds */
+  --color-bg: light-dark(var(--palette-neutral-50), var(--palette-neutral-850));
+  --color-bg-subtle: light-dark(
+    var(--palette-neutral-100),
+    var(--palette-neutral-800)
+  );
+  --color-bg-highlight: light-dark(
+    var(--palette-yellow-100),
+    var(--palette-yellow-900)
+  );
+  /* Strong dark surface used in both themes (site header, hero). */
+  --color-bg-emphasis: var(--palette-neutral-900);
+
+  /* Text */
+  --color-fg: light-dark(var(--palette-neutral-900), var(--palette-neutral-50));
+  --color-fg-muted: light-dark(
+    var(--palette-neutral-600),
+    var(--palette-neutral-400)
+  );
+  --color-fg-on-emphasis: var(--palette-neutral-50);
+  --color-fg-on-primary: var(--palette-neutral-900);
+
+  /* Borders */
+  --color-border: light-dark(
+    var(--palette-neutral-900),
+    var(--palette-neutral-50)
+  );
+  --color-border-subtle: light-dark(
+    var(--palette-neutral-200),
+    var(--palette-neutral-700)
+  );
+
+  /* Roles */
+  --color-primary: var(--palette-yellow-500); /* main call to action */
+  --color-accent: var(--palette-magenta-500); /* current / selected item */
+  --color-focus: var(--palette-magenta-500);
+  --color-success: var(--palette-cyan-500);
+  --color-info: var(--palette-cyan-500);
+  --color-danger: var(--palette-magenta-500);
+
+  /* Decorative stripes (brand pattern) */
+  --color-decor-1: var(--palette-cyan-500);
+  --color-decor-2: var(--palette-magenta-500);
+  --color-decor-3: var(--palette-yellow-500);
+
+  /* Code blocks: always dark, slightly deeper in the dark theme. */
+  --color-code-bg: light-dark(
+    var(--palette-neutral-900),
+    var(--palette-neutral-950)
+  );
+  --color-code-fg: var(--palette-neutral-50);
+  --color-code-border: light-dark(
+    var(--palette-neutral-900),
+    var(--palette-neutral-700)
+  );
+  --syntax-key: var(--palette-cyan-300);
+  --syntax-string: var(--palette-yellow-500);
+  --syntax-number: var(--palette-magenta-300);
+  --syntax-punctuation: var(--palette-neutral-500);
+
+  /* ---------- Semantic: typography ---------- */
+
+  /* --font-archivo and --font-ibm-plex-mono come from the Astro Fonts API. */
+  --font-sans: var(--font-archivo, system-ui, sans-serif);
+  --font-mono: var(--font-ibm-plex-mono, ui-monospace, monospace);
+
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-md: 1.125rem; /* 18px */
+  --font-size-lg: 1.25rem; /* 20px */
+  --font-size-xl: 1.5rem; /* 24px */
+  --font-size-2xl: 2rem; /* 32px */
+  --font-size-3xl: 2.75rem; /* 44px */
+  --font-size-4xl: 3.25rem; /* 52px */
+  --font-size-5xl: 5rem; /* 80px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Width axis of the sans font, for display headings. */
+  --font-stretch-normal: 100%;
+  --font-stretch-expanded: 112%;
+
+  --line-height-tight: 0.95;
+  --line-height-snug: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+
+  --letter-spacing-tight: -0.02em;
+
+  /* ---------- Semantic: space, shape, layout ---------- */
+
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px */
+
+  --border-width: 1.5px;
+  --border-width-thick: 5px; /* current-item indicator */
+  --radius: 0;
+
+  --container-max: 77.5rem; /* 1240px */
+  --container-padding: var(--space-8);
+
+  /* ---------- Semantic: motion ---------- */
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@media (width < 560px) {
+  :root {
+    --container-padding: var(--space-5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+  }
+}
