@@ -3,16 +3,27 @@
  * A dark frame for code, with an optional title bar (a file name, a
  * language...). The content goes in the default slot: a <pre> for plain
  * code, or rendered lines (see Diff.astro).
+ *
+ * - title: plain text for the title bar. For richer content, fill the
+ *   "title" slot instead.
+ * - fill: the frame takes the height of its parent and the body scrolls.
  */
 interface Props {
   title?: string;
+  fill?: boolean;
+  class?: string;
 }
 
-const { title } = Astro.props;
+const { title, fill = false, class: className } = Astro.props;
+const hasTitleSlot = Astro.slots.has("title");
 ---
 
-<figure class="code-block">
-  {title && <figcaption class="code-block__title">{title}</figcaption>}
+<figure class:list={["code-block", { "code-block--fill": fill }, className]}>
+  {(title || hasTitleSlot) && (
+    <figcaption class="code-block__title">
+      <slot name="title">{title}</slot>
+    </figcaption>
+  )}
   <div class="code-block__body">
     <slot />
   </div>
@@ -30,7 +41,14 @@ const { title } = Astro.props;
     line-height: var(--line-height-relaxed);
   }
 
+  .code-block--fill {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
   .code-block__title {
+    position: relative;
     padding: var(--space-3) var(--space-5);
     border-bottom: var(--border-width) solid var(--color-code-border);
     color: var(--color-code-fg-muted);
@@ -41,6 +59,14 @@ const { title } = Astro.props;
     --code-block-padding: var(--space-5);
 
     padding: var(--code-block-padding);
+  }
+
+  .code-block--fill .code-block__body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    scrollbar-color: var(--color-accent) transparent;
+    scrollbar-width: thin;
   }
 
   .code-block__body :global(pre) {

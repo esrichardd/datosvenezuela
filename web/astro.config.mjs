@@ -1,8 +1,20 @@
 // @ts-check
-import { defineConfig, fontProviders } from "astro/config";
+import { defineConfig, envField, fontProviders } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  // Typed environment variables, validated when the site is built.
+  env: {
+    schema: {
+      // Base URL of the API, used by the API console in the browser.
+      PUBLIC_API_URL: envField.string({
+        context: "client",
+        access: "public",
+        url: true,
+        default: "http://localhost:8080",
+      }),
+    },
+  },
   // Fonts are downloaded at build time and served from this site
   // (no requests to Google from the visitor's browser).
   fonts: [

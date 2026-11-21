@@ -1,0 +1,512 @@
+---
+/**
+ * Live API console: pick an endpoint, edit its parameter and send a real
+ * request from the browser. Shows status, time, size, request ID and the
+ * formatted body.
+ *
+ * The logic lives in src/lib/api-console.ts; this component only renders
+ * and wires the events. It also listens to the map (MAP_STATE_SELECT) to
+ * preload a state.
+ */
+import { apiUrl } from "../../config/api";
+import { consoleEndpoints, splitPath } from "../../lib/api-console";
+import Button from "../ui/Button.astro";
+import CodeBlock from "../ui/CodeBlock.astro";
+
+const [first] = consoleEndpoints;
+const firstParts = splitPath(first?.path ?? "");
+const host = new URL(apiUrl).host;
+---
+
+<div class="console" data-console data-api-url={apiUrl}>
+  <form class="console__bar" data-console-form>
+    <span class="console__verb">GET</span>
+    <label class="console__url" for="console-param">
+      <span class="console__host">{host}</span>
+      <span data-console-prefix>{firstParts.prefix}</span>
+      <input
+        id="console-param"
+        class="console__input"
+        name="param"
+        value={first?.example}
+        autocomplete="off"
+        spellcheck="false"
+        aria-label={`Parámetro ${firstParts.param}`}
+        data-console-input
+      />
+      <span data-console-suffix>{firstParts.suffix}</span>
+    </label>
+    <Button type="submit" class="console__send" data-console-send>
+      Enviar
+    </Button>
+  </form>
+
+  <div class="console__body">
+    <div
+      class="console__tabs"
+      role="tablist"
+      aria-label="Endpoints"
+      data-console-tabs
+    >
+      {consoleEndpoints.map((endpoint, index) => (
+        <button
+          type="button"
+          role="tab"
+          id={`console-tab-${endpoint.id}`}
+          class="console__tab"
+          aria-selected={index === 0 ? "true" : "false"}
+          aria-controls="console-output"
+          tabindex={index === 0 ? 0 : -1}
+          data-console-tab={endpoint.id}
+        >
+          <span class="console__tab-path">{endpoint.path}</span>
+          <span class="console__tab-description">{endpoint.description}</span>
+        </button>
+      ))}
+    </div>
+
+    <div
+      id="console-output"
+      class="console__output"
+      role="tabpanel"
+      aria-labelledby={`console-tab-${first?.id}`}
+      data-console-output
+    >
+      <CodeBlock fill>
+        <div slot="title" class="console__status" aria-live="polite">
+          <span class="console__loading" data-console-loading hidden></span>
+          <span class="console__status-items" data-console-status>
+            Pulsa Enviar para hacer la petición.
+          </span>
+        </div>
+        <pre class="console__code" data-console-code></pre>
+      </CodeBlock>
+    </div>
+  </div>
+</div>
+
+<style>
+  .console {
+    --console-height: calc(var(--space-24) * 5);
+
+    border: var(--border-width) solid var(--color-border);
+  }
+
+  /* Request bar */
+  .console__bar {
+    display: flex;
+    border-bottom: var(--border-width) solid var(--color-border);
+    font-family: var(--font-mono);
+  }
+
+  .console__verb {
+    display: flex;
+    align-items: center;
+    padding-inline: var(--space-4);
+    background-color: var(--color-fg);
+    color: var(--color-bg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .console__url {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-width: 0;
+    padding-inline-start: var(--space-4);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .console__host {
+    color: var(--color-fg-muted);
+  }
+
+  .console__input {
+    flex: 1;
+    min-width: calc(var(--space-16) + var(--space-4));
+    min-height: var(--control-size);
+    padding-inline: var(--space-1);
+    border: 0;
+    background-color: var(--color-bg-highlight);
+    color: var(--color-fg);
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .console__input:focus-visible {
+    outline-offset: calc(-1 * var(--border-width));
+  }
+
+  .console :global(.console__send) {
+    border-radius: 0;
+  }
+
+  /* Endpoints and output */
+  .console__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    height: var(--console-height);
+  }
+
+  .console__tabs {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    border-inline-end: var(--border-width) solid var(--color-border);
+  }
+
+  .console__tab {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-5);
+    border: 0;
+    border-bottom: var(--border-width) solid var(--color-border);
+    border-inline-start: var(--border-width-thick) solid transparent;
+    background-color: transparent;
+    color: var(--color-fg);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .console__tab[aria-selected="true"] {
+    border-inline-start-color: var(--color-accent);
+    background-color: var(--color-bg-highlight);
+  }
+
+  .console__tab:focus-visible {
+    outline-offset: calc(-1 * var(--space-1));
+  }
+
+  .console__tab-path {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+  }
+
+  .console__tab-description {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .console__output {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .console__output :global(.code-block) {
+    border: 0;
+  }
+
+  .console__status {
+    display: flex;
+    align-items: center;
+    min-height: var(--space-6);
+  }
+
+  /* The badge and each measurement, rendered by the script. */
+  .console__status-items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-5);
+  }
+
+  .console__status :global(.console__badge) {
+    padding: var(--space-1) var(--space-2);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .console__status :global(.console__badge--ok) {
+    background-color: var(--color-success);
+    color: var(--color-fg-on-success);
+  }
+
+  .console__status :global(.console__badge--error) {
+    background-color: var(--color-danger);
+    color: var(--color-fg-on-danger);
+  }
+
+  .console__status :global(.console__meta) {
+    color: var(--color-code-fg);
+  }
+
+  .console__status :global(.console__meta-label) {
+    color: var(--color-code-fg-muted);
+  }
+
+  /* Animated stripes along the bottom of the status bar while waiting. */
+  .console__loading {
+    position: absolute;
+    inset-inline: 0;
+    bottom: calc(-1 * var(--border-width));
+    height: var(--space-1);
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-decor-1) 0 var(--space-3),
+      var(--color-decor-2) var(--space-3) var(--space-6),
+      var(--color-decor-3) var(--space-6) calc(3 * var(--space-3))
+    );
+    background-size: calc(6 * var(--space-3)) 100%;
+    animation: console-loading calc(4 * var(--duration-normal)) linear infinite;
+  }
+
+  .console__loading[hidden] {
+    display: none;
+  }
+
+  @keyframes console-loading {
+    to {
+      background-position: calc(6 * var(--space-3)) 0;
+    }
+  }
+
+  .console__code:empty {
+    display: none;
+  }
+
+  .console__code :global(.token--key) {
+    color: var(--syntax-key);
+  }
+
+  .console__code :global(.token--string) {
+    color: var(--syntax-string);
+  }
+
+  .console__code :global(.token--number),
+  .console__code :global(.token--literal) {
+    color: var(--syntax-number);
+  }
+
+  .console__code :global(.token--punctuation) {
+    color: var(--syntax-punctuation);
+  }
+
+  .console[data-busy] .console__code {
+    opacity: 0.4;
+  }
+
+  /* Narrow screens: endpoints become a scrollable row above the output. */
+  @media (width < 760px) {
+    .console {
+      --console-height: auto;
+    }
+
+    .console__body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .console__tabs {
+      flex-direction: row;
+      overflow-x: auto;
+      border-inline-end: 0;
+      border-bottom: var(--border-width) solid var(--color-border);
+    }
+
+    .console__tab {
+      flex: none;
+      border-bottom: 0;
+      border-inline-start: 0;
+      border-inline-end: var(--border-width) solid var(--color-border);
+      border-top: var(--border-width-thick) solid transparent;
+    }
+
+    .console__tab[aria-selected="true"] {
+      border-top-color: var(--color-accent);
+    }
+
+    .console__tab-description {
+      display: none;
+    }
+
+    .console__output {
+      height: calc(var(--space-24) * 4);
+    }
+  }
+
+  @media (width < 560px) {
+    .console__bar {
+      flex-wrap: wrap;
+    }
+
+    .console__url {
+      flex-basis: calc(100% - var(--space-16));
+      font-size: var(--font-size-sm);
+    }
+
+    .console__host {
+      display: none;
+    }
+
+    .console :global(.console__send) {
+      flex: 1 1 100%;
+      border-top: var(--border-width) solid var(--color-border);
+    }
+  }
+</style>
+
+<script>
+  import {
+    buildUrl,
+    consoleEndpoints,
+    sendRequest,
+    splitPath,
+    type ConsoleEndpoint,
+    type ConsoleResult,
+  } from "../../lib/api-console";
+  import {
+    MAP_STATE_SELECT,
+    type MapStateSelectDetail,
+  } from "../../lib/events";
+  import { highlightJson } from "../../lib/json-highlight";
+
+  const root = document.querySelector<HTMLElement>("[data-console]");
+
+  if (root) {
+    const apiUrl = root.dataset.apiUrl ?? "";
+    const form = root.querySelector<HTMLFormElement>("[data-console-form]")!;
+    const input = root.querySelector<HTMLInputElement>("[data-console-input]")!;
+    const prefix = root.querySelector("[data-console-prefix]")!;
+    const suffix = root.querySelector("[data-console-suffix]")!;
+    const send = root.querySelector<HTMLButtonElement>("[data-console-send]")!;
+    const tabs = [
+      ...root.querySelectorAll<HTMLButtonElement>("[data-console-tab]"),
+    ];
+    const output = root.querySelector("[data-console-output]")!;
+    const status = root.querySelector("[data-console-status]")!;
+    const loading = root.querySelector<HTMLElement>("[data-console-loading]")!;
+    const code = root.querySelector("[data-console-code]")!;
+
+    let current: ConsoleEndpoint = consoleEndpoints[0]!;
+    let busy = false;
+
+    const el = (tag: string, className: string, text = "") => {
+      const node = document.createElement(tag);
+      node.className = className;
+      node.textContent = text;
+      return node;
+    };
+
+    function setIdle(message: string): void {
+      status.replaceChildren(message);
+      code.replaceChildren();
+    }
+
+    function select(id: string, value?: string, focusTab = false): void {
+      const endpoint = consoleEndpoints.find((e) => e.id === id);
+      if (!endpoint) return;
+      current = endpoint;
+
+      for (const tab of tabs) {
+        const selected = tab.dataset.consoleTab === id;
+        tab.setAttribute("aria-selected", String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        if (selected) {
+          output.setAttribute("aria-labelledby", tab.id);
+          if (focusTab) tab.focus();
+        }
+      }
+
+      const parts = splitPath(endpoint.path);
+      prefix.textContent = parts.prefix;
+      suffix.textContent = parts.suffix;
+      input.value = value ?? endpoint.example;
+      input.setAttribute("aria-label", `Parámetro ${parts.param}`);
+      setIdle("Pulsa Enviar para hacer la petición.");
+    }
+
+    function render(result: ConsoleResult): void {
+      if (result.kind !== "response") {
+        const message =
+          result.kind === "timeout"
+            ? "La API no respondió a tiempo."
+            : `No se pudo conectar con la API en ${apiUrl}. ¿Está corriendo?`;
+        status.replaceChildren(
+          el("span", "console__badge console__badge--error", "Sin respuesta"),
+        );
+        code.replaceChildren(message);
+        return;
+      }
+
+      const meta = (label: string, value: string) => {
+        const item = el("span", "console__meta");
+        item.append(el("span", "console__meta-label", `${label} `), value);
+        return item;
+      };
+      status.replaceChildren(
+        el(
+          "span",
+          `console__badge console__badge--${result.ok ? "ok" : "error"}`,
+          `${result.status} ${result.statusText}`.trim(),
+        ),
+        meta("tiempo", `${result.durationMs} ms`),
+        meta("tamaño", `${result.sizeBytes} B`),
+        ...(result.requestId
+          ? [meta("x-request-id", `${result.requestId.slice(0, 12)}…`)]
+          : []),
+      );
+
+      const fragment = document.createDocumentFragment();
+      highlightJson(result.body).forEach((line, index) => {
+        if (index > 0) fragment.append("\n");
+        for (const token of line) {
+          fragment.append(el("span", `token--${token.kind}`, token.text));
+        }
+      });
+      code.replaceChildren(fragment);
+    }
+
+    async function submit(): Promise<void> {
+      if (busy) return;
+      busy = true;
+      root!.toggleAttribute("data-busy", true);
+      send.disabled = true;
+      loading.hidden = false;
+      const url = buildUrl(apiUrl, current.path, input.value);
+      status.replaceChildren(`Enviando GET ${new URL(url).pathname}…`);
+
+      const result = await sendRequest(url);
+
+      render(result);
+      busy = false;
+      root!.toggleAttribute("data-busy", false);
+      send.disabled = false;
+      loading.hidden = true;
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      void submit();
+    });
+
+    for (const tab of tabs) {
+      tab.addEventListener("click", () => select(tab.dataset.consoleTab!));
+    }
+
+    // Arrow keys move between tabs, as in any tab list.
+    root
+      .querySelector("[data-console-tabs]")!
+      .addEventListener("keydown", (event) => {
+        const key = (event as KeyboardEvent).key;
+        const index = tabs.findIndex((tab) => tab.tabIndex === 0);
+        const next: Record<string, number> = {
+          ArrowDown: index + 1,
+          ArrowRight: index + 1,
+          ArrowUp: index - 1,
+          ArrowLeft: index - 1,
+          Home: 0,
+          End: tabs.length - 1,
+        };
+        if (!(key in next)) return;
+        event.preventDefault();
+        const target = tabs[(next[key]! + tabs.length) % tabs.length];
+        if (target) select(target.dataset.consoleTab!, undefined, true);
+      });
+
+    document.addEventListener(MAP_STATE_SELECT, (event) => {
+      const { code: stateCode } = (event as CustomEvent<MapStateSelectDetail>)
+        .detail;
+      select("state", stateCode);
+      setIdle(`${stateCode} cargado desde el mapa. Pulsa Enviar.`);
+    });
+  }
+</script>

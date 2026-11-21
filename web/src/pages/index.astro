@@ -1,4 +1,5 @@
 ---
+import ApiConsole from "../components/home/ApiConsole.astro";
 import DatasetSources from "../components/home/DatasetSources.astro";
 import FixData from "../components/home/FixData.astro";
 import Hero from "../components/home/Hero.astro";
@@ -11,6 +12,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <Hero slot="hero">
     <VenezuelaMap slot="aside" />
   </Hero>
+  <Section
+    id="api"
+    title="Prueba la API"
+    note="Peticiones reales a la v1, desde tu navegador"
+  >
+    <ApiConsole />
+  </Section>
   <Section
     id="datos"
     title="Los datos y de dónde salen"

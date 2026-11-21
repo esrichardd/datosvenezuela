@@ -21,6 +21,7 @@
 
   /* ---------- Palette ---------- */
 
+  --palette-neutral-0: #ffffff;
   --palette-neutral-50: #f4f1ea;
   --palette-neutral-100: #eae5da;
   --palette-neutral-200: #d6d0c3;
@@ -87,6 +88,8 @@
   --color-success: var(--palette-cyan-500);
   --color-info: var(--palette-cyan-500);
   --color-danger: var(--palette-magenta-500);
+  --color-fg-on-success: var(--palette-neutral-900);
+  --color-fg-on-danger: var(--palette-neutral-0);
 
   /* Decorative stripes (brand pattern) */
   --color-decor-1: var(--palette-cyan-500);
