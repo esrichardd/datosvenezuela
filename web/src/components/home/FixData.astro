@@ -1,0 +1,33 @@
+---
+/**
+ * "¿Un dato mal?": the data lives in CSV files in the repository and is
+ * corrected with a pull request. The example is a real change.
+ */
+import { site } from "../../config/site";
+import Button from "../ui/Button.astro";
+import Diff, { type DiffLine } from "../ui/Diff.astro";
+import Lead from "../ui/Lead.astro";
+import Section from "../ui/Section.astro";
+
+const example: DiffLine[] = [
+  { kind: "context", text: "code,name,legal_name" },
+  { kind: "removed", text: "0169,Mi Banco,…" },
+  {
+    kind: "added",
+    text: "0169,R4 Banco Microfinanciero,R4 Banco Microfinanciero, C.A.",
+  },
+];
+---
+
+<Section id="corregir" title="¿Un dato mal?" split divider>
+  <Fragment slot="intro">
+    <Lead>
+      Los datos son archivos CSV dentro del repositorio. Se corrigen con un pull
+      request y cada cambio queda registrado con su fuente.
+    </Lead>
+    <Button href={site.dataUrl} variant="secondary">
+      Ver los datos en GitHub
+    </Button>
+  </Fragment>
+  <Diff file="data/banks/banks.csv" lines={example} />
+</Section>

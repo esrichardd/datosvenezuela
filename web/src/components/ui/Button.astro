@@ -2,13 +2,14 @@
 /**
  * A button, or a link styled as one when it has an href.
  *
- * Variants: primary (main call to action), outline, ghost.
+ * Variants: primary (main call to action), secondary (strong, neutral),
+ * outline, ghost.
  * Sizes: sm, md.
  */
 import type { HTMLAttributes } from "astro/types";
 
 interface Props extends Omit<HTMLAttributes<"a">, "type"> {
-  variant?: "primary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md";
   /** Button type when there is no href. */
   type?: "button" | "submit" | "reset";
@@ -75,6 +76,11 @@ const Tag = href ? "a" : "button";
     color: var(--color-fg-on-primary);
   }
 
+  .button--secondary {
+    background-color: var(--color-fg);
+    color: var(--color-bg);
+  }
+
   .button--outline {
     border-color: currentColor;
     background-color: transparent;
@@ -86,6 +92,7 @@ const Tag = href ? "a" : "button";
     color: inherit;
   }
 
+  .button--secondary:hover,
   .button--outline:hover,
   .button--ghost:hover {
     border-color: var(--color-primary);

@@ -21,6 +21,8 @@ export const site = {
     "API pública y gratuita con datos de referencia de Venezuela: geografía, bancos, prefijos telefónicos y feriados.",
   lang: "es",
   repoUrl,
+  /** Folder with the datasets in the repository. */
+  dataUrl: `${repoUrl}/tree/main/data`,
   author: {
     name: "Richard",
     // TODO: replace the LinkedIn and X placeholders with the real profiles.

@@ -111,6 +111,21 @@
   --syntax-string: var(--palette-yellow-500);
   --syntax-number: var(--palette-magenta-300);
   --syntax-punctuation: var(--palette-neutral-500);
+  --color-code-fg-muted: var(--palette-neutral-400);
+
+  /* Diffs: added and removed lines */
+  --color-diff-added-bg: color-mix(
+    in srgb,
+    var(--palette-cyan-500) 18%,
+    transparent
+  );
+  --color-diff-added-fg: var(--palette-cyan-300);
+  --color-diff-removed-bg: color-mix(
+    in srgb,
+    var(--palette-magenta-500) 18%,
+    transparent
+  );
+  --color-diff-removed-fg: var(--palette-magenta-300);
 
   /* ---------- Semantic: typography ---------- */
 

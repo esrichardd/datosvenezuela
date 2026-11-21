@@ -1,0 +1,62 @@
+---
+/**
+ * A dark frame for code, with an optional title bar (a file name, a
+ * language...). The content goes in the default slot: a <pre> for plain
+ * code, or rendered lines (see Diff.astro).
+ */
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<figure class="code-block">
+  {title && <figcaption class="code-block__title">{title}</figcaption>}
+  <div class="code-block__body">
+    <slot />
+  </div>
+</figure>
+
+<style>
+  .code-block {
+    margin: 0;
+    min-width: 0;
+    border: var(--border-width) solid var(--color-code-border);
+    background-color: var(--color-code-bg);
+    color: var(--color-code-fg);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .code-block__title {
+    padding: var(--space-3) var(--space-5);
+    border-bottom: var(--border-width) solid var(--color-code-border);
+    color: var(--color-code-fg-muted);
+    font-size: var(--font-size-xs);
+  }
+
+  .code-block__body {
+    --code-block-padding: var(--space-5);
+
+    padding: var(--code-block-padding);
+  }
+
+  .code-block__body :global(pre) {
+    margin: 0;
+    font: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  @media (width < 560px) {
+    .code-block {
+      font-size: var(--font-size-xs);
+    }
+
+    .code-block__body {
+      --code-block-padding: var(--space-4);
+    }
+  }
+</style>

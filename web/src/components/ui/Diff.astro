@@ -1,0 +1,82 @@
+---
+/** Shows a change to a file: lines kept, removed and added. */
+import CodeBlock from "./CodeBlock.astro";
+
+export interface DiffLine {
+  kind: "context" | "removed" | "added";
+  text: string;
+}
+
+interface Props {
+  /** File name shown in the title bar. */
+  file: string;
+  lines: DiffLine[];
+}
+
+const { file, lines } = Astro.props;
+
+const marker = { context: "", removed: "-", added: "+" } as const;
+const label = {
+  context: "",
+  removed: "Línea eliminada: ",
+  added: "Línea agregada: ",
+} as const;
+---
+
+<CodeBlock title={file}>
+  <div class="diff" role="list">
+    {lines.map((line) => (
+      <div
+        class:list={["diff__line", `diff__line--${line.kind}`]}
+        role="listitem"
+      >
+        {label[line.kind] && (
+          <span class="visually-hidden">{label[line.kind]}</span>
+        )}
+        <span class="diff__marker" aria-hidden="true">
+          {marker[line.kind]}
+        </span>
+        <code class="diff__text">{line.text}</code>
+      </div>
+    ))}
+  </div>
+</CodeBlock>
+
+<style>
+  /* Lines bleed to the frame edges so their background fills the width. */
+  .diff {
+    margin-inline: calc(-1 * var(--code-block-padding));
+  }
+
+  /* Flex ignores the whitespace between elements in the source. */
+  .diff__line {
+    display: flex;
+    padding-inline: var(--code-block-padding);
+  }
+
+  .diff__marker {
+    flex: none;
+    width: 2ch;
+  }
+
+  .diff__text {
+    min-width: 0;
+    font: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .diff__line--context {
+    color: var(--color-code-fg-muted);
+  }
+
+  .diff__line--removed {
+    background-color: var(--color-diff-removed-bg);
+    color: var(--color-diff-removed-fg);
+  }
+
+  .diff__line--added {
+    background-color: var(--color-diff-added-bg);
+    color: var(--color-diff-added-fg);
+  }
+</style>

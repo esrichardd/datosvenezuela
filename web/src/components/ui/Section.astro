@@ -1,7 +1,11 @@
 ---
 /**
- * A page section: centered container, heading and an optional note
- * aligned to the right of the heading.
+ * A page section: centered container, heading and content.
+ *
+ * - note: short text aligned to the right of the heading.
+ * - "intro" slot: text and actions under the heading.
+ * - split: on desktop, heading and intro on the left, content on the right.
+ * - divider: a rule above the section.
  */
 import Container from "./Container.astro";
 import Heading from "./Heading.astro";
@@ -11,21 +15,39 @@ interface Props {
   id: string;
   title: string;
   note?: string;
+  split?: boolean;
+  divider?: boolean;
 }
 
-const { id, title, note } = Astro.props;
+const { id, title, note, split = false, divider = false } = Astro.props;
 const titleId = `${id}-title`;
+const hasIntro = Astro.slots.has("intro");
 ---
 
-<section id={id} class="section" aria-labelledby={titleId}>
+<section
+  id={id}
+  class:list={["section", { "section--divider": divider }]}
+  aria-labelledby={titleId}
+>
   <Container>
-    <header class="section__header">
-      <Heading level={2} id={titleId}>
-        {title}
-      </Heading>
-      {note && <p class="section__note">{note}</p>}
-    </header>
-    <slot />
+    <div class:list={["section__body", { "section__body--split": split }]}>
+      <header class="section__header">
+        <div class="section__heading">
+          <Heading level={2} id={titleId}>
+            {title}
+          </Heading>
+          {note && <p class="section__note">{note}</p>}
+        </div>
+        {hasIntro && (
+          <div class="section__intro">
+            <slot name="intro" />
+          </div>
+        )}
+      </header>
+      <div class="section__content">
+        <slot />
+      </div>
+    </div>
   </Container>
 </section>
 
@@ -34,13 +56,27 @@ const titleId = `${id}-title`;
     padding-block: var(--space-24);
   }
 
+  .section--divider {
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .section__body {
+    display: grid;
+    gap: var(--space-8);
+  }
+
   .section__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .section__heading {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
     gap: var(--space-3) var(--space-4);
-    margin-bottom: var(--space-8);
   }
 
   .section__note {
@@ -50,9 +86,32 @@ const titleId = `${id}-title`;
     font-size: var(--font-size-sm);
   }
 
+  .section__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+  }
+
+  .section__content {
+    min-width: 0;
+  }
+
+  @media (width >= 1100px) {
+    .section__body--split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      align-items: center;
+      gap: var(--space-12);
+    }
+  }
+
   @media (width < 560px) {
     .section {
       padding-block: var(--space-16);
+    }
+
+    .section__intro {
+      align-items: stretch;
     }
   }
 </style>
