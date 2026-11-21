@@ -16,7 +16,9 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "map:simplify": "pnpm dlx mapshaper@0.8.6 tmp/ven_admin1.geojson -proj +proj=merc +lon_0=-66 -simplify 2% keep-shapes -clean -o tmp/states.json format=geojson precision=0.1",
+    "map:build": "node scripts/build-map.mjs tmp/states.json src/data/ve-states.json"
   },
   "dependencies": {
     "astro": "^7.4.13"

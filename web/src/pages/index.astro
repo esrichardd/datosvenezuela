@@ -1,8 +1,11 @@
 ---
 import Hero from "../components/home/Hero.astro";
+import VenezuelaMap from "../components/home/VenezuelaMap.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout>
-  <Hero slot="hero" />
+  <Hero slot="hero">
+    <VenezuelaMap slot="aside" />
+  </Hero>
 </BaseLayout>

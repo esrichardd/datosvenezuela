@@ -93,6 +93,10 @@
   --color-decor-2: var(--palette-magenta-500);
   --color-decor-3: var(--palette-yellow-500);
 
+  /* Map of Venezuela (drawn on the emphasis surface) */
+  --color-map-region: var(--palette-neutral-700);
+  --color-map-region-border: var(--color-bg-emphasis);
+
   /* Code blocks: always dark, slightly deeper in the dark theme. */
   --color-code-bg: light-dark(
     var(--palette-neutral-900),

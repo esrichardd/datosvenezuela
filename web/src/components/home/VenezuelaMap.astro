@@ -1,0 +1,218 @@
+---
+/**
+ * Interactive map of Venezuela by state.
+ *
+ * Each state is a link to the API console. Hovering or focusing a state
+ * shows its code and name; clicking it fires MAP_STATE_SELECT (see
+ * src/lib/events.ts) so other components can react. Without JavaScript the
+ * links still work.
+ *
+ * Shapes come from src/data/ve-states.json (official OCHA boundaries).
+ */
+import map from "../../data/ve-states.json";
+
+const [, , width, height] = map.viewBox;
+const percent = (value: number, total: number) =>
+  `${((value / total) * 100).toFixed(2)}%`;
+---
+
+<figure class="map" data-map>
+  <div class="map__canvas">
+    <svg
+      class="map__svg"
+      viewBox={map.viewBox.join(" ")}
+      role="group"
+      aria-label="Mapa de Venezuela por estados"
+    >
+      <defs>
+        <!-- Hover fill: the brand stripes, in map units. -->
+        <pattern
+          id="map-stripes"
+          width="24"
+          height="24"
+          patternUnits="userSpaceOnUse"
+        >
+          <rect
+            class="map__stripe map__stripe--bg"
+            width="24"
+            height="24"
+          ></rect>
+          <rect
+            class="map__stripe map__stripe--1"
+            x="0"
+            width="5"
+            height="24"
+          ></rect>
+          <rect
+            class="map__stripe map__stripe--2"
+            x="8"
+            width="5"
+            height="24"
+          ></rect>
+          <rect
+            class="map__stripe map__stripe--3"
+            x="16"
+            width="5"
+            height="24"
+          ></rect>
+        </pattern>
+      </defs>
+      {map.states.map((state) => (
+        <a
+          href="#api"
+          class="map__state"
+          aria-label={`${state.code} · ${state.name}`}
+          data-code={state.code}
+          data-name={state.name}
+          data-x={percent(state.label[0], width)}
+          data-y={percent(state.label[1], height)}
+        >
+          <path d={state.d} />
+        </a>
+      ))}
+    </svg>
+    <div class="map__tag" data-map-tag hidden aria-hidden="true">
+      <span class="map__tag-code" data-map-tag-code></span>
+      <span class="map__tag-name" data-map-tag-name></span>
+    </div>
+  </div>
+  <figcaption class="map__caption">
+    Pasa el cursor por un estado y haz clic para consultarlo
+  </figcaption>
+</figure>
+
+<style>
+  .map {
+    margin: 0;
+  }
+
+  .map__canvas {
+    position: relative;
+  }
+
+  .map__svg {
+    width: 100%;
+    height: auto;
+  }
+
+  .map__state path {
+    fill: var(--color-map-region);
+    stroke: var(--color-map-region-border);
+    stroke-width: var(--border-width);
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    transition: fill var(--duration-fast) var(--easing-standard);
+  }
+
+  .map__state:hover path,
+  .map__state:focus-visible path {
+    fill: url(#map-stripes);
+  }
+
+  .map__state:focus-visible {
+    outline: none; /* the striped fill and the tag show the focus */
+  }
+
+  .map__stripe--bg {
+    fill: var(--color-bg-emphasis);
+  }
+
+  .map__stripe--1 {
+    fill: var(--color-decor-1);
+  }
+
+  .map__stripe--2 {
+    fill: var(--color-decor-2);
+  }
+
+  .map__stripe--3 {
+    fill: var(--color-decor-3);
+  }
+
+  .map__tag {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-2) var(--space-3);
+    border-left: var(--border-width-thick) solid var(--color-accent);
+    background-color: var(--color-fg);
+    color: var(--color-bg-emphasis);
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translate(-50%, -130%);
+  }
+
+  .map__tag[hidden] {
+    display: none;
+  }
+
+  .map__tag-code {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+  }
+
+  .map__tag-name {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-extrabold);
+  }
+
+  .map__caption {
+    margin-top: var(--space-3);
+    color: var(--color-fg-muted);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    text-align: end;
+  }
+</style>
+
+<script>
+  import {
+    MAP_STATE_SELECT,
+    type MapStateSelectDetail,
+  } from "../../lib/events";
+
+  document.querySelectorAll<HTMLElement>("[data-map]").forEach((root) => {
+    const svg = root.querySelector("svg");
+    const tag = root.querySelector<HTMLElement>("[data-map-tag]");
+    const tagCode = root.querySelector("[data-map-tag-code]");
+    const tagName = root.querySelector("[data-map-tag-name]");
+    if (!svg || !tag || !tagCode || !tagName) return;
+
+    const stateFrom = (target: EventTarget | null) =>
+      target instanceof Element
+        ? target.closest<SVGElement>("[data-code]")
+        : null;
+
+    function show(state: SVGElement): void {
+      const { code = "", name = "", x = "0", y = "0" } = state.dataset;
+      tagCode!.textContent = code;
+      tagName!.textContent = name;
+      tag!.style.left = x;
+      tag!.style.top = y;
+      tag!.hidden = false;
+    }
+
+    function hide(): void {
+      tag!.hidden = true;
+    }
+
+    for (const type of ["pointerover", "focusin"] as const) {
+      svg.addEventListener(type, (event) => {
+        const state = stateFrom(event.target);
+        if (state) show(state);
+      });
+    }
+    svg.addEventListener("pointerleave", hide);
+    svg.addEventListener("focusout", hide);
+
+    svg.addEventListener("click", (event) => {
+      const code = stateFrom(event.target)?.dataset.code;
+      if (!code) return;
+      document.dispatchEvent(
+        new CustomEvent<MapStateSelectDetail>(MAP_STATE_SELECT, {
+          detail: { code },
+        }),
+      );
+    });
+  });
+</script>

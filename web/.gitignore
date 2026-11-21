@@ -3,6 +3,9 @@ dist/
 # generated types
 .astro/
 
+# raw downloads used to build data files (see src/data/README.md)
+tmp/
+
 # dependencies
 node_modules/
 
