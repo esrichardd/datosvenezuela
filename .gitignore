@@ -4,3 +4,9 @@ Claude outputs/
 
 # Go test coverage profiles
 *.out
+
+# Local environment and tool settings
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
