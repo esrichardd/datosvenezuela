@@ -1,5 +1,8 @@
 .DS_Store
 api/bin/
+
+# Data release files, built by `make datasets`
+/dist/
 Claude outputs/
 
 # Go test coverage profiles

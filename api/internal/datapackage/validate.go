@@ -39,6 +39,12 @@ func (t *table) key(row csvload.Record, fields []string) (key string, empty bool
 	return strings.Join(values, "\x00"), empty
 }
 
+// Table is a resource of a package with its rows.
+type Table struct {
+	Resource *Resource
+	Rows     []csvload.Record
+}
+
 // Validate checks that the manifest is complete and that it describes the
 // CSV files in dir exactly:
 //
@@ -50,6 +56,13 @@ func (t *table) key(row csvload.Record, fields []string) (key string, empty bool
 //
 // It reports every problem it finds, not just the first.
 func (p *Package) Validate(dir string) error {
+	_, err := p.Read(dir)
+	return err
+}
+
+// Read checks the package like Validate and, if it is valid, returns its
+// tables in the order of Resources.
+func (p *Package) Read(dir string) ([]Table, error) {
 	var errs []error
 	fail := func(format string, args ...any) {
 		errs = append(errs, fmt.Errorf(format, args...))
@@ -91,7 +104,16 @@ func (p *Package) Validate(dir string) error {
 	}
 
 	errs = append(errs, checkUndescribed(dir, p.Resources)...)
-	return errors.Join(errs...)
+	if err := errors.Join(errs...); err != nil {
+		return nil, err
+	}
+
+	out := make([]Table, len(p.Resources))
+	for i := range p.Resources {
+		r := &p.Resources[i]
+		out[i] = Table{Resource: r, Rows: tables[r.Name].rows}
+	}
+	return out, nil
 }
 
 // loadTable checks the definition of r and, if it is sound, reads its CSV

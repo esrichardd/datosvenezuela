@@ -5,8 +5,12 @@
 API_DIR := api
 WEB_DIR := web
 
+# Version of a data release. Defaults to today; override with
+# `make datasets VERSION=2026.11.21`.
+VERSION ?= $(shell date +%Y.%m.%d)
+
 .DEFAULT_GOAL := help
-.PHONY: help setup fmt test check \
+.PHONY: help setup fmt test check datasets \
 	api-run api-build api-test api-lint api-fmt api-tidy api-vuln api-check \
 	web-install web-dev web-build web-fmt web-lint web-typecheck web-test web-check
 
@@ -25,6 +29,12 @@ fmt: api-fmt web-fmt ## Format all code
 test: api-test web-test ## Run all tests
 
 check: api-check web-check ## Run every check of the project (same as CI)
+
+##@ Data (data/)
+
+datasets: ## Build the downloadable files of every dataset into dist/ (VERSION=YYYY.MM.DD, default: today)
+	rm -rf dist
+	cd $(API_DIR) && go run ./cmd/datasets -version $(VERSION) -data ../data -out ../dist
 
 ##@ API (api/)
 

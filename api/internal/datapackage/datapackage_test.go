@@ -3,6 +3,7 @@ package datapackage
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -307,6 +308,25 @@ func TestValidate(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestRead(t *testing.T) {
+	dir := csvloadtest.WriteFiles(t, validFiles())
+	p := validPackage()
+
+	tables, err := p.Read(dir)
+	if err != nil {
+		t.Fatalf("Read() error = %v", err)
+	}
+	if len(tables) != 2 || tables[0].Resource != &p.Resources[0] || tables[1].Resource != &p.Resources[1] {
+		t.Fatalf("Read() tables do not follow the resources: %+v", tables)
+	}
+	if got := tables[0].Rows[1].Fields; !slices.Equal(got, []string{"VE02", "state", ""}) {
+		t.Errorf("states row 2 = %q", got)
+	}
+	if got := len(tables[1].Rows); got != 2 {
+		t.Errorf("events has %d rows, want 2", got)
 	}
 }
 

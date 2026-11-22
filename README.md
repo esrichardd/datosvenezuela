@@ -146,6 +146,21 @@ make web-check   # formato + lint + tipos + tests
 El mapa de Venezuela de la página de inicio se genera a partir de los límites oficiales
 de OCHA; cómo regenerarlo está en [`web/src/data/README.md`](web/src/data/README.md).
 
+### Datasets descargables (`data/`)
+
+Cada carpeta de `data/` es un dataset: sus CSV y un `datapackage.json`
+([Data Package v2](https://datapackage.org)) que describe sus tablas, columnas y claves.
+Los tests comprueban que el manifiesto y los CSV coincidan.
+
+```bash
+make datasets                      # genera los archivos de descarga en dist/ (versión: hoy)
+make datasets VERSION=2026.11.21   # con una versión concreta
+```
+
+Por cada dataset genera un `.zip` (CSV + `datapackage.json`), un `.json` y un `.sql` para
+PostgreSQL, más `index.json` (el manifiesto de la versión: tablas, filas, tamaño, SHA-256
+y URL de cada archivo) y `SHA256SUMS`. Antes de generar nada valida cada dataset.
+
 ## Contribuir
 
 El proyecto está en desarrollo. Si quieres aportar ideas o fuentes de datos
