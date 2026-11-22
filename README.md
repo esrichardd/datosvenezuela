@@ -161,6 +161,17 @@ Por cada dataset genera un `.zip` (CSV + `datapackage.json`), un `.json` y un `.
 PostgreSQL, más `index.json` (el manifiesto de la versión: tablas, filas, tamaño, SHA-256
 y URL de cada archivo) y `SHA256SUMS`. Antes de generar nada valida cada dataset.
 
+Para **publicar una versión**, sube un tag `data-YYYY.MM.DD`:
+
+```bash
+git tag data-2026.11.21
+git push origin data-2026.11.21
+```
+
+El workflow [`release.yml`](.github/workflows/release.yml) genera los archivos y crea un
+[GitHub Release](https://github.com/esrichardd/datosvenezuela/releases) con ellos. La última
+versión siempre se descarga desde `releases/latest/download/<archivo>`.
+
 ## Contribuir
 
 El proyecto está en desarrollo. Si quieres aportar ideas o fuentes de datos

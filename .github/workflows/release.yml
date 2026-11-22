@@ -1,0 +1,72 @@
+# Publishes a data release when a tag data-YYYY.MM.DD is pushed:
+#
+#   git tag data-2026.11.21
+#   git push origin data-2026.11.21
+#
+# It builds the dataset files with `make datasets` (which validates every
+# dataset first) and creates a GitHub Release with them attached. The files
+# are not committed: they live in the release.
+name: Release data
+
+on:
+  push:
+    tags: ["data-*"]
+
+# No permissions by default; the job asks only for what it needs.
+permissions: {}
+
+# Never cancel a release halfway; a second run for the same tag waits.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # to create the release and upload its files
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: api/go.sum
+
+      # The version is the tag without its prefix; the generator rejects it
+      # if it is not a valid YYYY.MM.DD date.
+      - name: Build dataset files
+        run: make datasets VERSION="${TAG#data-}"
+
+      - name: Write release notes
+        run: |
+          {
+            echo "Datos de referencia de Venezuela, versión ${TAG#data-}."
+            echo
+            echo "| Dataset | Tablas (filas) |"
+            echo "| --- | --- |"
+            jq -r '.datasets[] | "| \(.title) | \(.tables | map("\(.name) (\(.rows))") | join(", ")) |"' dist/index.json
+            echo
+            echo "Cada dataset viene en tres formatos: \`.zip\` (CSV + \`datapackage.json\`), \`.json\` y \`.sql\` (PostgreSQL)."
+            echo "\`index.json\` describe la versión completa. Para verificar las descargas: \`sha256sum -c SHA256SUMS\`."
+            echo
+            echo "Licencia: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Fuentes y criterios en el \`SOURCES.md\` de cada carpeta de [\`data/\`](https://github.com/${GITHUB_REPOSITORY}/tree/${TAG}/data)."
+          } > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md" >> "$GITHUB_STEP_SUMMARY"
+
+      # gh is preinstalled on GitHub's runners. The release is marked as the
+      # latest, so releases/latest/download/<file> always serves these files.
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$TAG" dist/*
+          --verify-tag
+          --latest
+          --title "Datos ${TAG#data-}"
+          --notes-file "$RUNNER_TEMP/notes.md"
