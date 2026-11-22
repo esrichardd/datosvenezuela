@@ -1,5 +1,7 @@
 # datosvenezuela
 
+[![CI](https://github.com/esrichardd/datosvenezuela/actions/workflows/ci.yml/badge.svg)](https://github.com/esrichardd/datosvenezuela/actions/workflows/ci.yml)
+
 API pública y gratuita con datos de Venezuela, pensada para desarrolladores.
 Centraliza información que hoy está dispersa, desactualizada o difícil de consumir.
 

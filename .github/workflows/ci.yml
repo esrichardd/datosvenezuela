@@ -1,0 +1,94 @@
+# Checks every push to main and every pull request, running only the parts
+# of the project that changed. Locally, `make check` runs the same checks.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Read-only by default; jobs ask for more only if they need it.
+permissions:
+  contents: read
+
+# A new push to the same branch cancels the run still in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read # to list the files of a pull request
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          # The API tests load the real CSV files, so data/ counts for the API.
+          filters: |
+            api:
+              - "api/**"
+              - "data/**"
+              - "openapi.yaml"
+              - "Makefile"
+              - ".github/workflows/ci.yml"
+            web:
+              - "web/**"
+              - "Makefile"
+              - ".github/workflows/ci.yml"
+
+  api:
+    name: API
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: api/go.sum
+      # Lint (and formatting) with the action, which caches its analysis.
+      - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: v2.15
+          working-directory: api
+      - run: make api-test
+      - run: make api-vuln
+
+  web:
+    name: Site
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: web/.nvmrc
+          package-manager-cache: false # pnpm caches its own store below
+      # Installs the pnpm version pinned in package.json (packageManager).
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: web/package.json
+          cache: true
+          cache_dependency_path: web/pnpm-lock.yaml
+      - run: make web-install
+      - run: make web-check
+      - run: make web-build
