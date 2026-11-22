@@ -3,6 +3,12 @@ import { defineConfig, envField, fontProviders } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  build: {
+    // Put the CSS inside each page instead of a separate file, so the browser
+    // can paint without waiting for another request. Worth it while the CSS
+    // stays small (a few KB compressed); revisit if it grows a lot.
+    inlineStylesheets: "always",
+  },
   // Typed environment variables, validated when the site is built.
   env: {
     schema: {
