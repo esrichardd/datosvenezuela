@@ -4,7 +4,9 @@ API pública y gratuita con datos de Venezuela, pensada para desarrolladores.
 Centraliza información que hoy está dispersa, desactualizada o difícil de consumir.
 
 > 🚧 **Estado:** en desarrollo. La API ya sirve todos los datos de la v1: geografía,
-> bancos, prefijos telefónicos y feriados (ver [`openapi.yaml`](openapi.yaml)).
+> bancos, prefijos telefónicos y feriados (ver [`openapi.yaml`](openapi.yaml)). El sitio
+> tiene lista la página de inicio, con una consola para probar la API; la documentación y
+> la página de descargas vienen después.
 
 ## ¿Qué datos ofrece?
 
@@ -33,7 +35,10 @@ Cada dataset documenta sus fuentes, criterios y correcciones en su propio `SOURC
 - **Datos abiertos y trazables.** Cada dato indica su fuente y fecha de actualización.
 - **Corregible por la comunidad.** Los datos de referencia viven en este repositorio;
   cualquier corrección se propone con un Pull Request.
-- **Uso justo.** Hay límite de peticiones por IP para mantener el servicio disponible para todos.
+- **Usable desde el navegador.** La API permite peticiones de cualquier origen (CORS), así
+  que una página web puede consumirla directamente.
+- **Uso justo.** Habrá un límite de peticiones por IP para mantener el servicio disponible
+  para todos (aún no implementado).
 
 ## Stack
 
@@ -62,20 +67,76 @@ datosvenezuela/
 
 ## Desarrollo local
 
-### Sitio (`web/`)
+### Requisitos
 
-Requisitos:
+| Herramienta                                     | Para qué                       | Versión                                    |
+| ----------------------------------------------- | ------------------------------ | ------------------------------------------ |
+| [Go](https://go.dev/dl/)                        | API                            | la de `api/go.mod`                         |
+| [golangci-lint](https://golangci-lint.run/)     | lint y formato del código Go   | v2                                         |
+| [Node.js](https://nodejs.org/)                  | sitio                          | 24 (`web/.nvmrc`; con nvm: `nvm use`)      |
+| pnpm, vía [Corepack](https://nodejs.org/api/corepack.html) | dependencias del sitio | la fijada en `web/package.json` (`packageManager`) |
+| [lefthook](https://lefthook.dev/)               | git hooks                      | cualquiera reciente                        |
 
-- **Node.js 24.** La versión está en `web/.nvmrc`; con nvm basta `nvm use` dentro de `web/`.
-- **pnpm 12.** La versión exacta está fijada en `web/package.json` (`packageManager`) y pnpm
-  la usa automáticamente. Con pnpm 10 el cambio automático falla: actualiza con
-  `npm install -g pnpm@latest`.
+Corepack viene con Node.js y usa automáticamente la versión de pnpm del proyecto, sin
+instalarlo global. Actívalo una vez, con la versión de Node del proyecto activa:
 
 ```bash
-make web-install   # instala las dependencias tal como están en el lockfile
-make web-dev       # servidor de desarrollo en http://localhost:4321
-make web-build     # genera el sitio estático en web/dist
+cd web && nvm use && corepack enable && cd ..
 ```
+
+### Primeros pasos
+
+```bash
+make setup         # instala los git hooks (formato, lint y tests antes de commit y push)
+make web-install   # instala las dependencias del sitio tal como están en el lockfile
+```
+
+`make` sin argumentos lista todos los comandos disponibles.
+
+### Levantar el proyecto
+
+La API y el sitio corren por separado, cada uno en su terminal:
+
+| Servicio | Comando        | URL                   |
+| -------- | -------------- | --------------------- |
+| API      | `make run`     | http://localhost:8080 |
+| Sitio    | `make web-dev` | http://localhost:4321 |
+
+La consola "Prueba la API" del sitio llama a la API desde el navegador, así que para
+usarla deben estar corriendo los dos.
+
+### API (`api/`)
+
+Lee los datos de `data/` al arrancar y los sirve desde memoria. Se configura con
+variables de entorno:
+
+| Variable   | Por defecto | Qué es                                     |
+| ---------- | ----------- | ------------------------------------------ |
+| `PORT`     | `8080`      | puerto HTTP                                |
+| `DATA_DIR` | `../data`   | carpeta con los CSV (relativa a `api/`)    |
+
+```bash
+make test    # tests con el detector de condiciones de carrera
+make check   # lint + tests + vulnerabilidades en dependencias (igual que CI)
+```
+
+### Sitio (`web/`)
+
+Se configura con variables de entorno. Todas tienen un valor por defecto que sirve para
+desarrollo local; para cambiarlas, copia `web/.env.example` a `web/.env`:
+
+| Variable         | Por defecto             | Qué es                                       |
+| ---------------- | ----------------------- | -------------------------------------------- |
+| `PUBLIC_API_URL` | `http://localhost:8080` | URL de la API a la que llama la consola      |
+
+```bash
+make web-build   # genera el sitio estático en web/dist
+make web-test    # tests unitarios (Vitest)
+make web-check   # formato + lint + tipos + tests (igual que CI)
+```
+
+El mapa de Venezuela de la página de inicio se genera a partir de los límites oficiales
+de OCHA; cómo regenerarlo está en [`web/src/data/README.md`](web/src/data/README.md).
 
 ## Contribuir
 
