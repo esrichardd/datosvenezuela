@@ -1,0 +1,64 @@
+{
+  "$schema": "https://datapackage.org/profiles/2.0/datapackage.json",
+  "name": "venezuela-banks",
+  "title": "Bancos de Venezuela",
+  "description": "Instituciones bancarias activas y el Banco Central de Venezuela, con su código de 4 dígitos. Fuentes y criterios en SOURCES.md.",
+  "homepage": "https://github.com/esrichardd/datosvenezuela",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0 International",
+      "path": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Listas públicas de códigos bancarios cruzadas y verificadas con informes del sector; detalle en SOURCES.md."
+    }
+  ],
+  "resources": [
+    {
+      "name": "banks",
+      "type": "table",
+      "path": "banks.csv",
+      "title": "Bancos",
+      "description": "Código, nombre comercial y razón social de cada banco.",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": {
+        "fields": [
+          {
+            "name": "code",
+            "type": "string",
+            "description": "Código de 4 dígitos asignado por el BCV; son los primeros 4 dígitos de una cuenta de 20. El cero inicial es parte del código.",
+            "constraints": {
+              "required": true,
+              "unique": true,
+              "pattern": "^[0-9]{4}$"
+            }
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Nombre comercial.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "legal_name",
+            "type": "string",
+            "description": "Razón social, tal como la publica la fuente.",
+            "constraints": {
+              "required": true
+            }
+          }
+        ],
+        "primaryKey": [
+          "code"
+        ]
+      }
+    }
+  ]
+}

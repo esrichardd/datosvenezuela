@@ -1,0 +1,160 @@
+{
+  "$schema": "https://datapackage.org/profiles/2.0/datapackage.json",
+  "name": "venezuela-holidays",
+  "title": "Feriados de Venezuela",
+  "description": "Reglas de los feriados nacionales (laborales), para calcular cualquier año, y el calendario bancario de SUDEBAN por año. Fuentes y criterios en SOURCES.md.",
+  "homepage": "https://github.com/esrichardd/datosvenezuela",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0 International",
+      "path": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras (LOTTT), art. 184."
+    },
+    {
+      "title": "Ley de Fiestas Nacionales, Gaceta Oficial N° 29.541.",
+      "path": "https://venezuela.justia.com/federales/leyes/ley-de-fiestas-nacionales/gdoc"
+    },
+    {
+      "title": "Calendario bancario publicado por SUDEBAN."
+    }
+  ],
+  "resources": [
+    {
+      "name": "national_fixed",
+      "type": "table",
+      "path": "national_fixed.csv",
+      "title": "Feriados nacionales de fecha fija",
+      "description": "Feriados que caen el mismo día cada año.",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": {
+        "fields": [
+          {
+            "name": "month",
+            "type": "integer",
+            "description": "Mes, de 1 a 12.",
+            "constraints": {
+              "required": true,
+              "minimum": 1,
+              "maximum": 12
+            }
+          },
+          {
+            "name": "day",
+            "type": "integer",
+            "description": "Día del mes.",
+            "constraints": {
+              "required": true,
+              "minimum": 1,
+              "maximum": 31
+            }
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Nombre del feriado.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "legal_basis",
+            "type": "string",
+            "description": "Norma que lo establece.",
+            "constraints": {
+              "required": true
+            }
+          }
+        ],
+        "primaryKey": [
+          "month",
+          "day"
+        ]
+      }
+    },
+    {
+      "name": "national_easter",
+      "type": "table",
+      "path": "national_easter.csv",
+      "title": "Feriados nacionales según la Pascua",
+      "description": "Feriados que se mueven con la Pascua: su fecha es el Domingo de Pascua más days_from_easter días.",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": {
+        "fields": [
+          {
+            "name": "days_from_easter",
+            "type": "integer",
+            "description": "Días de diferencia con el Domingo de Pascua (Viernes Santo = -2).",
+            "constraints": {
+              "required": true,
+              "unique": true,
+              "minimum": -80,
+              "maximum": 250
+            }
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Nombre del feriado.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "legal_basis",
+            "type": "string",
+            "description": "Norma que lo establece.",
+            "constraints": {
+              "required": true
+            }
+          }
+        ],
+        "primaryKey": [
+          "days_from_easter"
+        ]
+      }
+    },
+    {
+      "name": "bank_2026",
+      "type": "table",
+      "path": "bank_2026.csv",
+      "title": "Feriados bancarios 2026",
+      "description": "Calendario bancario completo de 2026 publicado por SUDEBAN, con las fechas efectivas.",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": {
+        "fields": [
+          {
+            "name": "date",
+            "type": "date",
+            "description": "Fecha del feriado.",
+            "constraints": {
+              "required": true,
+              "unique": true
+            }
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Nombre del feriado.",
+            "constraints": {
+              "required": true
+            }
+          }
+        ],
+        "primaryKey": [
+          "date"
+        ]
+      }
+    }
+  ]
+}

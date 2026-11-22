@@ -1,0 +1,176 @@
+{
+  "$schema": "https://datapackage.org/profiles/2.0/datapackage.json",
+  "name": "venezuela-phone-prefixes",
+  "title": "Prefijos telefónicos de Venezuela",
+  "description": "Códigos de área fijos con los estados que cubren, prefijos móviles por operadora y números no geográficos. Un código no se repite entre tablas. Fuentes y criterios en SOURCES.md.",
+  "homepage": "https://github.com/esrichardd/datosvenezuela",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0 International",
+      "path": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Plan nacional de numeración de Venezuela, comunicado por CONATEL a la UIT.",
+      "path": "https://www.itu.int/dms_pub/itu-t/oth/02/02/T02020000E30001PDFF.pdf"
+    }
+  ],
+  "resources": [
+    {
+      "name": "landline_prefixes",
+      "type": "table",
+      "path": "landline_prefixes.csv",
+      "title": "Prefijos fijos",
+      "description": "Códigos de área de telefonía fija.",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": {
+        "fields": [
+          {
+            "name": "code",
+            "type": "string",
+            "description": "Código nacional de destino sin el 0 inicial (212, no 0212), como en E.164.",
+            "constraints": {
+              "required": true,
+              "unique": true,
+              "pattern": "^[0-9]{3}$"
+            }
+          }
+        ],
+        "primaryKey": [
+          "code"
+        ]
+      }
+    },
+    {
+      "name": "landline_prefix_states",
+      "type": "table",
+      "path": "landline_prefix_states.csv",
+      "title": "Cobertura de los prefijos fijos",
+      "description": "Qué estados cubre cada código de área. Un código puede cubrir varios estados y un estado tener varios códigos.",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": {
+        "fields": [
+          {
+            "name": "code",
+            "type": "string",
+            "description": "Código de área (ver landline_prefixes).",
+            "constraints": {
+              "required": true,
+              "pattern": "^[0-9]{3}$"
+            }
+          },
+          {
+            "name": "state_code",
+            "type": "string",
+            "description": "P-code del estado, del dataset venezuela-geography (states.code).",
+            "constraints": {
+              "required": true,
+              "pattern": "^VE[0-9]{2}$"
+            }
+          },
+          {
+            "name": "state_name",
+            "type": "string",
+            "description": "Nombre del estado, solo como ayuda de lectura; debe coincidir con states.name.",
+            "constraints": {
+              "required": true
+            }
+          }
+        ],
+        "primaryKey": [
+          "code",
+          "state_code"
+        ],
+        "foreignKeys": [
+          {
+            "fields": [
+              "code"
+            ],
+            "reference": {
+              "resource": "landline_prefixes",
+              "fields": [
+                "code"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "mobile_prefixes",
+      "type": "table",
+      "path": "mobile_prefixes.csv",
+      "title": "Prefijos móviles",
+      "description": "Prefijos de telefonía móvil y su operadora.",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": {
+        "fields": [
+          {
+            "name": "code",
+            "type": "string",
+            "description": "Código nacional de destino sin el 0 inicial (212, no 0212), como en E.164.",
+            "constraints": {
+              "required": true,
+              "unique": true,
+              "pattern": "^[0-9]{3}$"
+            }
+          },
+          {
+            "name": "operator",
+            "type": "string",
+            "description": "Operadora que usa el prefijo.",
+            "constraints": {
+              "required": true
+            }
+          }
+        ],
+        "primaryKey": [
+          "code"
+        ]
+      }
+    },
+    {
+      "name": "non_geographic_prefixes",
+      "type": "table",
+      "path": "non_geographic_prefixes.csv",
+      "title": "Números no geográficos",
+      "description": "Prefijos de servicios sin ubicación (0800, 0500…).",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": {
+        "fields": [
+          {
+            "name": "code",
+            "type": "string",
+            "description": "Código nacional de destino sin el 0 inicial (212, no 0212), como en E.164.",
+            "constraints": {
+              "required": true,
+              "unique": true,
+              "pattern": "^[0-9]{3}$"
+            }
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Servicio del prefijo.",
+            "constraints": {
+              "required": true
+            }
+          }
+        ],
+        "primaryKey": [
+          "code"
+        ]
+      }
+    }
+  ]
+}
