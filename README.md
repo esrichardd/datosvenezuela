@@ -87,11 +87,17 @@ cd web && nvm use && corepack enable && cd ..
 ### Primeros pasos
 
 ```bash
-make setup         # instala los git hooks (formato, lint y tests antes de commit y push)
-make web-install   # instala las dependencias del sitio tal como están en el lockfile
+make setup   # instala los git hooks y las dependencias del sitio
 ```
 
-`make` sin argumentos lista todos los comandos disponibles.
+`make` sin argumentos lista todos los comandos, agrupados por componente: `api-*` para
+la API y `web-*` para el sitio. Los comandos sin prefijo actúan sobre todo el proyecto:
+
+```bash
+make fmt     # formatea todo el código
+make test    # corre todos los tests
+make check   # todas las revisiones del proyecto (igual que CI); córrelo antes de subir cambios
+```
 
 ### Levantar el proyecto
 
@@ -99,7 +105,7 @@ La API y el sitio corren por separado, cada uno en su terminal:
 
 | Servicio | Comando        | URL                   |
 | -------- | -------------- | --------------------- |
-| API      | `make run`     | http://localhost:8080 |
+| API      | `make api-run` | http://localhost:8080 |
 | Sitio    | `make web-dev` | http://localhost:4321 |
 
 La consola "Prueba la API" del sitio llama a la API desde el navegador, así que para
@@ -116,8 +122,8 @@ variables de entorno:
 | `DATA_DIR` | `../data`   | carpeta con los CSV (relativa a `api/`)    |
 
 ```bash
-make test    # tests con el detector de condiciones de carrera
-make check   # lint + tests + vulnerabilidades en dependencias (igual que CI)
+make api-test    # tests con el detector de condiciones de carrera
+make api-check   # lint + tests + vulnerabilidades en dependencias
 ```
 
 ### Sitio (`web/`)
@@ -132,7 +138,7 @@ desarrollo local; para cambiarlas, copia `web/.env.example` a `web/.env`:
 ```bash
 make web-build   # genera el sitio estático en web/dist
 make web-test    # tests unitarios (Vitest)
-make web-check   # formato + lint + tipos + tests (igual que CI)
+make web-check   # formato + lint + tipos + tests
 ```
 
 El mapa de Venezuela de la página de inicio se genera a partir de los límites oficiales
