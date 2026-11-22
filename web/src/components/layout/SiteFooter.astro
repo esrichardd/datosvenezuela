@@ -11,7 +11,13 @@ import Container from "../ui/Container.astro";
       Hecho por <strong>{site.author.name}</strong>
       <span class="site-footer__links">
         {site.author.links.map((link) => (
-          <Button href={link.href} variant="outline" size="sm" rel="me">
+          <Button
+            href={link.href}
+            variant="outline"
+            size="sm"
+            rel="me"
+            aria-label={`${link.label} de ${site.author.name}`}
+          >
             {link.label}
           </Button>
         ))}
